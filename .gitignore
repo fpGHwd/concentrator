@@ -1,0 +1,6 @@
+.vscode/
+Debug/
+Release/
+.settings/
+.project
+.cproject
