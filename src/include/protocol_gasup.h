@@ -70,10 +70,11 @@ typedef struct {
 	UINT16 crc16; // [HEX]
 } PTL_GASUP_MSG; /// 上行报文结构
 
+/*
 enum {
 	PTL_GASUP_CODE_SUCCESS = 0,
-// TODO
 };
+*/
 
 int plt_gasup_pack_special(UINT16 fn, UINT8 *buf, UINT32 max_len, UINT8 *data,
 		int len, UINT32 packetID);

@@ -58,10 +58,8 @@ void *th_hmisys(void * arg) {
 			main_menu_init(&im_main);
 		}
 		mode = lcd_mode_get();
-		printf("mode = %d\n", mode);
 
 		if (mode == LCD_MODE_SCROLL) {
-			printf("here\n");
 			process_scroll_show();
 			lcd_mode_set(LCD_MODE_MENU);
 		} else if (mode == LCD_MODE_TEST) {

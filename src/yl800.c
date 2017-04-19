@@ -14,7 +14,7 @@
 #include "common.h"
 #include "protocol_cjt188.h"
 
-static YL800_CONFIG yl800_config = { // TODO
+static YL800_CONFIG yl800_config = { // TODO: add argument to yl800
 		.speed = YL800_CFG_SPEED_1200, .parity = YL800_CFG_PARITY_NONE,
 				.freq = 0x6C4012, // 433M
 				.factor = YL800_CFG_FACTOR_128, .mode = YL800_CFG_MODE_NORMAL,
@@ -257,6 +257,5 @@ int yl800_read_packet(UINT8 *buf, UINT32 max_len, int timeout,
 }
 
 void yl800_setup(void) {
-	///TODO
-	// set the configuration of the yl800 module
+	///TODO:set the configuration of the yl800 module
 }

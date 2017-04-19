@@ -234,6 +234,7 @@ BYTE process_items(ITEMS_MENU *items, const char *info, int align_center) {
 			return KEY_ENTER;
 		case KEY_NONE:
 			lcd_mode_set(0);
+			break;
 		case KEY_ESC:
 			if (info == c_info_main_menu_str) /// add wd
 				return KEY_ESC;
@@ -742,7 +743,7 @@ BYTE process_param_set(PARAM_SET *param, const char *info)  /// set
 	return KEY_ESC;
 }
 
-void lcd_update_comm_info(int flag) /// update_comm_info
+void lcd_update_comm_info(int flag)
 {
-	// TODO
+	// TODO /// update_comm_info
 }

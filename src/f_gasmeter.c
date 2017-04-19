@@ -40,11 +40,10 @@ static void fgasmeter_init_gasmeter(GASMETER_DB *pdb) /// initiate gasmeter db
 	pdb->collector_idx = -1;
 }
 
-#define TEST
 void test_add_a_meter(void);
 void fgasmeter_open(void) /// open and initiate gasmeter_info
 {
-	int i, size;
+	int i, size,m;
 	const char *name = F_GASMETER_NAME; ///
 	GASMETER_INFO *pinfo = &gasmeter_info;
 
@@ -66,13 +65,14 @@ void fgasmeter_open(void) /// open and initiate gasmeter_info
 	if (pinfo->fd < 0)
 		return;
 	safe_read(pinfo->fd, &pinfo->db, size); /// &pinfo->db
-#ifdef TEST
-	test_add_a_meter();
-	return;
-#else
-	return;
-#endif
 
+	m = valid_meter_sum();
+	if(m == 0){
+		fprintf(stdout, "no meter in the database, try to add a virtual meter and test read meter\n");
+		test_add_a_meter();
+	}else{
+		fprintf(stdout, "meter number in database:%d\n", m);
+	}
 }
 
 static void fgasmeter_flush(void) {
@@ -134,12 +134,14 @@ int fgasmeter_getidx_by_collector(const BYTE *address) /// find the address inde
 	return index;
 }
 
-int fgasmeter_getidx_by_gasmeter(const BYTE *address) /// 可以查询是否有gasmeter
+int fgasmeter_getidx_by_gasmeter(const void *address) /// 可以查询是否有gasmeter
 {
 	//PRINTB("fgasmeter_getidx_by_gasmeter", address, 7);
 	int i, index = -1;
 	GASMETER_INFO *pinfo = &gasmeter_info;
 	GASMETER_DB *pdb;
+
+	address = (const BYTE*)address;
 
 	sem_wait(&pinfo->sem_db);
 	for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
@@ -488,8 +490,8 @@ BOOL fgasmeter_is_empty(void) {
 int get_valid_meter_amount_in_database(void) /// added by wd
 {
 	int idx, ret;
-	GASMETER_DB *pdb;
-	GASMETER_INFO *pinfo = &gasmeter_info;
+	//GASMETER_DB *pdb;
+	//GASMETER_INFO *pinfo = &gasmeter_info;
 	BYTE address[7], collector[5];
 
 	ret = 0;
@@ -505,10 +507,12 @@ int get_valid_meter_amount_in_database(void) /// added by wd
 	return ret;
 }
 
+int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
+		BYTE *buf, int max_len);
 void fgasmeter_assembly_reading(void) {
-	int valid_meters, idx;
-	GASMETER_DB *pdb;
-	GASMETER_INFO *pinfo = &gasmeter_info;
+	int /*valid_meters,*/ idx;
+	//GASMETER_DB *pdb;
+	//GASMETER_INFO *pinfo = &gasmeter_info;
 	char buf[20 + 1];
 
 	int resp_len;
@@ -546,8 +550,8 @@ int valid_meter_sum(void) { //// valid meter sum, if use fgasmeter_getgasmeter(i
 }
 
 void test_add_a_meter(void) {
-	BYTE address[7] = { 0x23, 0x05, 0x17, 0x74, 0x00, 0x00, 0x05 };
-	BYTE collector[7] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55 };
+	BYTE address[7] = { 0x23, 0x05, 0x17, 0x04, 0x00, 0x00, 0x05 }; /// 23051704000005
+	BYTE collector[7] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55 }; /// 00000000000055
 
 	fgasmeter_addgasmeter(address, collector);
 	printf("add a meter successfully\n");

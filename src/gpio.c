@@ -78,11 +78,6 @@ static inline void gpio_unlock(void) {
 	sem_post(&sem_gpio);
 }
 
-
-
-
-
-
 static void gpio_ioctl(int cmd, unsigned int *val) {
 	if (gpio_fd >= 0) {
 		gpio_lock();
@@ -105,14 +100,14 @@ static void gpio_ioctl(int cmd, unsigned int *val) {
  }
  */
 
-void device_lcd_reset(void) /// turn off light
+void device_lcd_reset(void)
 {
-	// TODO
+	// TODO /// turn off light
 }
 
-void device_lcd_light(int on) /// turn on light
+void device_lcd_light(int on)
 {
-	// TODO
+	// TODO /// turn on light
 }
 
 #define MODEM_POWER_ON	0x33 // 0x33 '3'
@@ -120,9 +115,10 @@ void device_lcd_light(int on) /// turn on light
 #define MODEM_GPRS_ON   0x30 // 0x30 '0'
 #define MODEM_GPRS_OFF  0X31 // 0X31 '1'
 
-void modem_hard_reset(void) /// this need TODO
+void modem_hard_reset(void)
 {
 #if 1
+	// TODO: reformat
 	int fd;
 	char buf[2];
 	int ret;
@@ -214,7 +210,7 @@ void modem_soft_reset(void) {
 #endif
 }
 
-void modem_gprs_shutdown() {
+void modem_gprs_shutdown(void) {
 
 	int fd;
 	char buf[2];

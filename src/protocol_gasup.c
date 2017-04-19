@@ -338,7 +338,7 @@ static INT32 find_idx(INT32 in_idx, INT32 out_idx) {
 
 static void msg_pack(struct msg *msg_ptr, INT32 max_out_len, INT32 *datalen,
 		INT32 data_cnt) {
-	INT8 *ptr = msg_ptr->buf;
+	INT8 *ptr = (INT8 *)msg_ptr->buf;
 	int idx;
 	PTL_GASUP_MSG *ptl_msg_in, *ptl_msg_out;
 
@@ -514,7 +514,7 @@ void plt_gasup_proc(INT32 in_idx, INT32 out_idx, INT32 max_out_len, void *priv) 
 	}
 	///PRINTF("CHECKMESSAGE OK\n");
 	msg_ptr->msg_out_cnt = 0;
-	data_cnt = plt_gasup_fn(&msg_ptr->msg_in, msg_ptr->buf, MSG_BUF_LEN,
+	data_cnt = (INT32)plt_gasup_fn(&msg_ptr->msg_in, msg_ptr->buf, MSG_BUF_LEN,
 			data_len, ARRAY_SIZE(data_len));
 	msg_pack(msg_ptr, max_out_len, data_len, data_cnt);
 

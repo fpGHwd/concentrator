@@ -208,21 +208,28 @@ static e_remote_module_status check_network_status(int fd,
 	return e_ret;
 }
 
-static REMOTE_MODULE_ATTR module_attr[] = { { /// CDMA NEO CM180
-		.model = e_cdma_model_neo_cm180, .describe = "NEO CM180", .init =
-				cm180_init, .remote_fd = -1, .socket_type =
-				MODEM_CONNECT_SOCKET_TYPE_UNKNOWN, .presource =
-				&g_cm180_resource, .pcl_in_module = { .ppp_connect =
-				cm180_ppp_connect, .tcp_connect = cm180_tcp_connect,
-				.udp_connect = cm180_udp_connect, .send = cm180_send, .receive =
-						cm180_receive, .shutdown = cm180_shutdown, .getip =
-						cm180_getip, }, /// protocol stack of module
+static REMOTE_MODULE_ATTR module_attr[] = {
+		/// CDMA NEO CM180
+		{ .model = e_cdma_model_neo_cm180, .describe = "NEO CM180",
+			.init = cm180_init,
+			.remote_fd = -1,
+			.socket_type =MODEM_CONNECT_SOCKET_TYPE_UNKNOWN,
+			.presource =&g_cm180_resource,
+			.pcl_in_module = {
+					.ppp_connect = cm180_ppp_connect,
+					.tcp_connect = cm180_tcp_connect,
+					.udp_connect = cm180_udp_connect,
+					.send = cm180_send,
+					.receive = cm180_receive,
+					.shutdown = cm180_shutdown,
+					.getip = cm180_getip, }, /// protocol stack of module
 				.pcl_in_os = { .ppp_connect = NULL, .tcp_connect = NULL,
 						.udp_connect = NULL, .send = NULL, .receive = NULL,
 						.shutdown = NULL, }, /// protocol stack operating system
 				.net_type = MODEM_NET_TYPE_CDMA, .signal_intensity =
 						MODEM_INVALID_SIGNAL_INTENSITY, .protocol_stack_type =
-						MODEM_PCL_STACK_IN_MODULE, }, { /// GPRS /// not use this
+						MODEM_PCL_STACK_IN_MODULE, },
+		{ /// GPRS /// not use this
 		.model = e_gprs_model_sim900, .describe = "SIM900A", .init =
 				sim900a_init, .remote_fd = -1, .socket_type =
 				MODEM_CONNECT_SOCKET_TYPE_UNKNOWN, .presource = NULL,
@@ -237,21 +244,26 @@ static REMOTE_MODULE_ATTR module_attr[] = { { /// CDMA NEO CM180
 								NULL, .send = NULL, .receive = NULL, .shutdown =
 								NULL, }, .net_type = MODEM_NET_TYPE_GPRS,
 				.signal_intensity = MODEM_INVALID_SIGNAL_INTENSITY,
-				.protocol_stack_type = MODEM_PCL_STACK_IN_MODULE, }, { .model =
-				e_gprs_model_neo_m590e_r2,
+				.protocol_stack_type = MODEM_PCL_STACK_IN_MODULE, },
+		{ /// m590e r2
+				.model = e_gprs_model_neo_m590e_r2,
 				.describe = "NEO M590E R2", /// GSM
-				.init = cm180_init, .remote_fd = -1, .socket_type =
-						MODEM_CONNECT_SOCKET_TYPE_UNKNOWN, .presource =
-						&g_cm180_resource, .pcl_in_module = { .ppp_connect =
+				.init = cm180_init,
+				.remote_fd = -1,
+				.socket_type = MODEM_CONNECT_SOCKET_TYPE_UNKNOWN,
+				.presource = &g_cm180_resource,
+				.pcl_in_module = { .ppp_connect =
 						cm180_ppp_connect, .tcp_connect = cm180_tcp_connect,
 						.udp_connect = cm180_udp_connect, .send = cm180_send,
 						.receive = cm180_receive, /// receive get value
 						.shutdown = cm180_shutdown, .getip = cm180_getip, },
 				.pcl_in_os = { .ppp_connect = NULL, .tcp_connect = NULL,
 						.udp_connect = NULL, .send = NULL, .receive = NULL,
-						.shutdown = NULL, }, .net_type = MODEM_NET_TYPE_CDMA,
+						.shutdown = NULL, },
+				.net_type = MODEM_NET_TYPE_CDMA,
 				.signal_intensity = MODEM_INVALID_SIGNAL_INTENSITY,
-				.protocol_stack_type = MODEM_PCL_STACK_IN_MODULE, }, };
+				.protocol_stack_type = MODEM_PCL_STACK_IN_MODULE, },
+};
 
 static REMOTE_MODULE_ATTR *get_modem_interface(e_remote_module_model model) /// standard pattern
 {

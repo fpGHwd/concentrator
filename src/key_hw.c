@@ -69,6 +69,7 @@ int KeyRead(struct key_msg_t *msg) {
 		}
 		return 0;
 	}
+	return 0;
 }
 
 void testkey(void) {

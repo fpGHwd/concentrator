@@ -332,7 +332,7 @@ static void lcd_init_cmd_0(void) {
 static void lcd_init_cmd_1(void) {
 	unsigned char buf[128], *ptr;
 
-	/*
+	 /*
 	 ptr = buf;
 	 printf("start %s\n", __func__);
 	 *ptr ++ = 0x00; *ptr ++ = 0x05;
@@ -351,6 +351,7 @@ static void lcd_init_cmd_1(void) {
 	ptr = buf;
 	*ptr++ = 0x00;
 	*ptr++ = 0xE2; // System Set
+	*ptr++ = 0x03; // add by nayowang
 	lcd_cmd(buf, ptr - buf);
 
 	msleep(200);
@@ -384,6 +385,7 @@ static void lcd_init_cmd_1(void) {
 	*ptr++ = 0x88; // Set RAM address control
 	*ptr++ = 0x00;
 	*ptr++ = 0xAD; // Display enable
+	*ptr++ = 0x03; // add by nayowang
 	lcd_cmd(buf, ptr - buf);
 
 }

@@ -212,7 +212,7 @@ int fday_create_dayblock(void) {
 	return dayidx;
 }
 
-static void write_variable_into_file(void);
+//static void write_variable_into_file(void);
 BOOL fday_set_data(int dayidx, int mtidx, WORD di, const void *di_data) {
 	FDAY_DATA *p;
 	FDAY_INFO *pinfo = &fday_info;

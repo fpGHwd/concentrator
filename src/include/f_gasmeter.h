@@ -43,7 +43,7 @@ typedef struct {
 void fgasmeter_open(void);
 void fgasmeter_close(void);
 int fgasmeter_getidx_by_collector(const BYTE *address);
-int fgasmeter_getidx_by_gasmeter(const BYTE *address);
+int fgasmeter_getidx_by_gasmeter(const void *address);
 BOOL fgasmeter_getcollector(int index, BYTE *address);
 BOOL fgasmeter_getgasmeter(int index, BYTE *address, BYTE *collector);
 int fgasmeter_addcollector(const BYTE *address);

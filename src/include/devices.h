@@ -18,5 +18,6 @@ extern const char *gpio_device;
 extern const char *lcd_device;
 extern const char *watch_dog_device;
 extern const char *modem_reset_device_path;
+extern const char *clock_device;
 
 #endif /* DEVICES_H_ */

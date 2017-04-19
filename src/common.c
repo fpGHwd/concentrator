@@ -50,7 +50,7 @@ WORD ctos(const BYTE *buf) /// char to short
 
 void stoc(BYTE *buf, WORD val) /// short(WORD, unsigend short, 0~65525) to char
 {
-	buf[0] = val; ///BYTE val[2] = 0x901F, val = 
+	buf[0] = val; ///BYTE val[2] = 0x901F,
 	buf[1] = val >> 8;
 }
 
@@ -129,9 +129,9 @@ int bcd_ctol(const BYTE *buf, int *val) // bcd_ctol(bcd char to long, 4B) 4,200,
 	return 1;
 }
 
-void bcd_stoc(BYTE *buf, WORD val) /// short to char(bcd) 
+void bcd_stoc(void *buf, WORD val) /// short to char(bcd)
 {
-	BYTE ch, high, low, *ptr = buf;
+	BYTE ch, high, low, *ptr = (BYTE*)buf;
 	int i;
 
 	for (i = 0; i < 2; i++) { // i = 0 // i = 1 (unsigned shrot val = 2305; or WORD val = 2305)
@@ -143,9 +143,9 @@ void bcd_stoc(BYTE *buf, WORD val) /// short to char(bcd)
 	}
 }
 
-void bcd_ltoc(BYTE *buf, int val) /// long(4B) to char
+void bcd_ltoc(void *buf, int val) /// long(4B) to char
 {
-	BYTE ch, high, low, *ptr = buf; /// int val = 23051606
+	BYTE ch, high, low, *ptr = (BYTE*)buf; /// int val = 23051606
 	int i;
 
 	for (i = 0; i < 4; i++) { /// i = 0 // ..
@@ -197,9 +197,9 @@ int bcd_be_ctol(const BYTE *buf, int *val) //// char to long(bcd)
 }
 
 ///
-void bcd_be_stoc(INT8 *buf, WORD val) /// val = 2004 /// bcd, short to char
+void bcd_be_stoc(void *buf, WORD val) /// val = 2004 /// bcd, short to char
 {
-	BYTE ch[2], high, low, *ptr = buf; /// val = 2305
+	BYTE ch[2], high, low, *ptr = (BYTE*)buf; /// val = 2305
 	int i;
 
 	for (i = 0; i < 2; i++) {
@@ -633,12 +633,12 @@ int check_rtc(void) {
 	int fd, ret = 0;
 	struct tm tm;
 
-	if ((fd = open("/dev/rtc", O_RDONLY)) >= 0) { /// clock的驱动 TODO
-		if (ioctl(fd, RTC_RD_TIME, &tm) >= 0)
+	if ((fd = open("/dev/rtc0", O_RDONLY)) >= 0) {
+		if (ioctl(fd, RTC_RD_TIME, &tm) >= 0) // read time
 			ret = 1;
 		close(fd);
 	} else {
-		perror("Error in open clock\n");
+		fprintf(stdout,"Error in open clock(fd:%d)\n",fd); // TODO: often failed
 	}
 	return ret;
 }

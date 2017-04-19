@@ -63,12 +63,12 @@ DWORD bcds_to_bin(const BYTE *buf, int len);
 void bin_to_bcds(BYTE *buf, int len, DWORD val);
 int bcd_ctos(const BYTE *buf, WORD *val); // Little endian
 int bcd_ctol(const BYTE *buf, int *val);
-void bcd_stoc(BYTE *buf, WORD val);
-void bcd_ltoc(BYTE *buf, int val);
+void bcd_stoc(void *buf, WORD val);
+void bcd_ltoc(void *buf, int val);
 
 int bcd_be_ctos(const BYTE *buf, WORD *val); // Big endian
 int bcd_be_ctol(const BYTE *buf, int *val);
-void bcd_be_stoc(INT8 *buf, WORD val);
+void bcd_be_stoc(void *buf, WORD val);
 ///void bcd_be_stoc(BYTE *buf, WORD val);
 void bcd_be_ltoc(BYTE *buf, int val);
 

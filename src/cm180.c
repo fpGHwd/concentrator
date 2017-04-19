@@ -9,29 +9,27 @@
 #include "cm180.h"
 #include "f_param.h"
 #include "serial.h"
-//-----------------------------------------------------------------------------
+
+
 #define NEOWAY_IP_MAXSIZ 64
-
 #define NEOWAY_READ_TIMEOUT (10 * 1000)
-
 #define NEOWAY_WRITE_TIMEOUT (2 * 1000)
-//-----------------------------------------------------------------------------
 #define IsDigit(c)   ( ((c) >= '0') && ((c) <= '9') )
-//------------------------------------------------------------------------------
+
+
 enum e_neoway_module_type {
 	e_module_type_m590 = 0, e_module_type_cm180, e_module_type_unknown
 };
 
 void *g_cm180_resource = NULL;
-
 static UINT8 g_ucNeowayModuleType = e_module_type_m590;
-
 static char ucNeoIpStr[NEOWAY_IP_MAXSIZ] = { 0 };
-//------------------------------------------------------------------------------
+
+
 int NeowayGprsSetApn(int fd, UINT8 PDN, const char *Type, const char *APN) {
 
 	ApnArg_t ARG = { 0 };
-	//----------------------------------------------------------------------------
+
 	ARG.PDN = PDN;
 
 	memcpy(ARG.APN, APN, strlen(APN));
@@ -186,47 +184,38 @@ int cm180_ppp_connect(const char *device_name, const char *lock_name,
 
 		return (-1);
 	}
-
 	if (AT_CmdSend(fd, AT_C_INTERNAL_PROTOCOL_STACK_ENABLE, NULL) < 0) {
-
 		PRINTF("%s : Neoway GPRS/CDMA Internal Protocol Stack Enable Abort!\n",
 				__FUNCTION__);
-
 		close_serial(fd); /// failed and close fd
-
 		return (-1);
 	}
 
 	CHECK_CONNECT_IP:
-
 	memset(ucNeoIpStr, 0, NEOWAY_IP_MAXSIZ);
-
 	if (AT_CmdSend(fd, AT_C_GET_PPP_ST, NULL) < 0) {
-
 		PRINTF("%s : Neoway GPRS/CDMA Get PPP State Abort!\n", __FUNCTION__);
-
 		////close_modem_device(lock_name);
 		close_serial(fd);
 		return (-1);
 	}
-
 	{
 		//$MYNETACT: 0,1,"113.115.253.42"
 
 		Rsp = AT_GetRcvBuffer();
 
-		Start = strstr(Rsp, "\"");
+		Start = (UINT8*)strstr((char*)Rsp, "\"");
 
 		if (Start != NULL) {
 
 			Start++;
 
-			End = strstr(Start, "\"");
+			End = (UINT8*)strstr((char*)Start, "\"");
 
 			memcpy(ucNeoIpStr, Start, (End - Start)); /// getip AT-COMMAND
 		}
 
-		if (strstr(Rsp, "0.0.0.0") != NULL) {
+		if (strstr((char *)Rsp, "0.0.0.0") != NULL) {
 
 			if (bActCmdSend == FALSE) {
 
@@ -312,7 +301,7 @@ void GetStrPort(char *String, UINT16 Port) {
 }
 
 int cm180_tcp_connect(int fd, const char *IP, int Port, int timeout) {
-	int Ret = 0;
+	//int Ret = 0;
 
 	TcpSetupArg_t ARG = { 0 };
 	//------------------------------------------------------------------------------
@@ -336,9 +325,22 @@ int cm180_tcp_connect(int fd, const char *IP, int Port, int timeout) {
 
 	if (AT_CmdSend(fd, AT_C_TCP_CONNECT, (void *) &ARG.Link) < 0) {
 
-		PRINTF("%s : Neoway GPRS/CDMA Tcp Connect Err!\n", __FUNCTION__);
-
-		return (-1);
+		if(AT_CmdSend(fd, AT_C_TCP_CLOSE, (void *) &ARG.Link)<0){ // close connection OK
+			PRINTF("%s : Neoway GPRS/CDMA Tcp Connect Err!\n", __FUNCTION__);
+			return (-1);
+		}else{
+			PRINTF("%s : Neoway GPRS/CDMA Close TCP CONNECTION!\n", __FUNCTION__);
+			if(AT_CmdSend(fd, AT_C_TCP_CONNECT, (void *) &ARG.Link) < 0){
+				PRINTF("%s : Neoway GPRS/CDMA Tcp Connect Err!\n", __FUNCTION__);
+				return -1;
+			}else{
+				return fd;
+				//PRINTF("%s : Neoway GPRS/CDMA Tcp Connect OK!\n", __FUNCTION__); // no need to show log
+			}
+		}
+	}else{
+		return fd;
+		//PRINTF("%s : Neoway GPRS/CDMA Tcp Connect OK!\n", __FUNCTION__); // no need to show log
 	}
 
 	//------------------------------------------------------------------------------
@@ -351,9 +353,9 @@ int cm180_udp_connect(int fd, const char *addr, int port) {
 	return (0);
 }
 
-static char *time_server_string = "time.windows.com"; /// time.nist.gov
+///static char *time_server_string = "time.windows.com"; /// time.nist.gov
 bool cm180_update_time_via_network(int fd, char *domain_name);
-static bool time_update = false;
+///static bool time_update = false;
 int cm180_send(int fd, const BYTE *buffer, int length, int *response) {
 	/*
 	 // before send to check time 
@@ -504,39 +506,38 @@ BOOL cm180_getip(int fd, char *ipstr) {
 
 }
 
-bool cm180_update_time_via_network(int fd, char* domain_name) {
-
-	DNArg_t sendArgument;
-	sendArgument.domain_p = domain_name;
+bool cm180_update_time_via_gprs(int fd, time_t *time) {
 
 	if (AT_CmdSend(fd, AT_C_CCLK, NULL) == 0) {
-		// success, go on
-	} else {
-		// failed
-		return false;
-	}
-
-	if (AT_CmdSend(fd, AT_C_SET_AUTH_TYPE, NULL) == 0) {
-		// succss, go on
 	} else {
 		return false;
 	}
 
-	if (AT_CmdSend(fd, AT_C_CNCT_PPP, NULL) == 0) {
-		// SUCCess
+	if (AT_CmdSend(fd, AT_C_SET_AUTH_UPDATE_TIME, NULL) == 0) {
 	} else {
 		return false;
 	}
 
-	if (AT_CmdSend(fd, AT_C_TIME_UPDATE, (void *) &sendArgument) == 0) {
-		// success, go on
+	if (AT_CmdSend(fd, AT_NET_URC, NULL) == 0) {
+	} else {
+		return false;
+	}
+
+	if (AT_CmdSend(fd, AT_C_SET_MYNET_ACT,NULL) ==0) {
+	} else {
+		return false;
+	}
+
+	if (AT_CmdSend(fd, AT_MYTIME_UPDATE, NULL) == 0) {
+		// success
 	} else {
 		return false;
 	}
 
 	if (AT_CmdSend(fd, AT_C_CCLK, NULL) == 0) {
-		PRINTF("time now not need to return back\n");
+		//PRINTF("time now not need to return back\n");
 	} else {
 		return false;
 	}
+	return true;
 }

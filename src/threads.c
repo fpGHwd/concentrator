@@ -78,9 +78,8 @@ int which_thread(void) {
 }
 
 void init_watchdog(void) {
-	int interval = 60, fd, timeout;
+	int interval = 60, timeout;
 	int bootstatus;
-
 	int pid_watchdog = -1;
 
 	pid_watchdog = find_pid("watchdog");
@@ -88,10 +87,12 @@ void init_watchdog(void) {
 		PRINTF("watchdog pid = %d\n", pid_watchdog);
 
 	watchdog_fd = open(watch_dog_device, O_RDWR);
-	if (watchdog_fd > 0)
-		;//fprintf(stdout, "Open watchdog successed\n");
-	else
+	if (watchdog_fd > 0){
+		//fprintf(stdout, "Open watchdog successed\n");
+	}
+	else{
 		fprintf(stdout, "Open watchdog failed\n");
+	}
 
 	// get watch dog seconds
 	ioctl(watchdog_fd, WDIOC_GETTIMEOUT, &timeout);

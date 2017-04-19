@@ -98,8 +98,10 @@ if (fail == 0) {
 
 	kill_watchdog();
 	sys_ret = system("/sbin/reboot");
+	/*
 	if (sys_ret)
 		;
+		*/
 	exit(1);
 }
 }

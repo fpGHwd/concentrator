@@ -263,7 +263,7 @@ UINT32 ptl_gasup_fn_2022(const PTL_GASUP_MSG *msg, INT8 *outdata,
 			memcpy(ptr, msg->data, 17);
 			ptr += 17;
 			wakeup_cycle = fgasmeter_getgasmeter_wakeupcycle(gasmeter_index);
-			stoc_be(ptr, wakeup_cycle);
+			stoc_be((BYTE *)ptr, wakeup_cycle);
 			ptr += 2;
 		}
 	} else {
@@ -433,9 +433,9 @@ UINT32 ptl_gasup_fn_2034(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		if (memcmp(&msg->data[5], zerobuf, 5) == 0) {
 			collector = NULL;
 		} else {
-			collector = &msg->data[5];
+			collector = (INT8*)&msg->data[5];
 		}
-		if (fgasmeter_delgasmeter(&msg->data[10], collector)) {
+		if (fgasmeter_delgasmeter((const BYTE *)&msg->data[10], (const BYTE *)collector)) {
 			bcd_stoc(ptr, 0);
 		} else {
 			bcd_be_stoc(ptr, 2304);
@@ -471,18 +471,18 @@ UINT32 ptl_gasup_fn_2035(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 			if (max_outlen < 9 + (collector_cnt + 1) * 5)
 				break;
-			if (fgasmeter_getcollector(i, ptr)) {
+			if (fgasmeter_getcollector(i, (BYTE*)ptr)) {
 				ptr += 5;
 				collector_cnt++;
 			}
 		}
-		stoc(cntptr, collector_cnt);
+		stoc((BYTE*)cntptr, (WORD)collector_cnt);
 	} else {
 		bcd_be_stoc(ptr, 2305);
 		ptr += 2;
 		memcpy(ptr, msg->data, 5);
 		ptr += 5;
-		stoc_be(ptr, 0);
+		stoc_be((BYTE*)ptr, 0);
 		ptr += 2;
 	}
 	datalen[0] = ptr - outdata;
@@ -517,7 +517,7 @@ UINT32 ptl_gasup_fn_2036(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 			if (max_outlen < 9 + (cnt + 1) * 7)
 				break;
-			if (!fgasmeter_getgasmeter(i, address, collector))
+			if (!fgasmeter_getgasmeter(i, (BYTE*)address, (BYTE*)collector))
 				continue;
 			if (b_get_all) {
 				memcpy(ptr, address, 7);
@@ -532,13 +532,13 @@ UINT32 ptl_gasup_fn_2036(const PTL_GASUP_MSG *msg, INT8 *outdata,
 				}
 			}
 		}
-		stoc(cntptr, cnt);
+		stoc((BYTE*)cntptr, (WORD)cnt);
 	} else {
 		bcd_be_stoc(ptr, 2306);
 		ptr += 2;
 		memcpy(ptr, msg->data, 10);
 		ptr += 10;
-		stoc_be(ptr, 0);
+		stoc_be((BYTE*)ptr, 0);
 		ptr += 2;
 	}
 	datalen[0] = ptr - outdata;
@@ -650,9 +650,9 @@ static UINT32 ptl_gasup_pack_meterdata_nak(const PTL_GASUP_MSG *msg,
 		return 0;
 	}
 	*ptr++ = 1;
-	stoc(ptr, 1);
+	stoc((BYTE*)ptr, (WORD)1);
 	ptr += 2;
-	stoc(ptr, 0);
+	stoc((BYTE*)ptr, (WORD)0);
 	ptr += 2;
 	return ptr - outbuf;
 }
@@ -666,7 +666,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata,
 	UINT16 frame_cnt = 0;
 	int mt_cnt, next_mtidx, mtidx;
 	GASMETER_CJT188_901F di_data; /// 188协议
-	int meterdata_len;
+	UINT32 meterdata_len;
 	long tt;
 	struct tm tm;
 	WORD year;
@@ -709,7 +709,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata,
 			ptr += 5;
 			lastframe_ptr = ptr;
 			*ptr++ = 0;
-			stoc(ptr, i + 1);
+			stoc((BYTE*)ptr, (WORD)(i + 1));
 			ptr += 2;
 			pframe_cnt[i] = ptr;
 			stoc(ptr, 0);
@@ -723,7 +723,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata,
 				fgasmeter_getgasmeter(mtidx, ptr, NULL);
 				ptr += 7;
 				max_outlen -= 7;
-				meterdata_len = ptl_gasup_pack_meterdata(msg, ptr, max_outlen,
+				meterdata_len = ptl_gasup_pack_meterdata(msg, (UINT8)ptr, max_outlen,
 						&di_data);
 				ptr += meterdata_len;
 				max_outlen -= meterdata_len;
@@ -737,7 +737,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		}
 		if (frame_cnt > 0) {
 			for (i = 0; i < frame_cnt; i++) {
-				stoc(pframe_cnt[i], frame_cnt);
+				stoc((BYTE*)(pframe_cnt[i]), (WORD)frame_cnt);
 			}
 			if (lastframe_ptr) {
 				*lastframe_ptr = 1;
@@ -789,7 +789,7 @@ UINT32 ptl_gasup_fn_2042(const PTL_GASUP_MSG *msg, INT8 *outdata,
 			ptr += 2;
 			memcpy(ptr, msg->data, 17);
 			ptr += 17;
-			meterdata_len = ptl_gasup_pack_meterdata(msg, ptr,
+			meterdata_len = ptl_gasup_pack_meterdata(msg, (UINT8)ptr,
 					max_outlen - (ptr - outdata), &di_data);
 			if (meterdata_len > 0) {
 				ptr += meterdata_len;
@@ -831,7 +831,7 @@ UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		mtidx = fgasmeter_getidx_by_gasmeter(&msg->data[10]); //// data->10, meter address pointer
 		if (mtidx < 0) { /// the meter id is not in the database of the database
 			PRINTF("%s [%s] is not exist in database\n", __FUNCTION__,
-					PRINT_ADDRESS(addbuf, &msg->data[10], 7));
+					PRINT_ADDRESS((char *)addbuf, &msg->data[10], 7));
 			datalen[0] = ptl_gasup_pack_meterdata_nak(msg, ptr, max_outlen);
 			if (datalen[0] > 0)
 				return 1;
@@ -854,17 +854,17 @@ UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata,
 			ptr += 17;
 			lastframe_ptr = ptr;
 			*ptr++ = 0; /// fr
-			stoc(ptr, i + 1); /// frame_order_number, lenght = 2
+			stoc((BYTE*)ptr, i + 1); /// frame_order_number, lenght = 2
 			ptr += 2;
 			pframe_cnt[i] = ptr;
-			stoc(ptr, 0); /// count of details, length = 2
+			stoc((BYTE*)ptr, 0); /// count of details, length = 2
 			ptr += 2;
 			block_cnt = 0;
 			for (blockidx = next_blockidx; blockidx < MAX_GASMETER_MON_CNT;
 					blockidx++) {
 				if (!fmon_get_data(blockidx, mtidx, 0x901F, &di_data)) /// get data of last block /// get di_data
 					continue;
-				ptr += ptl_gasup_pack_meterdata(msg, ptr, max_outlen, &di_data); /// pack di_data
+				ptr += ptl_gasup_pack_meterdata(msg, (UINT8)ptr, max_outlen, &di_data); /// pack di_data
 				block_cnt++; /// block++
 				if (block_cnt > MAX_BLOCKDATA_CNT_IN_PACKET) /// 20 blocks in one frame at most
 					break;
@@ -875,7 +875,7 @@ UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		}
 		if (frame_cnt > 0) {
 			for (i = 0; i < frame_cnt; i++) {
-				stoc(pframe_cnt[i], frame_cnt);
+				stoc((BYTE*)pframe_cnt[i], frame_cnt);
 			}
 			if (lastframe_ptr) {
 				*lastframe_ptr = 1;
@@ -901,8 +901,8 @@ UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata,
 ///单表日用量历史查询
 UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		INT32 max_outlen, INT32 *datalen, INT32 max_datalen) {
-	INT8 *ptr = outdata, *lastframe_ptr = NULL, *pstart,
-			*pframe_cnt[PTL_GASUP_MAX_PACK_CNT];
+	INT8 *ptr = outdata, *lastframe_ptr = NULL, *pstart;
+	BYTE pframe_cnt[PTL_GASUP_MAX_PACK_CNT];
 	int i;
 	UINT16 frame_cnt = 0;
 	int blockidx, block_cnt, next_blockidx, mtidx;
@@ -919,7 +919,7 @@ UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		mtidx = fgasmeter_getidx_by_gasmeter(&msg->data[10]); /// get meter
 		if (mtidx < 0) {
 			PRINTF("%s [%s] is not exist in database\n", __FUNCTION__,
-					PRINT_ADDRESS(addbuf, &msg->data[10], 7));
+					PRINT_ADDRESS((char *)addbuf, (const BYTE *)(&msg->data[10]), 7));
 			datalen[0] = ptl_gasup_pack_meterdata_nak(msg, ptr, max_outlen); /// datalen
 			if (datalen[0] > 0)
 				return 1;
@@ -944,17 +944,17 @@ UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata,
 			ptr += 17;
 			lastframe_ptr = ptr;
 			*ptr++ = 0;
-			stoc(ptr, i + 1); /// store char array
+			stoc((BYTE*)ptr, i + 1); /// store char array
 			ptr += 2;
-			pframe_cnt[i] = ptr;
-			stoc(ptr, 0);
+			pframe_cnt[i] = (BYTE*)ptr; //TODO: meaningless or error
+			stoc((BYTE*)ptr, 0);
 			ptr += 2;
 			block_cnt = 0;
 			for (blockidx = next_blockidx; blockidx < MAX_GASMETER_DAY_CNT;
 					blockidx++) {
 				if (!fday_get_data(blockidx, mtidx, 0x901F, &di_data)) /// cording with mtidx
 					continue;  /// continue break & for loop
-				ptr += ptl_gasup_pack_meterdata(msg, ptr, max_outlen, &di_data);
+				ptr += ptl_gasup_pack_meterdata(msg, (UINT8)ptr, max_outlen, &di_data);
 				block_cnt++;
 				if (block_cnt > MAX_BLOCKDATA_CNT_IN_PACKET)
 					break;

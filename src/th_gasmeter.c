@@ -219,8 +219,10 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 	UINT8 ctrl = CJT188_CTR_WRITE_DATA;
 	BYTE SER;
 	//---------------------------------------------------------------------------------------------------------
-	//	if (fd < 0) // TODO
-	//	return FALSE;
+	if (fd < 0){
+		fprintf(stderr, "FATAL ERROR: try to read meter while rf-fd is not valid\n");
+		exit(-1);
+	}
 	cjt188_len = plt_cjt188_pack_write(cjt188_reqbuf, sizeof(cjt188_reqbuf),
 			address, ctrl, di, buf, buflen);
 
@@ -313,8 +315,11 @@ BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 
 	BYTE yl800_address[4];
 //-------------------------------------------------------------------------------------------------------
-	//	if (fd < 0) // TODO
-	//		return FALSE;
+	if (fd < 0){
+		fprintf(stderr,"FATAL ERROR: invalid rf-fd to write value to meter\n");
+		exit(-1);
+	}
+
 
 	valvabuf = (on ? 0x55 : 0x99);
 
@@ -446,8 +451,10 @@ BOOL gasmeter_save_daydata(const BYTE *address, const BYTE *collector, WORD di,
 	}
 
 	if (fday_get_data(dayidx, mtidx, di, &di_data)) {
-		// TODO: add exception log
 		return TRUE;
+	}else{
+		fprintf(stderr, "Error: fday get data failed\n");
+		return FALSE;
 	}
 
 	if (!ptl_cjt188_data_format(&di_data, di, tt, buf, buflen)) {
@@ -527,8 +534,8 @@ void *th_gasmeter(void *arg) {
 						PRINTF(
 								"Read DI: %04X, index: %d, ADDR: [%s], COL: [%s]\n",
 								read_dis[j], i,
-								PRINT_ADDRESS(addbuf, address, 7),
-								PRINT_ADDRESS(colbuf, collector, 5));
+								PRINT_ADDRESS((char *)addbuf, (const BYTE *)address, 7),
+								PRINT_ADDRESS((char *)colbuf, (const BYTE *)collector, 5));
 						time(&read_tt);
 						resp_len = gasmeter_read_di(address, collector,
 								read_dis[j], resp_buf, sizeof(resp_buf));

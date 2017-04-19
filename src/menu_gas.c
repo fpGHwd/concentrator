@@ -245,7 +245,7 @@ static void alarm_events(BYTE flag, void *para, const char *info) {
  lcd_show_string( 4, 1, strlen(c_alarm_meter_id_str), c_alarm_meter_id_str);
  lcd_show_string( 6, 1, strlen(c_alarm_occur_time_str), c_alarm_occur_time_str);
 
- // 获取并显示告警信息 record_index // TODO
+ // 获取并显示告警信息 record_index
  
  lcd_show_string( 9, 1, strlen(c_allspace_str), c_allspace_str); // 清除内容
  snprintf(buff, sizeof(buff), "%s%d%s", c_alarm_last_record_str1, 
@@ -1150,11 +1150,10 @@ static void realtime_data_display(BYTE flag, void *para, const char *info) /// �
 	double value_current_balance;
 	long read_tt;
 
-	memset(meter_id, 0, sizeof(meter_id));
-	memcpy(meter_id, "23051606000007", 15); // get meter_id // TODO // 表号：23051606000006
+	///memset(meter_id, 0, sizeof(meter_id));
+	memcpy(meter_id, "23051606000007", 15); // tips meter id
 	meter_id[14] = '\0';
-
-	memset(collector, 0, sizeof(collector));
+	memset(collector, 0, sizeof(collector)); // tips collector id
 
 	while (1) {
 		lcd_clean_workspace();
@@ -1398,8 +1397,8 @@ static void read_meter_assembly(BYTE flag, void *para, const char *info) {
 static void meter_repeater_setting_new(BYTE flag, void *para, const char *info) /// repeater != collector
 {
 	// 显示已有repeater, 没有显示0000
-	char repeater_str[5], address_str[15], buff[MAX_SCREEN_COL + 1],
-			enable_str[2];
+	char repeater_str[5], address_str[15], buff[MAX_SCREEN_COL + 1];
+			//char enable_str[2];
 	BYTE repeater[2], address[7];
 	//int idx;
 	//bool enable;
@@ -1551,7 +1550,7 @@ static void import_meters_in_bunch_function(BYTE flag, void *para,
 	const char suffix[5][5];
 	bool file_exist_flag;
 	struct stat buf;
-	int i;
+	// int i;
 
 	///printf("sizeof(suffix) = %d\n",sizeof(suffix));
 	memset(suffix, 0, sizeof(suffix));
@@ -1627,11 +1626,7 @@ static void query_data(BYTE flag, void *para, const char *info) {
 
 static void set_comm_channel(BYTE flag, void *para, const char *info) // 通讯讯道
 {
-	// TODO //
-
-	// rf 485
-	// ethernet
-	// gprs/cdma
+	// TODO set the communication channel: rf485, ethernet, gprs/cdma
 
 	menu_ongoing(flag, para, info);
 
@@ -1743,8 +1738,7 @@ static void set_apn(BYTE flag, void *para, const char *info) {
 	if (verify_password() != 0)
 		return;
 
-	// refer to set_host_param as example
-	// TODO
+	// TODO:set APN to use
 	PARAM_SET param_set;
 	char apn_id[APN_LENGTH], apn_user_id[APN_LENGTH],
 			apn_user_password[APN_LENGTH];
@@ -1877,7 +1871,7 @@ static void set_con_addr(BYTE flag, void *para, const char *info) //// byte-flag
 	 * 心跳周期
 	 */
 }
-
+/*
 static void set_host_param(BYTE flag, void *para, const char *info) {
 	if (verify_password() != 0)
 		return;
@@ -1927,6 +1921,7 @@ static void set_host_param(BYTE flag, void *para, const char *info) {
 	fparam_set_value(FPARAMID_COMM_HOST_IP_PRI, host_ip, sizeof(host_ip)); /// set ip
 	fparam_set_value(FPARAMID_COMM_HOST_PORT_PRI, host_port, sizeof(host_port)); /// set port
 }
+*/
 
 static void reconstruct_network(BYTE flag, void *para, const char *info) { // no details
 	if (verify_password() != 0)
@@ -2024,9 +2019,10 @@ static void query_network_ip(BYTE flag, void *para, const char *info) /// 查询
  }
  */
 
+void modem_gprs_shutdown(void);
 static void restart_terminal_function(BYTE flag, void *para, const char *info) {
-	char buf[30];
-	signed char sec = 10;
+	//char buf[30];
+	//signed char sec = 10;
 	int ret;
 
 	lcd_clean_workspace();
@@ -2469,7 +2465,7 @@ static void set_terminal_time(BYTE flag, void *para, const char *info) {
 			break;
 		}
 
-		if (1/*if_date_str_is_valid(terminal_date, 2)*/) { // 时间有效 TODO
+		if (1/*if_date_str_is_valid(terminal_date, 2)*/) { //  TODO:judge 时间有效
 			// valid continue;
 		} else {
 			// invalid continue; // tips
@@ -2510,7 +2506,6 @@ static void set_terminal_time(BYTE flag, void *para, const char *info) {
 
 		continue;
 	}
-
 	return;
 }
 
@@ -2563,6 +2558,7 @@ static void password_setting(BYTE flag, void *para, const char *info) {
 	return;
 }
 
+/*
 static void local_module_status(BYTE flag, void *para, const char *info) {
 	menu_ongoing(flag, para, info);
 }
@@ -2572,17 +2568,20 @@ static void signal_intensity_and_battery_status(BYTE flag, void *para,
 	menu_ongoing(flag, para, info);
 }
 
-#include "gpio.h"
+*/
+
+//#include "gpio.h"
+/*
 static void modem_soft_reset_hmisys(BYTE flag, void *para, const char *info) {
 	///menu_ongoing(flag, para, info);
 	modem_soft_reset();
 }
+*/
 
 static void get_modem_flux_in_sum(BYTE flag, void *para, const char *info) {
 	MENU menu;
 	char string[3][MAX_SCREEN_COL + 1]; /// MAX_SCREEN_COL + 1
-	int i, j;
-	char buf[30];
+	int i, j = 0;
 	//j = get_flux_in_sum();
 
 	init_menu(&menu);

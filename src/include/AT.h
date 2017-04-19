@@ -7,48 +7,32 @@
 //----------------------------------------------------------------------------------------
 
 typedef struct _struct_ATCmd {
-
 	UINT8 Cmd;
-
 	void *Arg;
-
 } ATCmd_t;
 
 typedef struct _TcpSetupArg {
-
 	UINT8 Link;
-
 	UINT8 IP[16];
-
 	UINT8 Port[6];
 } TcpSetupArg_t;
 
 typedef struct _TcpSendArg {
-
 	UINT8 *Buffer;
-
 	UINT8 Length;
-
 	UINT8 Link;
 } TcpSendArg_t;
 
 typedef struct _ApnArg {
-
 	UINT16 PDN;
-
 	char APN[16];
-
 	char Type[16];
 } ApnArg_t;
 
 typedef struct _AuthArg {
-
 	UINT16 CID;
-
 	UINT8 AuthType;
-
 	char Name[32];
-
 	char PSW[16];
 } AuthArg_t;
 
@@ -111,25 +95,25 @@ enum at_c_def {
 	AT_C_TCP_CONNECT,
 
 	AT_C_TCP_STATE,
-
 	//AT_C_TCP_RCVD,
-
 	AT_C_TCP_RCVD_ACCESS,
-
 	AT_C_TCP_CLOSE,
-
 	AT_C_TCP_SEND,
-
 	AT_C_TCP_SEND_DAT,
 	AT_C_CCLK,
 	AT_C_TIME_UPDATE,
+	//AT_C_CLEAN_CLIENT_SOCKET,
+	AT_CHECK_TEMPRETURE,
+	AT_TIME_UPDATE_CHECK,
+	//AT_TIME_UPDATE_GET,
+	AT_NET_URC,
+	AT_MYTIME_UPDATE,
+	AT_C_SET_AUTH_UPDATE_TIME,
+	AT_C_SET_MYNET_ACT,
 };
 
 UINT8 *AT_GetRcvBuffer(void);
-
 int AT_CmdSend(int fd, UINT8 Cmd, void *Arg);
-
-#include <stdbool.h>
 int AT_Receive(int fd, UINT8 *Rec, UINT16 RecMax, int timeout, bool IsCdma);
 //-----------------------------------------------------------------------------------------
 #endif /* AT_H_ */
