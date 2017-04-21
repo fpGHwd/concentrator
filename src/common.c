@@ -374,7 +374,7 @@ static void print_head(FILE *fp) {
 
 	gettimeofday(&tv, NULL);
 	localtime_r(&tv.tv_sec, &tm);
-	//thread_name = get_thread_name();
+	thread_name = get_thread_name(); /// how can you comment this sentence
 	len = snprintf(buf, sizeof(buf),
 			"[%04d-%02d-%02d %02d:%02d:%02d.%03ld] %s\t", tm.tm_year + 1900,
 			tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,
@@ -633,7 +633,7 @@ int check_rtc(void) {
 	int fd, ret = 0;
 	struct tm tm;
 
-	if ((fd = open("/dev/rtc0", O_RDONLY)) >= 0) {
+	if ((fd = open("/dev/rtc", O_RDONLY)) >= 0) {
 		if (ioctl(fd, RTC_RD_TIME, &tm) >= 0) // read time
 			ret = 1;
 		close(fd);
@@ -731,7 +731,6 @@ void next_month(BYTE *year, BYTE *month) {
 }
 
 static char prog[PATH_MAX]; /// PATH_MAX
-// #include <stdlib.h>
 void set_prog_name(const char *name) /// return the canonicalized absolute pathname
 {
 	char *sys_ptr;

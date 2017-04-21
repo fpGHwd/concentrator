@@ -24,14 +24,24 @@ static INT32 eth_fep_receive(struct UP_COMM_ST *up, int timeout);
 static BOOL eth_fep_send(struct UP_COMM_ST *up);
 static void eth_disconnect(struct UP_COMM_ST *up);
 
-static UP_COMM_INTERFACE eth_comm = { .describe = "Ethernet", .fd = -1,
-		.up_status = e_up_offline, .que_in = MSG_QUE_ETH_IN, .que_out =
-				MSG_QUE_ETH_OUT, .need_diag = FALSE,
+static UP_COMM_INTERFACE eth_comm = {
+		.describe = "Ethernet",
+		.fd = -1,
+		.up_status = e_up_offline,
+		.que_in = MSG_QUE_ETH_IN,
+		.que_out = MSG_QUE_ETH_OUT,
+		.need_diag = FALSE,
 		.device_init = NULL, /// eth has not initate
-		.connect = eth_connect, .login = NULL, .logout = NULL, .timeout = -1,
-		.comm_receive = eth_fep_receive, .comm_send = eth_fep_send,
-		.heartbeat_request = NULL, .disconnect = eth_disconnect, .private =
-				&eth_private, };
+		.connect = eth_connect,
+		.login = NULL,
+		.logout = NULL,
+		.timeout = -1,
+		.comm_receive = eth_fep_receive,
+		.comm_send = eth_fep_send,
+		.heartbeat_request = NULL,
+		.disconnect = eth_disconnect,
+		.private = &eth_private,
+};
 
 static void set_nonblocking(INT32 fd, INT32 which) /// ?
 {

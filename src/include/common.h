@@ -12,24 +12,27 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
+#if 1
 #define LOG_NAME			"../data/gascon.log" /// change by wd
 #define ERR_NAME			"../data/gascon.err" /// change by wd
-
-#if 0
+#else
 #define LOG_NAME			"gascon.log"
 #define ERR_NAME			"gascon.err"
 #endif
 
 #define GSTDEBUG_EN				1
 #define GSTDEBUG_ALLOCATE_EN	1 
+#define GSTASSERT_EN			1
 
 #if GSTDEBUG_EN
 #define GSTDEBUG(s) \
 	do { \
 		PRINTF("%sFile: %s, Function: %s, Line: %d\n", s == NULL ? "" : s, __FILE__, __FUNCTION__, __LINE__);\
 	} while(0)
+#define ASSERT(x) assert(x) // nayowang
 #else
 #define GSTDEBUG(s) do {;} while(0)
+#define ASSERT(x) do{;}while(0) //nayowang
 #endif
 
 #if GSTDEBUG_ALLOCATE_EN
@@ -37,6 +40,14 @@
 #else
 #define LOG_PRINTF_ALLOCATE(...) do {;} while(0)
 #endif
+
+/*
+#if GSTASSERT_EN
+#define ASSERT(x) assert(x) // nayowang
+#else
+#define ASSERT(x) do{;}while(0) //nayowang
+#endif
+*/
 
 BYTE check_sum(const void *buf, int len);
 

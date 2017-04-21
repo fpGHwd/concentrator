@@ -5,29 +5,32 @@
  *      Author: Johnnyzhang
  */
 
-/*
- * 20161019
- * SER 序号
- */
-
-#include "yl800.h"  /// MODULE
+#include "yl800.h"
 #include "common.h"
 #include "protocol_cjt188.h"
 
-static YL800_CONFIG yl800_config = { // TODO: add argument to yl800
-		.speed = YL800_CFG_SPEED_1200, .parity = YL800_CFG_PARITY_NONE,
-				.freq = 0x6C4012, // 433M
-				.factor = YL800_CFG_FACTOR_128, .mode = YL800_CFG_MODE_NORMAL,
-				.bandwidth = YL800_CFG_BANDWIDTH_61_5K, .ID_H = 0, .ID_L = 0,
-				.net_ID = 0, .power = 0, .heartbead = YL800_CFG_HB_2S, };
+static YL800_CONFIG yl800_config = { // TODO
+		.speed = YL800_CFG_SPEED_1200,
+		.parity = YL800_CFG_PARITY_NONE,
+		.freq = 0x6C4012, // 433M
+		.factor = YL800_CFG_FACTOR_128,
+		.mode = YL800_CFG_MODE_NORMAL,
+		.bandwidth = YL800_CFG_BANDWIDTH_61_5K,
+		.ID_H = 0,
+		.ID_L = 0,
+		.net_ID = 0,
+		.power = 0,
+		.heartbead = YL800_CFG_HB_2S,
+};
 
-BOOL yl800_init(void) /// reset the yl800_init
+BOOL yl800_init(void)
 {
 	yl800_config.net_ID = 0;
+	// TODO
 	return FALSE;
 }
 
-int yl800_atcmd_pack(UINT8 *buf, UINT32 max_len, const YL800_MSG *msg) /// AT_CMD
+int yl800_atcmd_pack(UINT8 *buf, UINT32 max_len, const YL800_MSG *msg)
 {
 	UINT8 *ptr = buf;
 
@@ -51,10 +54,10 @@ int yl800_atcmd_pack(UINT8 *buf, UINT32 max_len, const YL800_MSG *msg) /// AT_CM
 	ptr++;
 	*ptr++ = 0x0D;
 	*ptr++ = 0x0A;
-	return (ptr - buf);
+	return ptr - buf;
 }
 
-BOOL yl800_atcmd_unpack(YL800_MSG *msg, const UINT8 *buf, UINT32 buflen) /// AT_CMD
+BOOL yl800_atcmd_unpack(YL800_MSG *msg, const UINT8 *buf, UINT32 buflen)
 {
 	const UINT8 *ptr = buf, *start;
 	UINT8 cs;
@@ -82,7 +85,7 @@ BOOL yl800_atcmd_unpack(YL800_MSG *msg, const UINT8 *buf, UINT32 buflen) /// AT_
 	msg->datalen = *ptr++;
 	if (buflen < 11 + msg->datalen)
 		return FALSE;
-	msg->u.data = (UINT8 *) ptr;
+	msg->u.data = (UINT8 *)ptr;
 	ptr += msg->datalen;
 	cs = check_sum(start, ptr - start);
 	msg->cs = *ptr++;
@@ -92,170 +95,105 @@ BOOL yl800_atcmd_unpack(YL800_MSG *msg, const UINT8 *buf, UINT32 buflen) /// AT_
 	if (cs == msg->cs)
 		return TRUE;
 	else {
-		PRINTF("%s CS ERROR, CS = %04X, CS in packet: %04X\n", __FUNCTION__, cs,
-				msg->cs);
+		PRINTF("%s CS ERROR, CS = %04X, CS in packet: %04X\n", __FUNCTION__, cs, msg->cs);
 		return FALSE;
 	}
 }
 
 int yl800_pack(UINT8 *buf, UINT32 max_len, UINT8 *repeater, UINT8 *address,
-		UINT8 *data, int datalen) /// data use cjt188_reqbuf data //// datalen is data length of data
+		UINT8 *data, int datalen)
 {
-	UINT16 k = 0;
-	///int repeater_invalid = 0; /// add by wd
-	//------------------------------------------------------------------------------------------------------
-	if ((max_len < 3) || (datalen <= 0) || (buf == NULL) || (address == NULL)
-			|| (data == NULL)) {
+	UINT8 *ptr = buf;
 
+	if (buf == NULL || address == NULL || max_len < 3 || data == NULL || datalen <= 0)
 		return 0;
-	}
-
-	if (repeater) { /// add and comment by wd
-
-		buf[k++] = 0x55;
-
-		/* 55 00 00 01 00 12 34 56 *//* 0x55 + REPEATER + ID */
-		if (max_len < (YL800_SPC_SIZ + YL800_ID_RLY_SIZ + datalen)) {
-
-			return 0; /// not 
-		}
-
-		memcpy(&buf[k], repeater, 3);
-
-		k += 3;
-	} else {
-
-		buf[k++] = 0xAA;
-
-		/*	AA 00 12 34 56 *//* 0xAA + ID */
-		if (max_len < (YL800_SPC_SIZ + YL800_ID_SIZ + datalen)) {
+	if (repeater) {
+		*ptr++ = 0x55;
+		if (max_len < 6 + datalen)
 			return 0;
-		}
-
+		memcpy(ptr, repeater, 3);
+		ptr += 3;
 	}
-
-	memcpy(&buf[k], address, YL800_ID_SIZ);
-	k += YL800_ID_SIZ; /// 
-
-	memcpy(&buf[k], data, datalen);
-	k += datalen;
-	//---------------------------------------------------------------------------------------------------------------
-	return (k); /// length
+	else {
+		*ptr++ = 0xAA;
+		if (max_len < 3 + datalen)
+			return 0;
+	}
+	memcpy(ptr, address, 2);
+	ptr += 2;
+	memcpy(ptr, data, datalen);
+	ptr += datalen;
+	return ptr - buf;
 }
 
 BOOL yl800_unpack(const UINT8 *buf, UINT32 buflen, UINT8 *repeater,
-		UINT8 *address, UINT8 **data, int *datalen) {
-	UINT8 Special; // ?
-	UINT16 k = 0;
-	//const UINT8 *ptr = buf;
-	//--------------------------------------------------------------------------------------------------------
-	if (buf == NULL || data == NULL || datalen == NULL) {
+		UINT8 *address, UINT8 **data, int *datalen)
+{
+	const UINT8 *ptr = buf;
+	UINT8 ctrl;
 
+	if (buf == NULL || data == NULL || datalen == NULL)
 		return FALSE;
-	}
-
-	if (buflen < (YL800_SPC_SIZ + YL800_ID_SIZ)) {
-
+	if (buflen < 3)
 		return FALSE;
-	}
-
-	Special = buf[k++]; /// 1 byte buf[0]
-
-	if (Special == 0x55) { // repeater /* 55 00 01 00 12 34 56 */
-
-		if (buflen <= (YL800_SPC_SIZ + YL800_ID_RLY_SIZ)) {
-
+	ctrl = *ptr++;
+	switch (ctrl) {
+	case 0x55:
+		if (buflen <= 6)
 			return FALSE;
+		if (repeater) {
+			memcpy(repeater, ptr, 3);
+			ptr += 3;
 		}
-
-		if (repeater) {  // 33 bytes
-
-			memcpy(repeater, &buf[k], 3);
-			k += 3;
-		}
-	} else if (Special == 0xAA) { // no repeater /* AA 00 12 34 56 */
-
-		;
-	} else {
-
+		break;
+	case 0xAA:
+		if (buflen <= 3)
+			return FALSE;
+		break;
+	default:
 		return FALSE;
 	}
-
 	if (address) {
-
-		memcpy(address, &buf[k], YL800_ID_SIZ);
-		k += YL800_ID_SIZ;
+		memcpy(address, ptr, 2);
+		ptr += 2;
 	}
-
-	*data = (UINT8 *) &buf[k];
-
-	*datalen = (buflen - k);
-
+	*data = (UINT8 *)ptr;
+	*datalen = buflen - (ptr - buf);
 	PRINTF("YL800 unpacket OK\n");
-	//----------------------------------------------------------------------------------------------------
-	return ( TRUE);
+	return TRUE;
 }
 
-int yl800_read_packet(UINT8 *buf, UINT32 max_len, int timeout,
-		int (*read_fn)(void *, int, int)) {
-	UINT16 k = 0;
-	UINT8 Special;
-	UINT16 usRcvSize = 0;
-	//--------------------------------------------------------------------------------------------------------
-	if (buf == NULL || max_len < 6 || read_fn == NULL) {
-		PRINTF("%s: ARGUMENTS error\n", __FUNCTION__); /// exception
+int yl800_read_packet(UINT8 *buf, UINT32 max_len, int timeout, int (*read_fn)(void *, int, int))
+{
+	UINT8 *ptr = buf;
+	UINT8 ctrl;
+	int len;
+
+	if (buf == NULL || max_len < 6 || read_fn == NULL)
 		return 0;
-	}
-
-	if (read_fn(buf, YL800_SPC_SIZ, timeout) != YL800_SPC_SIZ) {
-		/// exception
+	if (read_fn(ptr, 1, timeout) != 1)
 		return 0;
-	} else {
-
-	}
-
-	Special = buf[k++];
-
-	if (Special == 0x55) {
-
-		PRINTF("%s YL800 packet WITH REPEATER\n", __FUNCTION__);
-
-		if (read_fn(&buf[k], YL800_ID_RLY_SIZ, timeout) != YL800_ID_RLY_SIZ) {
-			PRINTF("%s: with repeater size error\n", __FUNCTION__); /// exception
+	ctrl = *ptr++;
+	switch (ctrl) {
+	case 0x55:
+		PRINTF("%s This is YL800 packet with repeater\n", __FUNCTION__);
+		if (read_fn(ptr, 5, timeout) != 5)
 			return 0;
-		}
-
-		k += YL800_ID_RLY_SIZ;
-
-	} else if (Special == 0xAA) {
-
-		PRINTF("%s YL800 packet WITHOUT REPEATER\n", __FUNCTION__);
-
-		if (read_fn(&buf[k], YL800_ID_SIZ, timeout) != YL800_ID_SIZ) {
-			PRINTF("%s:without repeater size error\n", __FUNCTION__); /// exception
+		ptr += 5;
+		break;
+	case 0xAA:
+		PRINTF("%s This is YL800 packet without repeater\n", __FUNCTION__);
+		if (read_fn(ptr, 2, timeout) != 2)
 			return 0;
-		}
-
-		k += YL800_ID_SIZ;
-
-	} else {
-		PRINTF("%s: UNKNOWN YL800 packet\n", __FUNCTION__); /// exception
+		ptr += 2;
+		break;
+	default:
+		PRINTF("%s This is unknown YL800 packet with repeater\n", __FUNCTION__);
 		return 0;
 	}
-
-	usRcvSize = plt_cjt188_read_packet(&buf[k], (max_len - k), timeout,
-			read_fn);
-
-	if (usRcvSize <= 0) {
-		PRINTF("%s: RECEIVE SIZE error\n", __FUNCTION__); /// exception
+	len = plt_cjt188_read_packet(ptr, max_len - (ptr - buf), timeout, read_fn);
+	if (len <= 0)
 		return 0;
-	}
-
-	k += usRcvSize;
-	//-------------------------------------------------------------------------------------------------------
-	return (k);
-}
-
-void yl800_setup(void) {
-	///TODO:set the configuration of the yl800 module
+	ptr += len;
+	return ptr - buf;
 }

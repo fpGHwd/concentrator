@@ -14,6 +14,7 @@
 #include "atcmd.h"
 #include "cm180.h"
 #include "sim900a.h"
+#include "m590e.h"
 
 #define MODEM_PCL_STACK_IN_OS		0
 #define MODEM_PCL_STACK_IN_MODULE	1
@@ -230,7 +231,7 @@ static REMOTE_MODULE_ATTR module_attr[] = {
 						MODEM_INVALID_SIGNAL_INTENSITY, .protocol_stack_type =
 						MODEM_PCL_STACK_IN_MODULE, },
 		{ /// GPRS /// not use this
-		.model = e_gprs_model_sim900, .describe = "SIM900A", .init =
+				.model = e_gprs_model_sim900, .describe = "SIM900A", .init =
 				sim900a_init, .remote_fd = -1, .socket_type =
 				MODEM_CONNECT_SOCKET_TYPE_UNKNOWN, .presource = NULL,
 				.pcl_in_module = { /// module protocol stack
@@ -247,18 +248,25 @@ static REMOTE_MODULE_ATTR module_attr[] = {
 				.protocol_stack_type = MODEM_PCL_STACK_IN_MODULE, },
 		{ /// m590e r2
 				.model = e_gprs_model_neo_m590e_r2,
-				.describe = "NEO M590E R2", /// GSM
-				.init = cm180_init,
+				.describe = "NEO M590E R2",
+				.init = m590e_init,
 				.remote_fd = -1,
 				.socket_type = MODEM_CONNECT_SOCKET_TYPE_UNKNOWN,
-				.presource = &g_cm180_resource,
-				.pcl_in_module = { .ppp_connect =
-						cm180_ppp_connect, .tcp_connect = cm180_tcp_connect,
-						.udp_connect = cm180_udp_connect, .send = cm180_send,
-						.receive = cm180_receive, /// receive get value
-						.shutdown = cm180_shutdown, .getip = cm180_getip, },
-				.pcl_in_os = { .ppp_connect = NULL, .tcp_connect = NULL,
-						.udp_connect = NULL, .send = NULL, .receive = NULL,
+				.presource = &g_m590e_resource,
+				.pcl_in_module = {
+						.ppp_connect = m590e_ppp_connect,
+						.tcp_connect = m590e_tcp_connect,
+						.udp_connect = m590e_udp_connect,
+						.send = m590e_send,
+						.receive = m590e_receive, /// receive get value
+						.shutdown = m590e_shutdown,
+						.getip = m590e_getip, },
+				.pcl_in_os = {
+						.ppp_connect = NULL,
+						.tcp_connect = NULL,
+						.udp_connect = NULL,
+						.send = NULL,
+						.receive = NULL,
 						.shutdown = NULL, },
 				.net_type = MODEM_NET_TYPE_CDMA,
 				.signal_intensity = MODEM_INVALID_SIGNAL_INTENSITY,
@@ -730,6 +738,7 @@ int remote_module_get_netinfo(BYTE *type, BYTE *value, BYTE *level) {
 		*level = 4;
 	return 1;
 }
+
 
 int module_update_time(char *pulic_time_server) {
 

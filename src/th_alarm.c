@@ -294,7 +294,7 @@ void *th_alarm(void * arg) /// this is the core
 		gasmeteralm_check();
 		lcd_update_head_info();
 
-		msleep(1000);
+		msleep(100); /// change time
 	}
 	return NULL;
 }

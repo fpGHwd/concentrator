@@ -44,7 +44,7 @@ static void fday_block_init(FDAY_DATA_BLOCK *pdata)
 		fday_data_init(&pdata->daydata[i]);
 	}
 }
-
+// TODO key migration
 void fday_open(void) /// initiate a 60 days(blocks) struct
 {
 	int i, size;

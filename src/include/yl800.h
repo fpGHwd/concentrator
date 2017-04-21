@@ -9,17 +9,6 @@
 #define YL800_H_
 
 #include "typedef.h"
-//----------------------------------------------------------------------------------------------------
-
-#define YL800_ID_SIZ 4U
-
-#define YL800_RLY_SIZ 3U
-
-#define YL800_SPC_SIZ 1U
-
-#define YL800_ID_RLY_SIZ ( YL800_ID_SIZ + YL800_RLY_SIZ )  
-
-#define YL800_PKT_MIN ( 1 + YL800_ID_SIZ ) /// package 4+1
 
 typedef struct {
 	UINT8 *XX;
@@ -96,7 +85,7 @@ typedef struct {
 	UINT8 net_ID;
 	UINT8 power;
 	YL800_CFG_HB heartbead;
-} YL800_CONFIG; /// module parameters
+} YL800_CONFIG;
 
 int yl800_atcmd_pack(UINT8 *buf, UINT32 max_len, const YL800_MSG *msg);
 BOOL yl800_atcmd_unpack(YL800_MSG *msg, const UINT8 *buf, UINT32 buflen);
@@ -104,7 +93,6 @@ int yl800_pack(UINT8 *buf, UINT32 max_len, UINT8 *repeater, UINT8 *address,
 		UINT8 *data, int datalen);
 BOOL yl800_unpack(const UINT8 *buf, UINT32 buflen, UINT8 *repeater,
 		UINT8 *address, UINT8 **data, int *datalen);
-int yl800_read_packet(UINT8 *buf, UINT32 max_len, int timeout,
-		int (*read_fn)(void *, int, int));
+int yl800_read_packet(UINT8 *buf, UINT32 max_len, int timeout, int (*read_fn)(void *, int, int));
 
 #endif /* YL800_H_ */

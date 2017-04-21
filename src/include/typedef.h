@@ -35,9 +35,8 @@
 #include <arpa/inet.h>
 #include <stddef.h>
 #include <linux/if.h>
-
-// add by wd 
-#include <stdbool.h> /// bool.h
+#include <assert.h>
+#include <stdbool.h>
 
 typedef unsigned char BITS; /// 1B /// 最小寻址单位一个字节
 typedef unsigned char BOOL; /// 1B

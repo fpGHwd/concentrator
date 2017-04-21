@@ -59,6 +59,7 @@ int at_cmd_send(int fd, const char *send, BYTE len, int timeout1, int timeout2) 
 	return 0;
 }
 
+// TODO: all turn to the atcmd module, every thread has a watchdog
 int at_cmd_receive(int fd, char *recv, int max_len, int timeout1, int timeout2) {
 	int len;
 	if (wait_for_ready(fd, timeout1, 0) <= 0)

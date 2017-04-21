@@ -29,40 +29,38 @@ static const char *thread_name[THREADS_COUNT] = { "th_upgprscdma", "th_upeth",
 		"th_downcomm", "th_hmisys", "th_gasmeter", "th_gasmeter_event",
 		"th_alarm", };
 
-#define test_g 1
+void threads_create(void)
+{
+	int i;
 
-void threads_create(void) {
-	int i, err;
-	int thread_index = 0;
+#if 0 // for test the gprscdma thread
+	pthread_create(&th[0], NULL, func[0], NULL);
+	return;
+#endif
 
-	if (thread_index == 0) {
-		for (i = 0; i < THREADS_COUNT; i++) {
-			pthread_create(&th[i], NULL, func[i], NULL);
-			PRINTF("Create thread %s\n", thread_name[i]);
-		}
-	} else if (thread_index == 3) {
-		err = pthread_create(&th[thread_index - 1], NULL,
-				func[thread_index - 1], NULL);
-		PRINTF("Create thread %s\n", thread_name[thread_index - 1]);
-		if (err != 0)
-			PRINTF("can't create thread: %s\n", strerror(err));
-	} else {
-		pthread_create(&th[thread_index - 1], NULL, func[thread_index - 1],
-				NULL);
-		PRINTF("Create thread %s\n", thread_name[thread_index]);
+
+	for (i = 0; i < THREADS_COUNT; i ++) {
+		pthread_create(&th[i], NULL, func[i], NULL);
+		PRINTF("Create thread %s\n", thread_name[i]);
 	}
 
 }
 
 void threads_join(void) {
 	int i;
-	///printf("threads_join\n");
+
+#if 0 // for test the gprscdma thread
+	pthread_join(th[0], NULL);
+	PRINTF("Exiting thread %s\n", thread_name[0]);
+	return;
+#else
+
 	for (i = 0; i < THREADS_COUNT; i++) {
 		pthread_join(th[THREADS_COUNT - 1 - i], NULL);
 		PRINTF("Exiting thread %s\n", thread_name[THREADS_COUNT - 1 - i]);
 	}
-	///pthread_join(th[3], NULL); //wd
-	///PRINTF("Exiting thread %s\n", thread_name[3]); // wd
+
+#endif
 }
 
 int which_thread(void) {

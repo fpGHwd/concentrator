@@ -13,64 +13,56 @@
 #include "spont_alarm.h"
 #include "f_param.h"
 
-#define MESSAGE_WAITING_REPONSE_TIME_THRESHOLD_VALUE (3 * 60 * 1000)
-
-static BOOL up_comm_login(UP_COMM_INTERFACE *up) /// use up to login
+static BOOL up_comm_login(UP_COMM_INTERFACE *up)
 {
 	UINT8 buffer[CONFIG_MAX_APDU_LEN];
 	UINT32 packetID;
 	int len;
-	UINT8 address[7] = { 0 };
+	UINT8 address[7] = {0};
 
-	if (up->login) { /// for gprs/cdma to login
+	if (up->login)
 		return up->login(up);
-	} else { /// for ethernet to login
+	else {
 		packetID = up->private->packetID;
 		len = plt_gasup_pack_special(PTL_GASUP_FN_COMM_REGISTER, buffer,
 				sizeof(buffer), NULL, 0, packetID);
-		if (len <= 0) /// get packet error
+		if (len <= 0)
 			return FALSE;
 		msg_que_put(up->que_out, buffer, len, MSG_QUE_NO_STAMP);
 		PRINTF("LOGIN Request\n");
 		if (!up->comm_send(up)) {
-			PRINTF("Login FAIL by %s (SEND FAIL)\n", up->describe); /// send fail
+			PRINTF("Login FAIL by %s (SEND FAIL)\n", up->describe);
 			return FALSE;
 		}
 		up->private->packetID++;
-		if (up->comm_receive(up, MESSAGE_WAITING_REPONSE_TIME_THRESHOLD_VALUE)
-				> 0) { //3 min timeout
+		if (up->comm_receive(up, 3 * 60 * 1000) > 0) {
 			len = get_data_from_receive(up->receive, buffer, sizeof(buffer));
-			if (len < 0)  // success in receiving responding packet
+			if (len < 0)
 				return FALSE;
 			receive_del_bytes(up->receive, len);
 			fparam_get_value(FPARAMID_CON_ADDRESS, address, 7);
-			if (plt_gasup_check_pack_special(address,
-					PTL_GASUP_FN_COMM_REGISTER, buffer, len, packetID)) {
+			if (plt_gasup_check_pack_special(address, PTL_GASUP_FN_COMM_REGISTER, buffer, len, packetID)) {
 				PRINTF("Login OK by %s\n", up->describe);
 				return TRUE;
-			} else {
-				PRINTF("Login FAIL by %s (RESPONSE TIMEOUT)\n", up->describe); /// response timeout
+			}
+			else {
+				PRINTF("Login FAIL by %s (RESPONSE TIMEOUT)\n", up->describe);
 				return FALSE;
 			}
-		} else {
-			return FALSE;
 		}
-
+		else
+			return FALSE;
 	}
 }
 
-#include "threads.h"
-static BOOL up_comm_heartbeat_proc(struct UP_COMM_ST *up) {
+static BOOL up_comm_heartbeat_proc(struct UP_COMM_ST *up)
+{
 	UINT8 buffer[CONFIG_MAX_APDU_LEN];
 	int len;
 	BOOL ret;
 
 	if (up->private->hb_status == e_up_wait_response) {
-		if (uptime()
-				- up->last_heartbeat_request> MESSAGE_WAITING_REPONSE_TIME_THRESHOLD_VALUE) {
-			PRINTF(
-					"%s: idle time LONGER than MESSAGE_WAITING_REPONSE_TIME_THRESHOLD_VALUE(%dms)\n",
-					__FUNCTION__, MESSAGE_WAITING_REPONSE_TIME_THRESHOLD_VALUE);
+		if (uptime() - up->last_heartbeat_request > 3 * 60 * 1000) {
 			up->disconnect(up);
 			up->up_connect_status = e_up_disconnected;
 		}
@@ -78,31 +70,22 @@ static BOOL up_comm_heartbeat_proc(struct UP_COMM_ST *up) {
 	}
 
 	if (uptime() - up->idle_uptime > up->heartbeat_cycle) {
-		PRINTF("%s: idle time LONGER than heartbeat cycle(%ds)\n", __FUNCTION__,
-				up->heartbeat_cycle);
 		up->private->hb_status = e_up_request;
-	} else {
-		/* common */
 	}
-
 	if (up->private->hb_status == e_up_request) {
-		PRINTF("%s: HEARTBEAT REQUEST~\n", __FUNCTION__);
 		if (up->heartbeat_request) {
 			ret = up->heartbeat_request(up);
-			up->idle_uptime = up->last_heartbeat_request = uptime(); /// send time
+			up->idle_uptime = up->last_heartbeat_request = uptime();
 			up->private->hb_status = e_up_wait_response;
 			return ret;
-		} else {
-			PRINTF("%s: NO HEARTBEAT REQUEST implementation\n", __FUNCTION__);
+		}
+		else {
 			len = plt_gasup_pack_special(PTL_GASUP_FN_COMM_HEARTBEAT, buffer,
 					sizeof(buffer), NULL, 0, up->private->packetID);
-			if (len <= 0) {
-				PRINTF("%s: GASUP PACKET error\n", __FUNCTION__);
+			if (len <= 0)
 				return FALSE;
-			}
-
 			msg_que_put(up->que_out, buffer, len, MSG_QUE_NO_STAMP);
-			//PRINTF("HEART BEAT Request\n"); /// comment by wd
+			PRINTF("HEART BEAT Request\n");
 			up->comm_send(up);
 			up->private->save_hb_packetID = up->private->packetID;
 			up->private->packetID++;
@@ -110,35 +93,30 @@ static BOOL up_comm_heartbeat_proc(struct UP_COMM_ST *up) {
 			up->private->hb_status = e_up_wait_response;
 			return TRUE;
 		}
-	} else {
-		/*common*/
 	}
 	return TRUE;
 }
 
-void up_comm_spont_alarm(UP_COMM_INTERFACE *up) {
+void up_comm_spont_alarm(UP_COMM_INTERFACE *up)
+{
 	UINT8 buffer[CONFIG_MAX_APDU_LEN], data[CONFIG_MAX_APDU_LEN];
 	UINT32 packetID;
 	int len;
 	UINT16 fn;
 
 	if (up->private->spont_status == e_up_wait_response) {
-		if (uptime()
-				- up->private->spont_tt> MESSAGE_WAITING_REPONSE_TIME_THRESHOLD_VALUE) {
+		if (uptime() - up->private->spont_tt > 3 * 60 * 1000) {
 			spontalarm_reset_info(up->private->spont_chnidx);
 			up->private->spont_status = e_up_wait_none;
 		}
 	}
 	packetID = up->private->packetID;
-	len = spontalarm_get_data(data, sizeof(data), up->private->spont_chnidx,
-			&fn);
-	len = plt_gasup_pack_special(fn, buffer, sizeof(buffer), data, len,
-			packetID);
+	len = spontalarm_get_data(data, sizeof(data), up->private->spont_chnidx, &fn);
+	len = plt_gasup_pack_special(fn, buffer, sizeof(buffer), data, len, packetID);
 	if (len <= 0)
 		return;
 	msg_que_put(up->que_out, buffer, len, MSG_QUE_NO_STAMP);
 	PRINTF("SPONT ALARM FN: %d\n", fn);
-
 	up->comm_send(up);
 	up->private->spont_status = e_up_wait_response;
 	up->idle_uptime = up->private->spont_tt = uptime();
@@ -146,67 +124,38 @@ void up_comm_spont_alarm(UP_COMM_INTERFACE *up) {
 	up->private->packetID++;
 }
 
-///#define INTERVAL_TO_CHECK_TIME (3600UL * 24 * 1) 
-
-void up_comm_proc(UP_COMM_INTERFACE *up) /// routine procedure
+void up_comm_proc(UP_COMM_INTERFACE *up)
 {
-
-	if (up->need_diag == TRUE) {
-		PRINTF("NEED TO BE DIAGNOSED for some reason\n");
-		/// TODO: no diagnose implementation
-		up->need_diag = FALSE;
-		return;
-	} else {
-
-	}
-
 	if (up->up_connect_status == e_up_disconnected) {
 		if (up->device_init) {
-			if (!up->device_init(up)) {
-				PRINTF("%s: failed to init device\n", __FUNCTION__);
+			if (!up->device_init(up))
 				return;
-			} else {
-				/* success in device init, commonly */
-			}
 		}
 		if (!up->connect || !up->connect(up)) {
 			up->up_connect_status = e_up_disconnected;
-			PRINTF("%s: failed to CONNECT TO MAINSTATION\n", __FUNCTION__); // exception of connection
 			return;
 		}
-		up->up_connect_status = e_up_connected; /// connected
-		if (!up_comm_login(up)) { /// connected log in
-			PRINTF("%s: failed to LOG IN\n", __FUNCTION__);
+		up->up_connect_status = e_up_connected;
+		if (!up_comm_login(up))
 			return;
-		}
 		up->up_status = e_up_online;
-	} else { /* connected and keep logging in */
+	}
+	else {
 		if (up->up_status != e_up_online) {
-			if (!up_comm_login(up)) { /// routine log in
-				PRINTF("%s: routine LOGIN FAILURE\n", __FUNCTION__);
+			if (!up_comm_login(up))
 				return;
-			}
-			up->up_status = e_up_online; /// login
+			up->up_status = e_up_online;
 		}
-		if (up->comm_receive(up, up->timeout) > 0) { /// receive
+		if (up->comm_receive(up, up->timeout) > 0) {
 			up->idle_uptime = uptime();
 		}
-		if (uptime() - up->idle_uptime > 7 * 60) {
-			PRINTF("%s: NEED to be DIAGNOSED\n", __FUNCTION__);
+		if (uptime() - up->idle_uptime > 7 * 60){
 			up->need_diag = TRUE;
 			up->idle_uptime = uptime();
 		}
-	}
-
-	/* routine operation */
-	if ((up->up_connect_status == e_up_connected)
-			&& (up->up_status == e_up_online)) {
-		up_protocol_proc(up->que_in, up->que_out, up->receive, up->private); // protocol process
-		up->comm_send(up); /// if it is needed to be sent, then send
-		up_comm_heartbeat_proc(up); /* routine operation */
+		up_protocol_proc(up->que_in, up->que_out, up->receive, up->private);
+		up->comm_send(up);
+		up_comm_heartbeat_proc(up);
 		up_comm_spont_alarm(up);
-	} else {
-		PRINTF("%s: disconnected and offline and not heartbeat operation\n",
-				__FUNCTION__); /* warnning */
 	}
 }

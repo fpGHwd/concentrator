@@ -4,8 +4,8 @@
  *  Created on: 2015-8-11
  *      Author: Johnnyzhang
  */
+#include <AT_bak.h>
 #include "common.h"
-#include "AT.h"
 #include "cm180.h"
 #include "f_param.h"
 #include "serial.h"
@@ -15,7 +15,7 @@
 #define NEOWAY_READ_TIMEOUT (10 * 1000)
 #define NEOWAY_WRITE_TIMEOUT (2 * 1000)
 #define IsDigit(c)   ( ((c) >= '0') && ((c) <= '9') )
-
+#define GPRS_MODULE_CONNECT 0 // to identify the connect used in gprs module
 
 enum e_neoway_module_type {
 	e_module_type_m590 = 0, e_module_type_cm180, e_module_type_unknown
@@ -300,12 +300,11 @@ void GetStrPort(char *String, UINT16 Port) {
 	String[k] = '\0';
 }
 
+bool cm180_update_time_via_gprs(int fd, time_t *time);
 int cm180_tcp_connect(int fd, const char *IP, int Port, int timeout) {
 	//int Ret = 0;
-
 	TcpSetupArg_t ARG = { 0 };
 	//------------------------------------------------------------------------------
-
 	ARG.Link = 0;
 
 	memcpy(ARG.IP, IP, strlen(IP));  /// get IP
@@ -317,45 +316,50 @@ int cm180_tcp_connect(int fd, const char *IP, int Port, int timeout) {
 			ARG.Port); /// print arg ip port
 
 	if (AT_CmdSend(fd, AT_C_TCP_SETUP, (void *) &ARG) < 0) {
-
 		PRINTF("%s : Neoway GPRS/CDMA Tcp Setup Err!\n", __FUNCTION__);
-
 		return (-1);
 	}
 
 	if (AT_CmdSend(fd, AT_C_TCP_CONNECT, (void *) &ARG.Link) < 0) {
-
 		if(AT_CmdSend(fd, AT_C_TCP_CLOSE, (void *) &ARG.Link)<0){ // close connection OK
-			PRINTF("%s : Neoway GPRS/CDMA Tcp Connect Err!\n", __FUNCTION__);
+			PRINTF("%s : Neoway GPRS/CDMA failed to close connection!\n", __FUNCTION__);
 			return (-1);
 		}else{
 			PRINTF("%s : Neoway GPRS/CDMA Close TCP CONNECTION!\n", __FUNCTION__);
 			if(AT_CmdSend(fd, AT_C_TCP_CONNECT, (void *) &ARG.Link) < 0){
 				PRINTF("%s : Neoway GPRS/CDMA Tcp Connect Err!\n", __FUNCTION__);
 				return -1;
-			}else{
-				return fd;
-				//PRINTF("%s : Neoway GPRS/CDMA Tcp Connect OK!\n", __FUNCTION__); // no need to show log
 			}
 		}
 	}else{
-		return fd;
+		//return fd;
 		//PRINTF("%s : Neoway GPRS/CDMA Tcp Connect OK!\n", __FUNCTION__); // no need to show log
 	}
-
 	//------------------------------------------------------------------------------
+
+	/*
+	if(fd > 0){
+		///PRINTF("update the time test\n");
+		if(cm180_update_time_via_gprs(fd,NULL))
+			PRINTF("Update time by gprs successfuly\n");
+		else
+			PRINTF("Update time failed, go on\n");
+	}else{
+		PRINTF("fatal error: fd is invalid\n");
+		exit(1);
+	}
+	*/
+
 	return (fd);
 }
 
 int cm180_udp_connect(int fd, const char *addr, int port) {
+
 	PRINTF("%s : Neoway GPRS/CDMA UDP UnSupport!\n", __FUNCTION__);
 
 	return (0);
 }
 
-///static char *time_server_string = "time.windows.com"; /// time.nist.gov
-bool cm180_update_time_via_network(int fd, char *domain_name);
-///static bool time_update = false;
 int cm180_send(int fd, const BYTE *buffer, int length, int *response) {
 	/*
 	 // before send to check time 
@@ -500,13 +504,14 @@ BOOL cm180_getip(int fd, char *ipstr) {
 
 		return ( TRUE);
 	} else {
-
 		return ( FALSE);
 	}
-
 }
 
 bool cm180_update_time_via_gprs(int fd, time_t *time) {
+
+	UINT8 *rbp;
+	//int delta_sec = 7;
 
 	if (AT_CmdSend(fd, AT_C_CCLK, NULL) == 0) {
 	} else {
@@ -523,21 +528,147 @@ bool cm180_update_time_via_gprs(int fd, time_t *time) {
 		return false;
 	}
 
-	if (AT_CmdSend(fd, AT_C_SET_MYNET_ACT,NULL) ==0) {
+	if (AT_CmdSend(fd, AT_C_SET_MYNET_ACT,NULL) ==0) { /// PDB activated
 	} else {
 		return false;
 	}
 
 	if (AT_CmdSend(fd, AT_MYTIME_UPDATE, NULL) == 0) {
-		// success
+		//ok
 	} else {
 		return false;
 	}
 
 	if (AT_CmdSend(fd, AT_C_CCLK, NULL) == 0) {
-		//PRINTF("time now not need to return back\n");
+		rbp = AT_GetRcvBuffer();
+		if(rbp == NULL){
+			perror("Fatal error in getting receive buffer and pointer\n");
+		}
+		// TODO string to time and set the time
+		//PRINTF("print the string get: %s\n", rbp);
+		// print result: AT+CCLK?\rCCLK: "17/04/20,10;43:16"\rOK
 	} else {
 		return false;
 	}
+
+	/*
+	if(AT_CmdSend(fd, AT_C_CNCT_PPP, NULL) == 0){
+		PRINTF("exception: need to be paied attention to\n");
+	}else{
+		PRINTF("set back the mynetact to 0,1\n");
+	}
+	*/
+
 	return true;
 }
+
+// TODO eth need to be diagnosed
+// TODO error in open clock /dev/rtc
+
+/*
+ * MODEM:STARTUP
+ *
+ * +PBREADY
+ *
+ * AT
+ * OK
+ *
+ * AT+GMR
+ * +GMR: M590_1250_l9s63000_v023
+ *
+ * AT+MYGMR
+ * NEO6
+ * M590 R2
+ * v023
+ * 190515
+ * V1.2
+ * 240214
+ * OK
+ *
+ * AT+CPIN?
+ * +CPIN: READY
+ * OK
+ *
+ * AT$MYCCID
+ * $MYCCID: "898602b6111600119496"
+ * OK
+ *
+ * AT+CSQ
+ * +CSQ: 30,0
+ * OK
+ *
+ * AT+CREG?
+ * +CREG: 0,5
+ * OK
+ *
+ * AT$MYNETURC=1
+ * OK
+ *
+ * AT$MYNETACT=0,1
+ * OK
+ * $MYNETACT: 0,1,"10.32.187.2"
+ *
+ * AT$MYNETACT?
+ * $MYNETACT: 0,1,"10.32.187.2"
+ * OK
+ *
+ * AT$MYNETSRV=0,0,0,0,"120.25.147.230:12345"
+ * OK
+ *
+ * AT$MYNETOPEN=0
+ * $MYNETOPEN: 0,2000
+ * OK
+ *
+ * AT$MYNETWRITE=0,10
+ * $MYNETWRITE: 0,10
+ * (0123456789)
+ * OK
+ *
+ * AT+MYNETACK=0
+ * $MYNETACK: 0,0,2047
+ * OK
+ *
+ * $MYURCREAD: 0 (objective)
+ *
+ * AT$MYNETREAD=0,2048
+ * $MYNETREAD: 0,33
+ * (RECEIVED DATA)
+ * OK
+ *
+ * AT$MYNETCLOSE=0
+ * $MYNETCLOSE: 0
+ * OK
+ *
+ * ******time update AT process******
+ * AT+CCLK?
+ * +CCLK: "04/01/01,00:16:35"
+ * OK
+ *
+ * AT$MYNETCON=1,APN,CMNET
+ * OK
+ *
+ * AT$MYNETURC=1 (OBJECTIVE )
+ * OK
+ *
+ * AT$MYNETACT=1,1
+ * ERROR: 902 (ALREADY ADTIVIATED)
+ *
+ * AT$MYNETACT=0,0
+ * OK
+ *
+ * AT$MYNETACT=0,1
+ * OK
+ * $MYURCACT: 0,1,"10.32.187.2"
+ *
+ * AT$MYNETACT=1,1
+ * ERROR: 902
+ *
+ * AT$MYTIMEUPDATE="time.nist.gov" /// 916
+ * OK
+ *
+ * AT+CCLK?
+ * +CCLK: "17/04/20,14:17:08"
+ * OK
+ */
+
+

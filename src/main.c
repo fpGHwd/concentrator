@@ -144,51 +144,51 @@ lcd_show_lines();
 }
 
 static void system_exit(void) {
-//control_led(1,0);
-//key_exit();
-gpio_close();
-lcd_close();
-fgasmeteralm_close();
-fconalm_close();
-fmon_close();
-fday_close();
-fcurrent_close();
-fgasmeter_close();
-fparam_destroy();
-msg_que_destroy();
+	//control_led(1,0);
+	//key_exit();
+	gpio_close();
+	lcd_close();
+	fgasmeteralm_close();
+	fconalm_close();
+	fmon_close();
+	fday_close();
+	fcurrent_close();
+	fgasmeter_close();
+	fparam_destroy();
+	msg_que_destroy();
 }
 
 int main(int argc, char **argv) {
-int opt;
+	int opt;
 
-set_prog_name(argv[0]);
-while ((opt = getopt(argc, argv, "vhs")) > 0) {
-	switch (opt) {
-	case 'v':
-		print_version();
-		print_addr();
-		return 0;
-	case 's':
-		g_silent = 1;
-		break;
-	case 'h':
-	default:
-		usage(argv[0]);
-		return 1;
+	set_prog_name(argv[0]);
+	while ((opt = getopt(argc, argv, "vhs")) > 0) {
+		switch (opt) {
+		case 'v':
+			print_version();
+			print_addr();
+			return 0;
+		case 's':
+			g_silent = 1;
+			break;
+		case 'h':
+		default:
+			usage(argv[0]);
+			return 1;
+		}
 	}
-}
-LOG_PRINTF("Concentrator program for GAS Concentrator V%s build on %s\n", APP_VERSION, g_release_time);
-daemon_init();
-signal(SIGINT, signal_term);
-signal(SIGTERM, signal_term);
-signal(SIGCHLD, signal_chld);
-system_init();
-init_watchdog();
-threads_create();
-handler_power_fail();
-threads_join();
-system_exit();
-print_quit();
+	LOG_PRINTF("Concentrator program for GAS Concentrator V%s build on %s\n", APP_VERSION, g_release_time);
+	daemon_init();
+	signal(SIGINT, signal_term);
+	signal(SIGTERM, signal_term);
+	signal(SIGCHLD, signal_chld);
+	system_init();
+	init_watchdog();
+	threads_create();
+	handler_power_fail();
+	threads_join();
+	system_exit();
+	print_quit();
 
-return 0;
+	return 0;
 }

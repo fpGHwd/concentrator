@@ -20,8 +20,10 @@
 
 #define CONFIG_GPRSCDMA_THREAD_SLEEP 100
 
-static UP_COMM_PRIVATE gprscdma_private =
-		{ .packetID = 1, .save_hb_packetID = 1, };
+static UP_COMM_PRIVATE gprscdma_private ={
+		.packetID = 1,
+		.save_hb_packetID = 1,
+};
 
 static BOOL gprscdma_device_init(struct UP_COMM_ST *up);
 static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up);
@@ -29,15 +31,25 @@ static INT32 gprscdma_fep_receive(struct UP_COMM_ST *up, int timeout);
 static BOOL gprscdma_fep_send(struct UP_COMM_ST *up);
 static void gprscdma_disconnect(struct UP_COMM_ST *up);
 
-static UP_COMM_INTERFACE gprscdma_comm = { .describe = "GPRS/CDMA", .fd = -1,
-		.up_status = e_up_offline, .que_in = MSG_QUE_GPRSCDMA_IN, .que_out =
-				MSG_QUE_GPRSCDMA_OUT,
+static UP_COMM_INTERFACE gprscdma_comm = {
+		.describe = "GPRS/CDMA",
+		.fd = -1,
+		.up_status = e_up_offline,
+		.que_in = MSG_QUE_GPRSCDMA_IN,
+		.que_out = MSG_QUE_GPRSCDMA_OUT,
 		.need_diag = FALSE,  /// need diagnose
-		.device_init = gprscdma_device_init, .connect = gprscdma_tcpip_connect,
-		.login = NULL, .logout = NULL, .heartbeat_cycle = 30, .timeout = -1,
-		.comm_receive = gprscdma_fep_receive, .comm_send = gprscdma_fep_send,
-		.heartbeat_request = NULL, .disconnect = gprscdma_disconnect, .private =
-				&gprscdma_private, };
+		.device_init = gprscdma_device_init,
+		.connect = gprscdma_tcpip_connect,
+		.login = NULL,
+		.logout = NULL,
+		.heartbeat_cycle = 30,
+		.timeout = -1,
+		.comm_receive = gprscdma_fep_receive,
+		.comm_send = gprscdma_fep_send,
+		.heartbeat_request = NULL,
+		.disconnect = gprscdma_disconnect,
+		.private = &gprscdma_private,
+};
 
 static BOOL check_gprscdma_online(struct UP_COMM_ST *up) //
 {
@@ -143,7 +155,7 @@ static INT32 gprscdma_fep_receive(struct UP_COMM_ST *up, int timeout) {
 			receive_add_bytes(receive, buf, len);
 
 			/* add flux use if send and receive success by wd */
-			get_date(date_string);
+			//get_date(date_string);
 			//add_byte_via_date(len, date_string);
 
 			return len;
@@ -200,8 +212,6 @@ int fep_is_connect(void) {
 	return gprscdma_comm.up_status == e_up_online;
 }
 
-//static long start_cycle_timing;
-//static long delta_time;
 void *th_upgprscdma(void * arg) {
 	RECEIVE_BUFFER receive;
 	BYTE hb_cycle[2];
@@ -218,14 +228,8 @@ void *th_upgprscdma(void * arg) {
 		fparam_get_value(FPARAMID_HEARTBEAT_CYCLE, hb_cycle, 2);
 		// gprscdma_comm.heartbeat_cycle = (hb_cycle[1] << 8) + hb_cycle[0]; // 128 * 60 = 7680
 		gprscdma_comm.heartbeat_cycle = (hb_cycle[0] << 8) + hb_cycle[1];
-		/// start_cycle_timing = uptime();
-		up_comm_proc(&gprscdma_comm);
 
-		/*
-		 if( (delta_time = uptime()-start_cycle_timing) > 20){
-		 PRINTF("%s: takes time %d seconds, time warnning\n", __FUNCTION__, (uptime() - start_cycle_timing)); 
-		 }
-		 */
+		up_comm_proc(&gprscdma_comm);
 
 		check_gprscdma_online(&gprscdma_comm);
 		msleep(CONFIG_GPRSCDMA_THREAD_SLEEP);
