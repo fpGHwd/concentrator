@@ -12,7 +12,7 @@
 #include "f_alarm.h"
 
 //#define F_GASMETER_ALARM_NAME "f_gasmeter_alarm.dat"
-#define F_GASMETER_ALARM_NAME "../data/f_gasmeter_alarm.dat"
+#define F_GASMETER_ALARM_NAME "/opt/concentrator/data/f_gasmeter_alarm.dat"
 
 #define MAX_GASMETER_ALARM_CNT 5000
 

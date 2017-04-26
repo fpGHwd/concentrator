@@ -13,7 +13,7 @@
 #include "f_gasmeter.h"
 
 //#define F_CURRENT_NAME "f_current.dat"
-#define F_CURRENT_NAME "../data/f_current.dat"
+#define F_CURRENT_NAME "/opt/concentrator/data/f_current.dat"
 
 typedef struct {
 	GASMETER_CJT188_901F data_901f;

@@ -212,6 +212,8 @@ int fep_is_connect(void) {
 	return gprscdma_comm.up_status == e_up_online;
 }
 
+/// change C to G
+
 void *th_upgprscdma(void * arg) {
 	RECEIVE_BUFFER receive;
 	BYTE hb_cycle[2];

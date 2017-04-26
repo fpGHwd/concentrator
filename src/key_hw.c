@@ -16,7 +16,7 @@
  KEY_UP、KEY_DOWN、KEY_LEFT、KEY_RIGHT、KEY_OK、KEY_CANCEL
  */
 
-#define KEY_PATH      "/dev/input/event0"
+#define KEY_PATH      "/dev/input/event1"
 
 int key_fd = -1;
 

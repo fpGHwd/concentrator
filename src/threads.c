@@ -86,7 +86,7 @@ void init_watchdog(void) {
 
 	watchdog_fd = open(watch_dog_device, O_RDWR);
 	if (watchdog_fd > 0){
-		//fprintf(stdout, "Open watchdog successed\n");
+		fprintf(stdout, "Open watchdog successed\n");
 	}
 	else{
 		fprintf(stdout, "Open watchdog failed\n");

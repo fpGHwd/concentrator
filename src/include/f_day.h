@@ -13,7 +13,7 @@
 #include "f_gasmeter.h"
 
 ///#define F_DAY_NAME "f_day.dat" /// 
-#define F_DAY_NAME "../data/f_day.dat"
+#define F_DAY_NAME "/opt/concentrator/data/f_day.dat"
 
 #define MAX_GASMETER_DAY_CNT 60 /// GASMETER_DAY
 

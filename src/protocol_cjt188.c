@@ -123,10 +123,10 @@ BOOL plt_cjt188_check_packet(PTL_CJT188_MSG *msg, const UINT8 *buf,
 	return TRUE;
 }
 
-int plt_cjt188_pack_read(UINT8 *buf, UINT32 max_len, const UINT8 *address,
 /// command type(code) 9015, 必要的message , pack message with 188 protocol, 
 /// pack message with yl800, send message, waiting for response.
-		UINT8 ctr_0, UINT16 di) {
+int plt_cjt188_pack_read(UINT8 *buf, UINT32 max_len, const UINT8 *address,UINT8 ctr_0, UINT16 di)
+{
 	UINT8 databuf[3];
 	PTL_CJT188_MSG msg;
 

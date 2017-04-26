@@ -997,12 +997,12 @@ void lcd_update_head_info(void) {
 	} else {
 		lcd_hide_icon(1, 7, 7);
 	}
-	/*if (fparam_get_program_status()) {
+	if (fparam_get_program_status()) { /// ? TODO
 	 lcd_show_icon(1, 7, 11);
 	 }
 	 else {
 	 lcd_hide_icon(1, 7, 11);
-	 }*/
+	 }
 	sys_time(&tm);
 	if (tm.tm_mon != month || tm.tm_mday != day || tm.tm_hour != hour
 			|| tm.tm_min != min || tm.tm_sec != sec) {

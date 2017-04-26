@@ -11,7 +11,7 @@
 #include "typedef.h"
 
 //#define F_GASMETER_NAME "f_gasmeter.dat"
-#define F_GASMETER_NAME "../data/f_gasmeter.dat"
+#define F_GASMETER_NAME "/opt/concentrator/data/f_gasmeter.dat"
 
 #define MAX_GASMETER_NUMBER 1000
 

@@ -12,7 +12,7 @@
 #include "f_alarm.h"
 
 //#define F_CON_ALARM_NAME "f_conalarm.dat"
-#define F_CON_ALARM_NAME "../data/f_conalarm.dat"
+#define F_CON_ALARM_NAME "/opt/concentrator/data/f_conalarm.dat"
 
 #define MAX_CON_ALARM_CNT 1000
 

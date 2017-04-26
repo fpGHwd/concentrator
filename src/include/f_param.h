@@ -11,7 +11,7 @@
 #include "typedef.h"
 
 //#define F_PARAM_NAME "f_param.dat"
-#define F_PARAM_NAME "../data/f_param.dat"
+#define F_PARAM_NAME "/opt/concentrator/data/f_param.dat"
 
 #define FPARAM_PROGRAM_KEY_HOLD_TIME	3
 #define FPARAM_PROGRAM_INTERVAL			(10 * 60)

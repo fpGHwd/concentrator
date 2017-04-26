@@ -124,7 +124,7 @@ signal(SIGIO, power_fail);
 static void system_init(void) {
 // if internal realation is stable enough, we can arbitrarily set the sequence of operations
 modem_gprs_turn_on();
-//key_initiate();
+key_initiate();
 read_rtc();
 
 msg_que_init();
@@ -145,7 +145,7 @@ lcd_show_lines();
 
 static void system_exit(void) {
 	//control_led(1,0);
-	//key_exit();
+	key_exit();
 	gpio_close();
 	lcd_close();
 	fgasmeteralm_close();

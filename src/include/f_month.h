@@ -13,7 +13,7 @@
 #include "f_gasmeter.h"
 
 //#define F_MON_NAME "f_month.dat"
-#define F_MON_NAME "../data/f_month.dat"
+#define F_MON_NAME "/opt/concentrator/data/f_month.dat"
 
 #define MAX_GASMETER_MON_CNT 120
 

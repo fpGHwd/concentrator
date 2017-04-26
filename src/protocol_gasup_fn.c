@@ -19,7 +19,7 @@
 #define MAX_METERDATA_CNT_IN_PACKET 30
 
 UINT32 ptl_gasup_fn_2001(const PTL_GASUP_MSG *msg, INT8 *outdata,
-		INT32 max_outlen, INT32 *datalen, INT32 max_datalen) /// 主站通信测试
+		INT32 max_outlen, INT32 *datalen, INT32 max_datalen)
 {
 	INT8 *ptr = outdata;
 	if (msg == NULL || msg->data == NULL || msg->datalen < 5 || outdata == NULL

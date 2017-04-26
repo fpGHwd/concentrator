@@ -16,7 +16,7 @@ struct font_info {
 	unsigned int len; /* font memory size */
 };
 
-static struct font_info font_info[] = { { 12, "../font/font12" }, { 16, "../font/font16" }, //hzk16s
+static struct font_info font_info[] = { { 12, "/opt/concentrator/font/font12" }, { 16, "/opt/concentrator/font/font16" }, //hzk16s
 		{ 0, NULL } };
 
 static struct font_info *font = NULL;

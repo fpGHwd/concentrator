@@ -66,6 +66,7 @@ void fgasmeter_open(void) /// open and initiate gasmeter_info
 		return;
 	safe_read(pinfo->fd, &pinfo->db, size); /// &pinfo->db
 
+	/*
 	m = valid_meter_sum();
 	if(m == 0){
 		fprintf(stdout, "no meter in the database, try to add a virtual meter and test read meter\n");
@@ -73,6 +74,7 @@ void fgasmeter_open(void) /// open and initiate gasmeter_info
 	}else{
 		fprintf(stdout, "meter number in database:%d\n", m);
 	}
+	*/
 }
 
 static void fgasmeter_flush(void) {
