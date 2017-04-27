@@ -8,5 +8,4 @@
 #include "con_test.h"
 
 void con_test_exec(void) {
-	// TODO: unknown intention
 }

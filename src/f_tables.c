@@ -14,7 +14,7 @@ void open_tables(void) {
 }
 
 void flush_tables(void) {
-	// TODO: flush memery data to file
+
 }
 
 void close_tables(void) {

@@ -644,7 +644,7 @@ int remote_tcpudp_read(int fd, void *buf, int max_len, int timeout,
 	if (pcur_module_attr->protocol_stack_type == MODEM_PCL_STACK_IN_OS) { /// OS TYPE
 		*errcode = REMOTE_MODULE_UNREAD_PCLSTACKINOS;
 		return 0;
-	} else { /// MODULE
+	} else {
 		p_pclstack = &pcur_module_attr->pcl_in_module;
 	}
 	if (NULL == p_pclstack)
@@ -752,6 +752,5 @@ int remote_module_get_netinfo(BYTE *type, BYTE *value, BYTE *level) {
 
 
 int module_update_time(char *pulic_time_server) {
-
 	return 0;
 }

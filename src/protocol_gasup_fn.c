@@ -1067,23 +1067,16 @@ UINT32 ptl_gasup_fn_2053(const PTL_GASUP_MSG *msg, INT8 *outdata,
 	return 1;
 }
 
-/*
- const PTL_GASUP_MSG *msg, 	消息指针
- INT8 *outdata, 			响应信息
- INT32 max_outlen, 			响应长度
- INT32 *datalen, 			报文长度域
- INT32 max_datalen			
- */
+// TODO: implement it, very important
 UINT32 ptl_gasup_fn_2061(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		INT32 max_outlen, INT32 *datalen, INT32 max_datalen) /// 集中器异常事件上传
 {
-	// Nothing to do
 	return 0;
 }
 
+// TODO: implement it
 UINT32 ptl_gasup_fn_2062(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		INT32 max_outlen, INT32 *datalen, INT32 max_datalen) /// 表具异常事件上传
 {
-	// Nothing to do
 	return 0;
 }

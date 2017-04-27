@@ -20,7 +20,7 @@
 #include "f_day.h"
 #include "f_month.h"
 
-#define MAX_READ_DI_CNT 100
+#define MAX_READ_DI_CNT 100 /// TODO: not forget to free this memory
 
 #define EVENT_RDMETER 0x00000001
 
@@ -28,7 +28,9 @@ static app_event_t event_rdmeter;
 static int gasmeter_fd = -1;
 static sem_t sem_serial;
 
-static WORD read_dis[] = { 0x901F, };
+static WORD read_dis[] = {
+		0x901F,
+};
 
 static struct tm last_read_tm;
 
@@ -38,7 +40,6 @@ void start_read_gasmeter(void) {
 	sys_time(&cur_tm);
 	app_event_send(&event_rdmeter, EVENT_RDMETER);
 	last_read_tm = cur_tm;
-	//PRINTF("Reading meter for the first time( from program start on )\n");
 }
 
 void *th_gasmeter_event(void *arg) {
@@ -50,7 +51,7 @@ void *th_gasmeter_event(void *arg) {
 	sys_time(&cur_tm);
 	last_read_tm = cur_tm;
 	while (!g_terminated) {
-		sleep(100); /// add by wd
+		sleep(100); /// add by nayowang
 		notify_watchdog();
 		if (fgasmeter_is_empty()) {
 			msleep(10);
@@ -105,6 +106,9 @@ static int gasmeter_read_serial(void *buf, int len, int timeout) {
 	return read_serial(gasmeter_fd, buf, len, timeout);
 }
 
+
+// # every thread need a watchdog
+
 int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 		BYTE *buf, int max_len) /// read meter
 {
@@ -132,17 +136,20 @@ int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 	}
 
 	cjt188_len = plt_cjt188_pack_read(cjt188_reqbuf, sizeof(cjt188_reqbuf),
-			address, ctrl, di); /// 188
+			address, ctrl, di);
 
 	if (cjt188_len <= 0) {
 		PRINTF("%s: 188 PROTOCOL PACK LENGTH error\n", __FUNCTION__);
 		return -1;
 	}
 
-	if (!fgasmeter_get_repeater(address, repeater)) {
+	if (!fgasmeter_get_repeater(address, repeater) && debug_ctrl.repeater_enable) {
 		p_repeater = repeater;
 	} else {
-		PRINTF("%s: NOT USE REPEATER\n", __FUNCTION__);
+		if(debug_ctrl.repeater_enable)
+			PRINTF("%s: null repeater\n", __FUNCTION__);
+		else
+			PRINTF("%s: debug.repeater_enable = false\n", __FUNCTION__);
 		p_repeater = NULL;
 	}
 
@@ -160,7 +167,7 @@ int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 
 	sem_wait(&sem_serial);
 	while (read_serial(fd, yl800_respbuf, sizeof(yl800_respbuf), 100) > 0)
-		; /// read when buff nothing
+		; /// read when NOTHING in buff
 	tmplen = write_serial(fd, yl800_reqbuf, yl800_len, 500);
 	PRINTB("To GAS METER: ", yl800_reqbuf, yl800_len);
 
@@ -220,9 +227,10 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 	BYTE SER;
 	//---------------------------------------------------------------------------------------------------------
 	if (fd < 0){
-		fprintf(stderr, "FATAL ERROR: try to read meter while rf-fd is not valid\n");
-		exit(-1);
+		PRINTF("fd is invalid\n");
+		return FALSE;
 	}
+
 	cjt188_len = plt_cjt188_pack_write(cjt188_reqbuf, sizeof(cjt188_reqbuf),
 			address, ctrl, di, buf, buflen);
 
@@ -232,12 +240,10 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 	if (fgasmeter_get_repeater(address, repeater)) {
 		p_repeater = repeater;
 	} else {
-
 		p_repeater = NULL;
 	}
 
 	//memcpy(yl800_address, &address[5], 2);
-
 	yl800_address[0] = 0x00;
 	yl800_address[1] = address[4];
 	yl800_address[2] = address[5];
@@ -247,27 +253,20 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 			yl800_address, cjt188_reqbuf, cjt188_len);
 
 	if (yl800_len <= 0) {
-
 		return ( FALSE);
 	}
 
 	sem_wait(&sem_serial);
 
-	while (read_serial(fd, yl800_respbuf, sizeof(yl800_respbuf), 100) > 0)
-		; // clear data
-
+	while (read_serial(fd, yl800_respbuf, sizeof(yl800_respbuf), 100) > 0) // READ TO CLEAR BUFF
+		;
 	tmplen = write_serial(fd, yl800_reqbuf, yl800_len, 500);
-
 	PRINTB("To GAS METER: ", yl800_reqbuf, yl800_len);
-
 	SER = plt_cjt188_get_ser();
-
 	plt_cjt188_inc_ser();
 
 	if (yl800_len != tmplen) {
-
 		sem_post(&sem_serial);
-
 		return ( FALSE);
 	}
 
@@ -316,7 +315,7 @@ BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 	BYTE yl800_address[4];
 //-------------------------------------------------------------------------------------------------------
 	if (fd < 0){
-		fprintf(stderr,"FATAL ERROR: invalid rf-fd to write value to meter\n");
+		fprintf(stderr,"FATAL ERROR: ivalid\n");
 		exit(-1);
 	}
 
@@ -452,9 +451,6 @@ BOOL gasmeter_save_daydata(const BYTE *address, const BYTE *collector, WORD di,
 
 	if (fday_get_data(dayidx, mtidx, di, &di_data)) {
 		return TRUE;
-	}else{
-		fprintf(stderr, "Error: fday get data failed\n");
-		return FALSE;
 	}
 
 	if (!ptl_cjt188_data_format(&di_data, di, tt, buf, buflen)) {
@@ -471,17 +467,17 @@ BOOL gasmeter_save_daydata(const BYTE *address, const BYTE *collector, WORD di,
 }
 
 BOOL gasmeter_save_monthdata(const BYTE *address, const BYTE *collector,
-		WORD di, long tt, /// 比较有用
+		WORD di, long tt,
 		BYTE *buf, int buflen) {
 	int mtidx, monidx;
 	GASMETER_CJT188_901F di_data;
 	BOOL b_success;
-	char addbuf[MAX_HEXDATA_BUF], colbuf[MAX_HEXDATA_BUF]; /// 64 
+	char addbuf[MAX_HEXDATA_BUF], colbuf[MAX_HEXDATA_BUF];
 
 	mtidx = fgasmeter_getidx_by_gasmeter(address);
 	if (mtidx < 0)
 		return FALSE;
-	monidx = fmon_get_datablock_index(); /// 通过当前时间确定月对应的块
+	monidx = fmon_get_datablock_index();
 	if (monidx < 0) {
 		monidx = fmon_create_monblock();
 	}
@@ -516,8 +512,8 @@ void *th_gasmeter(void *arg) {
 	BYTE resp_buf[512];
 	int resp_len;
 	long read_tt;
-	BYTE addbuf[MAX_HEXDATA_BUF];
-	BYTE colbuf[MAX_HEXDATA_BUF];
+	char addbuf[MAX_HEXDATA_BUF];
+	char colbuf[MAX_HEXDATA_BUF];
 
 	print_thread_info();
 	sem_init(&sem_serial, 0, 1);
@@ -529,23 +525,23 @@ void *th_gasmeter(void *arg) {
 			for (i = 0; !g_terminated && i < MAX_GASMETER_NUMBER; i++) {
 				if (!fgasmeter_getgasmeter(i, address, collector))
 					continue; /// not set correct 
-				for (j = 0; !g_terminated && j < ARRAY_SIZE(read_dis); j++) { /// ARRAY_SIZE(read_dis)
-					for (k = 0; !g_terminated && k < g_retry_times + 1; k++) { /// for retry 3 times if read fail
+				for (j = 0; !g_terminated && j < ARRAY_SIZE(read_dis); j++) {
+					for (k = 0; !g_terminated && k < g_retry_times; k++) {
 						PRINTF(
 								"Read DI: %04X, index: %d, ADDR: [%s], COL: [%s]\n",
 								read_dis[j], i,
-								PRINT_ADDRESS((char *)addbuf, (const BYTE *)address, 7),
-								PRINT_ADDRESS((char *)colbuf, (const BYTE *)collector, 5));
+								PRINT_ADDRESS(addbuf, (const BYTE *)address, 7),
+								PRINT_ADDRESS(colbuf, (const BYTE *)collector, 5));
 						time(&read_tt);
 						resp_len = gasmeter_read_di(address, collector,
 								read_dis[j], resp_buf, sizeof(resp_buf));
 						if (resp_len <= 0) {
-							PRINTF("%s: read meter failed\n", __FUNCTION__);
+							PRINTF("%s: Receive no data till timeout\n", __FUNCTION__);
 							fcurrent_set_status(
 									fgasmeter_getidx_by_gasmeter(address),
 									read_dis[j], GASMETER_READ_STATUS_ABORT);
 							continue;
-						} else {
+						}else{
 							/* save data */
 							gasmeter_save_data(address, collector, read_dis[j],
 									read_tt, resp_buf, resp_len);
@@ -565,5 +561,5 @@ void *th_gasmeter(void *arg) {
 
 void save_data(const BYTE *address, const BYTE *collector, WORD di, long tt,
 		BYTE *buf, int buflen) {
-	gasmeter_save_data(address, collector, di, tt, buf, buflen); /// interface for use
+	gasmeter_save_data(address, collector, di, tt, buf, buflen);
 }

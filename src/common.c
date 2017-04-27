@@ -633,12 +633,13 @@ int check_rtc(void) {
 	int fd, ret = 0;
 	struct tm tm;
 
-	if ((fd = open("/dev/rtc", O_RDONLY)) >= 0) {
-		if (ioctl(fd, RTC_RD_TIME, &tm) >= 0) // read time
+	if ((fd = open("/dev/rtc0", O_RDONLY)) >= 0) {
+		PRINTF("Open /dev/rtc0 success\n");
+		if (ioctl(fd, RTC_RD_TIME, &tm) >= 0)
 			ret = 1;
 		close(fd);
 	} else {
-		fprintf(stdout,"Error in open clock(fd:%d)\n",fd); // TODO: often failed
+		PRINTF("Error in open clock\n");
 	}
 	return ret;
 }

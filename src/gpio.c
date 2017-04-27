@@ -102,12 +102,12 @@ static void gpio_ioctl(int cmd, unsigned int *val) {
 
 void device_lcd_reset(void)
 {
-	// TODO /// turn off light
+	// turn off light
 }
 
 void device_lcd_light(int on)
 {
-	// TODO /// turn on light
+	// turn on light
 }
 
 #define MODEM_POWER_ON	0x33 // 0x33 '3'
@@ -115,10 +115,10 @@ void device_lcd_light(int on)
 #define MODEM_GPRS_ON   0x30 // 0x30 '0'
 #define MODEM_GPRS_OFF  0X31 // 0X31 '1'
 
+// TODO: rewrite the modem power reset
 void modem_hard_reset(void)
 {
 #if 1
-	// TODO: reformat
 	int fd;
 	char buf[2];
 	int ret;
@@ -137,7 +137,6 @@ void modem_hard_reset(void)
 	wait_delay(2000);
 	close(fd);
 	return;
-
 #else
 	unsigned int val;
 

@@ -7,6 +7,7 @@
 #include "m590e.h"
 #include "atcmd.h"
 #include "common.h"
+#include "main.h"
 
 void *g_m590e_resource = NULL;
 
@@ -14,15 +15,12 @@ void *g_m590e_resource = NULL;
 #define M590E_READ_TIMEOUT (10 * 1000u)
 
 #define M590E_SOCKET_ID 0
-
 static char m590e_ip_str[64] = {0};
 
-/* int at_cmd(int fd, const char *send, char *recv, int max_len,
-		   int timeout1, int timeout2) */
+// TODO: m590e initiate
 e_remote_module_status m590e_init(int fd)
 {
-	// TODO initiate the m590e module
-	char resp[1024], *ptr; // resp
+	char resp[1024], *ptr;
 	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
 	const e_remote_module_status abort_st = e_modem_st_deivce_abort;
 
@@ -31,43 +29,22 @@ e_remote_module_status m590e_init(int fd)
 	else
 		PRINTF("%s Start\n", __FUNCTION__);
 
-	AT_CMD_CHECK("ATE0\r", 1000, 500, abort_st, "OK");  // close display back
+	AT_CMD_CHECK("AT+CFUN=1,1\r", t1, t2, abort_st, "OK"); // restart module
+	msleep(2000);
 
-	/*
-	if(at_cmd(fd, "", resp, sizeof(resp), t1, t2)>0)
-		return abort_st;
+	if(debug_ctrl.gprs_display_back_enable)
+		AT_CMD_CHECK("ATE1\r", t1, t2, abort_st, "OK");
+	else
+		AT_CMD_CHECK("ATE0\r", t1, t2, abort_st, "OK");
 
-	if(at_cmd(fd, "AT+CGATT?", resp, sizeof(resp), t1, t2)> 0){
-		if((ptr = strstr(resp, "0")) != NULL){
-			AT_CMD_CHECK("AT+CGATT=1\r", t1, t2, abort_st, "OK"); // GPRS ATTACHED: befor PPP connect
-		}else if((ptr = strstr(resp, "1"))){
-			// do nothing, and go on
-		}else{
-			return abort_st;
-		}
-	}else{
-		// something wrong
-	}
-	*/
-	// TYPE
-	AT_CMD_CHECK("AT$MYTYPE?\r", t1, t2, abort_st, "OK");
-	// get version
+	//AT_CMD_CHECK("AT$MYTYPE?\r", t1, t2, abort_st, "OK");
 	AT_CMD_CHECK("AT$MYGMR\r", t1, t2, abort_st, "OK");
-	// GET SIM
 	AT_CMD_CHECK("AT+CPIN?\r", t1, t2, abort_st, "+CPIN: READY");
-	// GET CID
 	AT_CMD_CHECK("AT$MYCCID\r", t1, t2, abort_st, "$MYCCID: ");
-	// CSQ
-	AT_CMD_CHECK("AT+CSQ\r", t1, t2, abort_st, "+CSQ: ");
-	// GET GSM
-	AT_CMD_CHECK("AT+CREG?\r",t1, t2, abort_st, "+CREG: ");
-
-	// APN SETTING
-	// set apn // AT$MYNETCON=0,APN,CMNET
+	AT_CMD_CHECK("AT+CSQ\r", t1, t2, abort_st, "+CSQ: "); // check
+	AT_CMD_CHECK("AT+CREG?\r",t1, t2, abort_st, "+CREG: "); // check
 	AT_CMD_CHECK("AT$MYNETCON=0,APN,CMNET\r", t1, t2, abort_st, "OK");
-	// set auth TYPE // AUTHNONE~0
 	AT_CMD_CHECK("AT$MYNETCON=0,AUTH,0\r", t1, t2, abort_st, "OK");
-	// SET AUTH
 	AT_CMD_CHECK("AT$MYNETCON=0,USERPWD,CMNET,CMNET\r", t1, t2, abort_st, "OK");
 
 	PRINTF("M590E initiated OK\n");
@@ -80,52 +57,29 @@ int m590e_ppp_connect(const char *device_name, const char *lock_name, const char
 	int fd;
 	char resp[1024] = {0}, *ptr, *ptr1;
 	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
-	int wait_cnt = 50;
+	int wait_cnt = 5;
 
 	if ((fd = open_modem_device(device_name, lock_name, MODEM_DEFAULT_BAUD)) < 0)
 		return -1;
 	while (at_cmd(fd, "AT$MYNETURC=1\r", resp, sizeof(resp), t1, t2) > 0){
 		if((ptr = strstr(resp, "OK"))!= NULL){
-			//at_cmd(fd, "AT$MYURCACT=0,1\r",resp, sizeof(resp), t1, t2);
-			//if((ptr = strstr(resp, )))
 			at_cmd(fd, "AT$MYNETACT=0,1\r", resp, sizeof(resp), t1, t2);
-			if((ptr = strstr(resp, "$MYNETACT:")) != NULL){
-				if((ptr = strstr(resp, "\,\"")) != NULL && (ptr1 = strstr(resp, "\"\n")) != NULL){
-					memcpy(m590e_ip_str, ptr+2, ptr1-ptr -2 +1);
-				}else{
-					memset(m590e_ip_str, 0, sizeof(m590e_ip_str));
-				}
+			///if((strstr(resp, "$MYNETACT:") != NULL) || (strstr(resp, "902") != NULL)){
+			if((ptr = strstr(resp, ",\"")) != NULL && (ptr1 = strstr(resp, "\"\r")) != NULL){
+				memcpy(m590e_ip_str, ptr + 2, ptr1 - ptr - 1);
+				return fd;
 			}else{
-				if((ptr = strstr(resp, "902"))!= NULL){
-					if(at_cmd(fd, "AT$MYNETCLOSE=0\r",resp, sizeof(resp), t1, t2) >0 ){
-						if(strstr(resp, "OK")){
-							if(at_cmd(fd, "AT$MYNETACT=0,1\r", resp, sizeof(resp), t1, t2) >0 ){
-								if((ptr = strstr(resp, "\,\"")) != NULL && (ptr1 = strstr(resp, "\"\n")) != NULL){
-									memcpy(m590e_ip_str, ptr+2, ptr1-ptr-2 +1);
-								}else{
-									memset(m590e_ip_str, 0, sizeof(m590e_ip_str));
-								}
-							}else{
-								return -1;
-							}
-						}else{
-							return -1;
-						}
-					}else{
-						return -1;
-					}
+				if(ptr == NULL){
+					PRINTF("PTR = NULL \n");
+				}else{
+					PRINTF("PTR1 = null\n");
 				}
-				memset(m590e_ip_str, 0, sizeof(m590e_ip_str));
 			}
-			return fd;
-		}else{
-			// error: TODO, nothing
 		}
-
-		if (wait_cnt < 0) /// 50 times
+		if (wait_cnt < 0) /// 5 times to try, which now is meanless
 			break;
 		wait_cnt--;
-		msleep(500);
+		msleep(1000);
 	}
 	return -1;
 }
@@ -152,6 +106,8 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 			if(at_cmd(fd, send, resp, sizeof(resp), t1, t2)> 0){
 				if(strstr(resp, "OK") != NULL)
 					return fd;
+				else
+					return -1;
 			}else{
 				return -1;
 			}
@@ -164,6 +120,7 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 		return -1;
 	}else{
 		PRINTF("%s: invalid connect string\n");
+		return 0;
 	}
 }
 
@@ -178,7 +135,7 @@ int m590e_udp_connect(int fd, const char *addr, int port)
 	return m590e_tcpudp_connect("UDP", fd, addr, port, M590E_READ_TIMEOUT);
 }
 
-int m590e_send(int fd, const BYTE *buf, int len, int *errcode) // TODO
+int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 {
 	int ret = 0;
 	char resp[1024],*resp_ptr = resp;
@@ -229,8 +186,8 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode) // TODO
 		}
 		memcpy(send,buf_ptr,data_len);
 		send[data_len] = 0x0d; // enter as ending-character // send[data_len] =0x1A; // 0x1A = CTRL + Z
-		ret = at_cmd_send(fd, send, data_len + 1, t1, t2) - 1; // write send(data) // TODO: core send
-		if (at_cmd_receive(fd, resp, min(sizeof(resp), 4), t1, t2) == 4 // 3 + 2// TODO:when they send, it want to receive
+		ret = at_cmd_send(fd, send, data_len + 1, t1, t2) - 1; // write send(data) // core send
+		if (at_cmd_receive(fd, resp, min(sizeof(resp), 4), t1, t2) == 4 // 3 + 2  //when they send, it want to receive
 				&& (resp_ptr = strstr(resp, "OK")) != NULL) { // send ok // "SEND OK"
 			*errcode = REMOTE_MODULE_RW_NORMAL;
 			send_len += ret; // send length
@@ -243,7 +200,9 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode) // TODO
 				PRINTF("WARNNING: force here to break, \n");
 				break;
 			}
-			wait_cnt = 10;// TODO: what you want to do
+			// what you want to do
+			/*
+			wait_cnt = 10;
 			while (wait_cnt-- > 0) {
 				data_len = 0;
 				if (at_cmd(fd, "AT+CIPSEND?\r", resp, sizeof(resp), t1, t2) > 0) {
@@ -262,7 +221,7 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode) // TODO
 				else {
 					msleep(200);
 				}
-			}
+			}*/
 		}
 		else {
 			*errcode = REMOTE_MODULE_RW_ABORT; // receive error
@@ -282,16 +241,17 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 	long t = 0;
 
 	t = uptime();
-	while(timeout/1000 > (uptime() - t)){
+	while(timeout/1000 > (uptime() - t) && !g_terminated){
 		if(fd<0)
 			return FALSE;
 		snprintf(send,sizeof(send),"AT$MYNETREAD=%d,2048\r",M590E_SOCKET_ID);
-		ret = at_cmd_sub(fd, send, resp, sizeof(resp), t1, t2, TRUE);// TODO: true;
+		ret = at_cmd_sub(fd, send, resp, sizeof(resp), t1, t2, TRUE);
 
 		if(ret<0){ // send failed
 			PRINTF("%s AT CMD send FAIL for AT$MYNETREAD=%d,2048\n", __FUNCTION__,M590E_SOCKET_ID);
 			return 0; // send command failed then receive invalid although, so conduct a proceeding return 0
 		}
+
 		if((resp_ptr = strstr(resp, "$MYNETREAD")) == NULL){ // check receive  // $MYNETREAD: 0,33
 			PRINTF("%s Not found '$MYNETREAD'\n", __FUNCTION__);
 			*errcode = REMOTE_MODULE_RW_ABORT;
@@ -303,29 +263,34 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 			*errcode = REMOTE_MODULE_RW_ABORT;
 			return 0;
 		}
+
+		// check if the socket id is the using one(upwards) // no need
+
 		if((resp_ptr = strstr(resp,",")) == NULL){ /// \r = enter, \n = next line
 			PRINTF("%s Not found ','\n");
 			*errcode = REMOTE_MODULE_RW_ABORT;
 			return 0;
 		}
-		sscanf(resp_ptr + 1, "%d", &data_len); // get length to data_len
-		if ((resp_ptr = strstr(resp_ptr, "\n")) == NULL) { // if has '\n'
+		sscanf(resp_ptr + 1, "%d", &data_len); // close display-back you can get receive data length
+		if ((resp_ptr = strstr(resp_ptr, "\n")) == NULL) {
 			PRINTF("%s Not found '\\n'(character)",__FUNCTION__);
 			*errcode = REMOTE_MODULE_RW_ABORT;
 			return 0;
 		}
-		if(data_len > 0){ // check data_len
+
+		if(data_len > 0 && (data_len < 100)){ // check data_len
 			memcpy(buf,resp_ptr + 1,data_len);
 			PRINTF("%s %d bytes\n", __FUNCTION__, data_len);
 			*errcode = REMOTE_MODULE_RW_NORMAL;
 			return data_len;
+		}else{
+			PRINTF("Read data_len(%d)\n", data_len); /// test 2048
 		}
+		msleep(500);
 	}
-	//ASSERT(data_len>0); // TODO: comment, it's probably for mainstaion not send the message, so cannot exit
-	return data_len;
+	//ASSERT(data_len>0); // comment, it's probably for mainstaion not send the message, so cannot exit
+	return 0;
 }
-
-/// TODO: return should be common format, like array, integer this types
 
 int m590e_shutdown(int fd)
 {
@@ -344,6 +309,7 @@ int m590e_shutdown(int fd)
 		return FALSE;
 	return TRUE;
 
+	/// save return should be common format, like array, integer this types
 }
 
 BOOL m590e_getip(int fd, char *ipstr)

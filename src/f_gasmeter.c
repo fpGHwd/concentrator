@@ -7,11 +7,12 @@
 
 #include "f_gasmeter.h" /// f_gasmeter>
 #include "common.h"
+#include "main.h"
 
 typedef struct {
 	COLLECTOR_DB collector_db[MAX_GASMETER_NUMBER];
 	GASMETER_DB gasmeter_db[MAX_GASMETER_NUMBER];
-} GASMETER_COLLECTOR_DB; /// collector database
+}GASMETER_COLLECTOR_DB; /// collector database
 
 #define COLLECTOR_OFFSET offsetof(GASMETER_COLLECTOR_DB, collector_db) 
 #define GASMETER_OFFSET offsetof(GASMETER_COLLECTOR_DB, gasmeter_db)
@@ -44,13 +45,13 @@ void test_add_a_meter(void);
 void fgasmeter_open(void) /// open and initiate gasmeter_info
 {
 	int i, size,m;
-	const char *name = F_GASMETER_NAME; ///
+	const char *name = F_GASMETER_NAME;
 	GASMETER_INFO *pinfo = &gasmeter_info;
 
 	size = sizeof(GASMETER_COLLECTOR_DB);
-	sem_init(&pinfo->sem_db, 0, 1); /// not shared, set sem_db = 1
-	sem_init(&pinfo->sem_f_gasmeter, 0, 1); /// not shared, set sem_f_gasmeter = 1
-	if (!check_file(name, size)) { /// check file
+	sem_init(&pinfo->sem_db, 0, 1);
+	sem_init(&pinfo->sem_f_gasmeter, 0, 1);
+	if (!check_file(name, size)) {
 		PRINTF("File %s is created, size:%d\n", name, size);
 		pinfo->fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0600);
 		for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
@@ -58,27 +59,22 @@ void fgasmeter_open(void) /// open and initiate gasmeter_info
 			fgasmeter_init_gasmeter(&pinfo->db.gasmeter_db[i]);
 		}
 		safe_write(pinfo->fd, &pinfo->db, size);
-		fdatasync(pinfo->fd); /// flush
+		fdatasync(pinfo->fd);
 		close(pinfo->fd);
 	}
 	pinfo->fd = open(name, O_RDWR);
 	if (pinfo->fd < 0)
 		return;
-	safe_read(pinfo->fd, &pinfo->db, size); /// &pinfo->db
+	safe_read(pinfo->fd, &pinfo->db, size);
 
-	/*
-	m = valid_meter_sum();
-	if(m == 0){
-		fprintf(stdout, "no meter in the database, try to add a virtual meter and test read meter\n");
+	if(debug_ctrl.gasmeter_test){
+		PRINTF("test meter: add a meter first, which is already in the meter database\n");
 		test_add_a_meter();
-	}else{
-		fprintf(stdout, "meter number in database:%d\n", m);
 	}
-	*/
 }
 
 static void fgasmeter_flush(void) {
-	fdatasync(gasmeter_info.fd); ///
+	fdatasync(gasmeter_info.fd);
 }
 
 static void fgasmeter_update_collector(int index, BOOL flush_flag) /// sem_t indicates a territory
@@ -552,7 +548,7 @@ int valid_meter_sum(void) { //// valid meter sum, if use fgasmeter_getgasmeter(i
 }
 
 void test_add_a_meter(void) {
-	BYTE address[7] = { 0x23, 0x05, 0x17, 0x04, 0x00, 0x00, 0x05 }; /// 23051704000005
+	BYTE address[7] = { 0x23, 0x05, 0x16, 0x06, 0x00, 0x00, 0x02 }; /// 23051606000002
 	BYTE collector[7] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55 }; /// 00000000000055
 
 	fgasmeter_addgasmeter(address, collector);

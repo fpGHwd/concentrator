@@ -562,9 +562,6 @@ bool cm180_update_time_via_gprs(int fd, time_t *time) {
 	return true;
 }
 
-// TODO eth need to be diagnosed
-// TODO error in open clock /dev/rtc
-
 /*
  * MODEM:STARTUP
  *

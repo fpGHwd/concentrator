@@ -11,7 +11,7 @@
 #include "typedef.h"
 #include "common.h"
 
-typedef struct {
+typedef struct CJT188_DATA_901F{
 	WORD di; /// x901F
 	BYTE ser; /// 报文号? ///
 	BYTE flux[5];  /// 当前累计流量 = 底码
@@ -24,15 +24,15 @@ typedef enum {
 	GASMETER_READ_STATUS_UNREAD,
 	GASMETER_READ_STATUS_NORMAL,
 	GASMETER_READ_STATUS_ABORT,
-} GASMETER_READ_STATUS; /// READ STATUS
+} GASMETER_READ_STATUS;
 
-typedef struct {
+typedef struct CJ188_901F{
 	GASMETER_READ_STATUS status;
 	GASMETER_CJT188_DATA_901F di_data;
-	long read_tt; /// 
-} GASMETER_CJT188_901F; /// 901F协议
+	long read_tt;
+} GASMETER_CJT188_901F;
 
-/// 其他协议的报文结构
+///TODO:其他协议的报文结构 // history data to mainstation //
 
 #define MAX_HEXDATA_BUF 64
 #define PRINT_ADDRESS(x, a, b) hex_to_str(x, sizeof(x), a, b, FALSE)

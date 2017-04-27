@@ -49,6 +49,7 @@ void threads_create(void)
 void threads_join(void) {
 	int i;
 
+
 #if 0 // for test the gprscdma thread
 	pthread_join(th[0], NULL);
 	PRINTF("Exiting thread %s\n", thread_name[0]);
@@ -141,9 +142,11 @@ int kill_watchdog(void) {
 	return 0;
 }
 
-void notify_watchdog(void) {
 
-	ioctl(watchdog_fd, WDIOC_KEEPALIVE, NULL);
+#include "main.h"
+void notify_watchdog(void) {
+	if(debug_ctrl.watchdog_enable)
+		ioctl(watchdog_fd, WDIOC_KEEPALIVE, NULL);
 
 #if 0
 	int i;

@@ -271,7 +271,7 @@ static void alarm_events(BYTE flag, void *para, const char *info) {
  lcd_show_string( 4, 1, strlen(c_alarm_meter_id_str), c_alarm_meter_id_str);
  lcd_show_string( 6, 1, strlen(c_alarm_occur_time_str), c_alarm_occur_time_str);
 
- //index的具体数据填写 // TODO /// 从文件中获取信息
+ //index的具体数据填写
  lcd_show_string( 9, 1, strlen(c_allspace_str), c_allspace_str);
  snprintf(buff, sizeof(buff), "%s%d%s", c_alarm_last_record_str1, 
  record_index, c_alarm_last_record_str2);
@@ -1749,6 +1749,7 @@ static void set_apn(BYTE flag, void *para, const char *info) {
 	memset(apn_user_id, 0, sizeof(apn_user_id));
 	memset(apn_user_password, 0, sizeof(apn_user_password));
 
+	/// SET apn and use it later
 	fparam_get_value(FPARAMID_APN_ID, apn_id, sizeof(apn_id));
 	fparam_get_value(FPARAMID_APN_USER_ID, apn_user_id, sizeof(apn_user_id));
 	fparam_get_value(FPARAMID_APN_USER_PASSWD, apn_user_password,
@@ -2465,7 +2466,8 @@ static void set_terminal_time(BYTE flag, void *para, const char *info) {
 			break;
 		}
 
-		if (1/*if_date_str_is_valid(terminal_date, 2)*/) { //  TODO:judge 时间有效
+		// TODO: not certain with time invalidness
+		if (true/*if_date_str_is_valid(terminal_date, 2)*/) { //  TODO:judge 时间有效
 			// valid continue;
 		} else {
 			// invalid continue; // tips
