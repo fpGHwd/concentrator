@@ -157,7 +157,7 @@ void lcd_show_arrow(int up, int down, int left, int right);
 
 void lcd_write_init_cmd(void);
 
-// ADD BY WD
+// ADD BY nayowang
 int get_screen_fd(void);
 
 void lcd_lock_interface(void);

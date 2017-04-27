@@ -332,7 +332,7 @@ static void lcd_init_cmd_0(void) {
 static void lcd_init_cmd_1(void) {
 	unsigned char buf[128], *ptr;
 
-	 /*
+	 /*//for test command the kernel
 	 ptr = buf;
 	 printf("start %s\n", __func__);
 	 *ptr ++ = 0x00; *ptr ++ = 0x05;
@@ -346,6 +346,9 @@ static void lcd_init_cmd_1(void) {
 	 lcd_cmd(buf, ptr - buf);
 	 msleep(5000);
 	 */
+
+	/*  // cancel reset  by nayo wang, for lcd has been initiated in
+	 *the kernel. Re-initiation cause inconvenience from screen.
 
 	device_lcd_reset();
 	ptr = buf;
@@ -388,6 +391,7 @@ static void lcd_init_cmd_1(void) {
 	*ptr++ = 0x03; // add by nayowang
 	lcd_cmd(buf, ptr - buf);
 
+	*/
 }
 
 static void lcd_refresh_cmd_0(int x, int y, int w, int h) {
@@ -1095,8 +1099,13 @@ void lcd_write_init_cmd(void) {
 
 static int key_hold_time[KEY_NUM];
 static BYTE hold_key_value[KEY_NUM] = {
-KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN,
-KEY_ESC, KEY_ENTER, KEY_NONE };
+		KEY_LEFT,
+		KEY_UP,
+		KEY_RIGHT,
+		KEY_DOWN,
+		KEY_ESC,
+		KEY_ENTER,
+		KEY_NONE };
 
 static int hold_key_time(BYTE key) {
 	static struct timeval last_tv[KEY_NUM];
