@@ -991,22 +991,18 @@ void lcd_update_head_info(void) {
 		lcd_hide_icon(1, 3, 4);
 		lcd_hide_icon(1, 3, 5);
 	}
-	if (fep_is_connect()) {
+	if (fep_is_connect())
 		lcd_show_icon(1, 5, 6);
-	} else {
+	else
 		lcd_hide_icon(1, 5, 6);
-	}
-	if (fconalm_changed()) {
+	if (fconalm_changed())
 		lcd_show_icon(1, 7, 7);
-	} else {
+	else
 		lcd_hide_icon(1, 7, 7);
-	}
-	if (fparam_get_program_status()) { /// ? TODO
-	 lcd_show_icon(1, 7, 11);
-	 }
-	 else {
-	 lcd_hide_icon(1, 7, 11);
-	 }
+	if (fparam_get_program_status())
+		lcd_show_icon(1, 7, 11);
+	else
+		lcd_hide_icon(1, 7, 11);
 	sys_time(&tm);
 	if (tm.tm_mon != month || tm.tm_mday != day || tm.tm_hour != hour
 			|| tm.tm_min != min || tm.tm_sec != sec) {

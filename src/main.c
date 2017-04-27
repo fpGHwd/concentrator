@@ -21,6 +21,7 @@
 #include "lcd.h"
 #include "gpio.h"
 #include "key_hw.h"
+#include <stdlib.h>
 //#include "gprs_flux.h"
 
 const char *g_release_time = RELEASE_APP_TIME;
@@ -28,123 +29,136 @@ const char *g_release_time = RELEASE_APP_TIME;
 int g_terminated = 0;
 int g_silent = 0;
 int g_lcd_type = 1;
-const int g_retry_times = 2;
+const int g_retry_times = 3;
+const int rf_id = 0;
+
+const struct debug debug_ctrl = {
+		.gasmeter_test = false, /// -> false
+		.watchdog_enable = false, /// -> true
+		.repeater_enable = false, /// -> ture;
+		.sqlite_enable = false, /// -> false
+		.led_enable = false, /// -> false
+		.gpio_enable = false,
+		.gprs_display_back_enable = false,
+};
 
 UP_COMM_SOCKET_TYPE g_socket_type = UP_COMM_SOCKET_TYPE_TCP;
 
 static void print_version(void) {
-printf("Concentrator program for GAS Concentrator V%s build on %s\n",
-		APP_VERSION, g_release_time);
+	printf("Concentrator program for GAS Concentrator V%s build on %s\n",
+			APP_VERSION, g_release_time);
 }
 
 static void print_addr(void) {
-BYTE addr[7];
+	BYTE addr[7];
 
-fparam_init();
-fparam_get_value(FPARAMID_CON_ADDRESS, addr, 7);
-fparam_destroy();
-printf("Concentrator Address: %02X%02X%02X%02X%02X%02X%02X\n", addr[0], addr[1],
-		addr[2], addr[3], addr[4], addr[5], addr[6]);
-}
+	fparam_init();
+	fparam_get_value(FPARAMID_CON_ADDRESS, addr, 7);
+	fparam_destroy();
+	printf("Concentrator Address: %02X%02X%02X%02X%02X%02X%02X\n", addr[0], addr[1],
+			addr[2], addr[3], addr[4], addr[5], addr[6]);
+	}
 
-static void print_quit(void) {
-char prog[PATH_MAX];
+	static void print_quit(void) {
+	char prog[PATH_MAX];
 
-get_prog_name(prog, sizeof(prog));
-PRINTF("Concentrator program \"%s\" exit.\n", prog);
+	get_prog_name(prog, sizeof(prog));
+	PRINTF("Concentrator program \"%s\" exit.\n", prog);
 }
 
 static void usage(const char *prog) {
-printf("Usage:\n\t%s [OPTIONS]\n", prog);
-printf("\t-v,\ttake no param, to display the software version\n");
-printf("\t-h,\ttake no param, to display help information\n");
+	printf("Usage:\n\t%s [OPTIONS]\n", prog);
+	printf("\t-v,\ttake no param, to display the software version\n");
+	printf("\t-h,\ttake no param, to display help information\n");
 }
 
 static void signal_term(int sig) {
-g_terminated = 1;
+	g_terminated = 1;
 }
 
 static void signal_chld(int sig) {
-int status;
+	int status;
 
-while (waitpid(-1, &status, WNOHANG) > 0)
-	;
+	while (waitpid(-1, &status, WNOHANG) > 0)
+		;
 }
 
 static void daemon_init(void) {
-if (fork() != 0)
-	exit(0);
-setsid();
-signal(SIGHUP, SIG_IGN);
-signal(SIGPIPE, SIG_IGN);
-if (fork() != 0)
-	exit(0);
-close_all(3);
+	if (fork() != 0)
+		exit(0);
+	setsid();
+	signal(SIGHUP, SIG_IGN);
+	signal(SIGPIPE, SIG_IGN);
+	if (fork() != 0)
+		exit(0);
+	close_all(3);
 }
 
 static void power_fail(int sig) {
-static int fail = 0;
-int sys_ret = 0;
+	static int fail = 0;
+	int sys_ret = 0;
 
-if (fail == 0) {
-	fail = 1;
-	if (sig) {
-		g_terminated = 1; // tell all threads to exit
-		flush_tables();
+	if (fail == 0) {
+		fail = 1;
+		if (sig) {
+			g_terminated = 1; // tell all threads to exit
+			flush_tables();
+		}
+		sync();
+		LOG_PRINTF("power fail\n");
+		sync(); // FILES CHANGE -> DISK
+
+		kill_watchdog();
+		sys_ret = system("/sbin/reboot");
+		exit(1);
 	}
-	sync();
-	LOG_PRINTF("power fail\n");
-	sync();
-
-	kill_watchdog();
-	sys_ret = system("/sbin/reboot");
-	/*
-	if (sys_ret)
-		;
-		*/
-	exit(1);
-}
 }
 
 static void handler_power_fail(void) {
-/*	int flags;
- if (gpio_fd < 0) {
- PRINTF("Can't open /dev/gpio\n");
- }
- else {
- signal(SIGIO, power_fail);
- fcntl(gpio_fd, F_SETOWN, getpid());
- flags = fcntl(gpio_fd, F_GETFL);
- fcntl(gpio_fd, F_SETFL, flags | FASYNC);
- }
- */
-signal(SIGIO, power_fail);
+	int flags;
+	/*
+	if (gpio_fd < 0) {
+	 PRINTF("Can't open /dev/gpio\n");
+	}else {
+	 signal(SIGIO, power_fail);
+	 fcntl(gpio_fd, F_SETOWN, getpid());
+	 flags = fcntl(gpio_fd, F_GETFL);
+	 fcntl(gpio_fd, F_SETFL, flags | FASYNC);
+	}
+	*/
+
+	signal(SIGIO, power_fail);
 }
 
 static void system_init(void) {
-// if internal realation is stable enough, we can arbitrarily set the sequence of operations
-modem_gprs_turn_on();
-key_initiate();
-read_rtc();
+	modem_gprs_turn_on();
+	key_initiate();
+	read_rtc();
 
-msg_que_init();
-fparam_init();
-fgasmeter_open();
-fcurrent_open();
-fday_open();
-fmon_open();
-fconalm_open();
-fgasmeteralm_open();
-//sim_card_flux_database_init();
+	msg_que_init();
+	fparam_init();
+	fgasmeter_open();
+	fcurrent_open();
+	fday_open();
+	fmon_open();
+	fconalm_open();
+	fgasmeteralm_open();
+	//sim_card_flux_database_init();
 
-lcd_open(lcd_device, g_lcd_type, 0x10);
-lcd_show_lines();
-//gpio_open();
+	lcd_open(lcd_device, g_lcd_type, 0x10);
+	lcd_show_lines();
+	if(debug_ctrl.gpio_enable)
+		gpio_open();
+	else
+		PRINTF("WARNNING: gpio is not enable\n");
 
 }
 
 static void system_exit(void) {
-	//control_led(1,0);
+	if(debug_ctrl.led_enable)
+		control_led(1,0);
+	else
+		PRINTF("WARNNING: led is not enable\n");
 	key_exit();
 	gpio_close();
 	lcd_close();
@@ -183,7 +197,10 @@ int main(int argc, char **argv) {
 	signal(SIGTERM, signal_term);
 	signal(SIGCHLD, signal_chld);
 	system_init();
-	init_watchdog();
+	if(debug_ctrl.watchdog_enable)
+		init_watchdog();
+	else
+		PRINTF("WARNNING: watchdog is not set\n");
 	threads_create();
 	handler_power_fail();
 	threads_join();

@@ -8,8 +8,9 @@
 #include "yl800.h"
 #include "common.h"
 #include "protocol_cjt188.h"
+#include "main.h"
 
-static YL800_CONFIG yl800_config = { // TODO
+static YL800_CONFIG yl800_config = {
 		.speed = YL800_CFG_SPEED_1200,
 		.parity = YL800_CFG_PARITY_NONE,
 		.freq = 0x6C4012, // 433M
@@ -23,10 +24,10 @@ static YL800_CONFIG yl800_config = { // TODO
 		.heartbead = YL800_CFG_HB_2S,
 };
 
+// TODO: initiate the yl800 module
 BOOL yl800_init(void)
 {
-	yl800_config.net_ID = 0;
-	// TODO
+	yl800_config.net_ID = rf_id;
 	return FALSE;
 }
 
@@ -100,6 +101,7 @@ BOOL yl800_atcmd_unpack(YL800_MSG *msg, const UINT8 *buf, UINT32 buflen)
 	}
 }
 
+//#define ADDRESS_BYTE_LENGTH 7
 int yl800_pack(UINT8 *buf, UINT32 max_len, UINT8 *repeater, UINT8 *address,
 		UINT8 *data, int datalen)
 {
@@ -119,8 +121,8 @@ int yl800_pack(UINT8 *buf, UINT32 max_len, UINT8 *repeater, UINT8 *address,
 		if (max_len < 3 + datalen)
 			return 0;
 	}
-	memcpy(ptr, address, 2);
-	ptr += 2;
+	memcpy(ptr, address, 4);
+	ptr += 4;
 	memcpy(ptr, data, datalen);
 	ptr += datalen;
 	return ptr - buf;

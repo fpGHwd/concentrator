@@ -24,7 +24,6 @@ e_remote_module_status sim900a_init(int fd) {
 	PRINTF("%s Start\n", __FUNCTION__);
 	AT_CMD_CHECK("ATE0\r", t1, t2, abort_st, "OK");  /// close back display
 
-	/// dicuss resp
 	if (at_cmd(fd, "AT+CIPMUX?\r", resp, sizeof(resp), t1, t2) > 0) { // CIPMUX:<n> and OK in resp
 		if ((ptr = strstr(resp, "+CIPMUX:")) == NULL)
 			return abort_st; // not CIPMUX and abort in resp
