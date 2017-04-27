@@ -160,7 +160,7 @@ void close_modem_device(const char *lock_name) {
 }
 
 static e_remote_module_status check_network_status(int fd,
-		REMOTE_MODULE_ATTR *pattr) /// message WEAK OR STRONG
+		REMOTE_MODULE_ATTR *pattr)
 {
 	int local_register_val = 1, remote_register_val = 5, val, i;
 	BYTE modem_net_type;
@@ -231,19 +231,30 @@ static REMOTE_MODULE_ATTR module_attr[] = {
 						MODEM_INVALID_SIGNAL_INTENSITY, .protocol_stack_type =
 						MODEM_PCL_STACK_IN_MODULE, },
 		{ /// GPRS /// not use this
-				.model = e_gprs_model_sim900, .describe = "SIM900A", .init =
-				sim900a_init, .remote_fd = -1, .socket_type =
-				MODEM_CONNECT_SOCKET_TYPE_UNKNOWN, .presource = NULL,
-				.pcl_in_module = { /// module protocol stack
-						.ppp_connect = sim900a_ppp_connect, .tcp_connect =
-								sim900a_tcp_connect, .udp_connect =
-								sim900a_udp_connect, .send = sim900a_send,
-								.receive = sim900a_receive, /// receive get value
-								.shutdown = sim900a_shutdown, .getip =
-										sim900a_getip, }, .pcl_in_os = { /// os protocol stack
-						.ppp_connect = NULL, .tcp_connect = NULL, .udp_connect =
-								NULL, .send = NULL, .receive = NULL, .shutdown =
-								NULL, }, .net_type = MODEM_NET_TYPE_GPRS,
+				.model = e_gprs_model_sim900,
+				.describe = "SIM900A",
+				.init = sim900a_init,
+				.remote_fd = -1,
+				.socket_type = MODEM_CONNECT_SOCKET_TYPE_UNKNOWN,
+				.presource = NULL,
+				.pcl_in_module = {
+						.ppp_connect = sim900a_ppp_connect,
+						.tcp_connect = sim900a_tcp_connect,
+						.udp_connect = sim900a_udp_connect,
+						.send = sim900a_send,
+						.receive = sim900a_receive,
+						.shutdown = sim900a_shutdown,
+						.getip = sim900a_getip,
+				},
+				.pcl_in_os = {
+						.ppp_connect = NULL,
+						.tcp_connect = NULL,
+						.udp_connect = NULL,
+						.send = NULL,
+						.receive = NULL,
+						.shutdown = NULL,
+				},
+				.net_type = MODEM_NET_TYPE_GPRS,
 				.signal_intensity = MODEM_INVALID_SIGNAL_INTENSITY,
 				.protocol_stack_type = MODEM_PCL_STACK_IN_MODULE, },
 		{ /// m590e r2
@@ -268,7 +279,7 @@ static REMOTE_MODULE_ATTR module_attr[] = {
 						.send = NULL,
 						.receive = NULL,
 						.shutdown = NULL, },
-				.net_type = MODEM_NET_TYPE_CDMA,
+				.net_type = MODEM_NET_TYPE_GPRS,
 				.signal_intensity = MODEM_INVALID_SIGNAL_INTENSITY,
 				.protocol_stack_type = MODEM_PCL_STACK_IN_MODULE, },
 };
