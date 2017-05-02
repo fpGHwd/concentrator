@@ -17,6 +17,8 @@
 #include "input.h"
 #include "gprscdma.h"
 
+#include "key_hw.h"
+
 #define LCD_WIDTH			scr.width
 #define LCD_HEIGHT			scr.height
 #define LCD_MAX_ROW			scr.max_row
@@ -1073,18 +1075,27 @@ int lcd_key_in(int flag) {
 	static int lightwait_time = 60;
 	static long idle_time = 0;
 	unsigned char ch;
+	struct key_msg_t msg;
 
 	if (idle_time == 0)
 		idle_time = uptime();
-	if (LCD_FD < 0 || read(LCD_FD, &ch, 1) <= 0)
+
+	//if (LCD_FD < 0 || read(LCD_FD, &ch, 1) <= 0)
+	if(LCD_FD<0 || KeyRead(&msg) != 0){
 		ch = 0;
+	}else{
+		ch = (unsigned char)msg.code;
+	}
+
+	//PRINTF("ch = %d\n", ch);
+
 	if (ch) {
 		idle_time = uptime();
 		if (flag)
-			device_lcd_light(1); // background light on
+			device_lcd_light(1);
 	} else if (uptime() - idle_time >= lightwait_time) {
 		if (flag)
-			device_lcd_light(0); // background light off
+			device_lcd_light(0);
 	}
 	return ch;
 }
@@ -1135,17 +1146,23 @@ BYTE key_getch(int flag) {
 
 	ch = lcd_key_in(flag);
 	switch (ch) {
-	case 0x12:
+	//case 0x12:
+	case 158: // default 105
 		return KEY_LEFT;
-	case 0x13:
+	//case 0x13:
+	case 108: // default 103
 		return KEY_UP;
-	case 0x22:
+	//case 0x22:
+	case 106: /// default 106
 		return KEY_RIGHT;
-	case 0x23:
+	//case 0x23:
+	case 103: //default 108
 		return KEY_DOWN;
-	case 0x32:
+	//case 0x32:
+	case 105: // default 158
 		return KEY_ESC;
-	case 0x33:
+	//case 0x33:
+	case 159: // default 159
 		hold_time = hold_key_time(KEY_ENTER);
 		if (long_press_valid && hold_time >= FPARAM_PROGRAM_KEY_HOLD_TIME) {
 			fparam_change_program_status();
