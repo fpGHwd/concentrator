@@ -65,7 +65,8 @@ static BOOL gprscdma_device_init(struct UP_COMM_ST *up) {
 	return !!modem_check(modem_device, modem_lockname, MODEM_DEFAULT_BAUD);
 }
 
-#if 1
+
+/*
 static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up) {
 	char ip_addr[16];
 	BYTE host_ip[4], host_port[2]; /// this can be write into struct UP_COMM_ST *up
@@ -97,8 +98,7 @@ static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up) {
 	}
 	return TRUE;
 }
-
-#else
+*/
 static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up)
 {
 	char ip_addr[16];
@@ -122,7 +122,7 @@ static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up)
 		}
 		if (up->fd > 0)
 		return TRUE;
-		///PRINTF("GPRS/CDMA TCP/UCP connect success\n"); /// add by wd /// success need no log
+		//PRINTF("GPRS/CDMA TCP/UCP connect success\n");
 		else {
 			PRINTF("GPRS/CDMA TCP/UCP connect fail\n");
 			return FALSE;
@@ -133,7 +133,6 @@ static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up)
 		return FALSE;
 	}
 }
-#endif
 
 //#include "gprs_flux.h"
 static INT32 gprscdma_fep_receive(struct UP_COMM_ST *up, int timeout) {
@@ -141,7 +140,7 @@ static INT32 gprscdma_fep_receive(struct UP_COMM_ST *up, int timeout) {
 	UINT8 buf[CONFIG_MAX_APDU_LEN];
 	INT32 len;
 	int errcode;
-	char date_string[10 + 1];
+	//char date_string[10 + 1];
 
 	if (timeout < 0) {
 		timeout = 5000;
@@ -161,16 +160,14 @@ static INT32 gprscdma_fep_receive(struct UP_COMM_ST *up, int timeout) {
 			return len;
 		} else {
 			if (errcode != REMOTE_MODULE_RW_NORMAL) {
-				/// up->disconnect(up); /// added by wd
 				up->up_status = e_up_offline;
 				up->up_connect_status = e_up_disconnected;
 				PRINTF("GPRS/CDMA OFFLINE for receive ERROR\n");
 			}
 			return -1;
 		}
-	} else {
-		/// failed
 	}
+
 	return 0;
 }
 
@@ -188,7 +185,7 @@ static BOOL gprscdma_fep_send(struct UP_COMM_ST *up) {
 	PRINTB("To GPRS/CDMA: ", buf, len);
 	if (remote_tcpudp_write(up->fd, buf, len, &errcode) == len) {
 		/* send success and add flux */
-		get_date(date_string);
+		//get_date(date_string);
 		//add_byte_via_date( len,date_string);
 
 		return TRUE;

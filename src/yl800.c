@@ -24,7 +24,6 @@ static YL800_CONFIG yl800_config = {
 		.heartbead = YL800_CFG_HB_2S,
 };
 
-// TODO: initiate the yl800 module
 BOOL yl800_init(void)
 {
 	yl800_config.net_ID = rf_id;

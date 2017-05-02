@@ -18,14 +18,14 @@ void app_event_wait(app_event_t *pctrl, INT32 bwait, UINT32 waitmask,
 		UINT32 *pevent) {
 	UINT32 ul;
 
-	pthread_mutex_lock(&pctrl->mutex); //// system call
+	pthread_mutex_lock(&pctrl->mutex);
 
 	ul = pctrl->event;
 
 	if (!bwait) {
 		if (ul & waitmask) {
 			ul &= waitmask;
-			pctrl->event &= ~waitmask; //// 
+			pctrl->event &= ~waitmask;
 		} else
 			ul = 0;
 	} else {

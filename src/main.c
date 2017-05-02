@@ -40,6 +40,7 @@ const struct debug debug_ctrl = {
 		.led_enable = false, /// -> false
 		.gpio_enable = false,
 		.gprs_display_back_enable = false,
+		.key_enable = true,
 };
 
 UP_COMM_SOCKET_TYPE g_socket_type = UP_COMM_SOCKET_TYPE_TCP;
@@ -132,7 +133,8 @@ static void handler_power_fail(void) {
 
 static void system_init(void) {
 	modem_gprs_turn_on();
-	key_initiate();
+	if(debug_ctrl.key_enable)
+		key_initiate();
 	read_rtc();
 
 	msg_que_init();
@@ -159,7 +161,9 @@ static void system_exit(void) {
 		control_led(1,0);
 	else
 		PRINTF("WARNNING: led is not enable\n");
-	key_exit();
+
+	if(debug_ctrl.key_enable)
+		key_exit();
 	gpio_close();
 	lcd_close();
 	fgasmeteralm_close();

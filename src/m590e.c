@@ -17,7 +17,6 @@ void *g_m590e_resource = NULL;
 #define M590E_SOCKET_ID 0
 static char m590e_ip_str[64] = {0};
 
-// TODO: m590e initiate
 e_remote_module_status m590e_init(int fd)
 {
 	char resp[1024], *ptr;
@@ -66,7 +65,7 @@ int m590e_ppp_connect(const char *device_name, const char *lock_name, const char
 			at_cmd(fd, "AT$MYNETACT=0,1\r", resp, sizeof(resp), t1, t2);
 			///if((strstr(resp, "$MYNETACT:") != NULL) || (strstr(resp, "902") != NULL)){
 			if((ptr = strstr(resp, ",\"")) != NULL && (ptr1 = strstr(resp, "\"\r")) != NULL){
-				memcpy(m590e_ip_str, ptr + 2, ptr1 - ptr - 1);
+				memcpy(m590e_ip_str, ptr + 2, ptr1 - ptr - 2);
 				return fd;
 			}else{
 				if(ptr == NULL){
@@ -200,7 +199,7 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 				PRINTF("WARNNING: force here to break, \n");
 				break;
 			}
-			// what you want to do
+			// TODO: what you want to do
 			/*
 			wait_cnt = 10;
 			while (wait_cnt-- > 0) {
@@ -257,7 +256,7 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 			*errcode = REMOTE_MODULE_RW_ABORT;
 			return 0;
 		}
-		// TODO:struggle with yourself is the most interesting thing in the world
+
 		if((resp_ptr = strstr(resp, ":")) == NULL){
 			PRINTF("%s Not found ':'\n", __FUNCTION__);
 			*errcode = REMOTE_MODULE_RW_ABORT;
@@ -283,8 +282,8 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 			PRINTF("%s %d bytes\n", __FUNCTION__, data_len);
 			*errcode = REMOTE_MODULE_RW_NORMAL;
 			return data_len;
-		}else{
-			PRINTF("Read data_len(%d)\n", data_len); /// test 2048
+		}else{ // no need this branch
+			//PRINTF("Read data_len(%d)\n", data_len); /// jsut trying
 		}
 		msleep(500);
 	}
@@ -308,8 +307,6 @@ int m590e_shutdown(int fd)
 	if((resp_ptr = strstr(resp, "OK"))== NULL)
 		return FALSE;
 	return TRUE;
-
-	/// save return should be common format, like array, integer this types
 }
 
 BOOL m590e_getip(int fd, char *ipstr)

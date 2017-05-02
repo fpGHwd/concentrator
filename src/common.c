@@ -393,7 +393,7 @@ static int stdout_error(void) {
 
 	if (stdout_err == 0) {
 		fd = 1;
-		usec = 1000 * 1000 * 60 * 4; // timeout is 4 min, watchdog is 5 min.
+		usec = 1000 * 1000 * 60 * 4;
 		do {
 			tv.tv_sec = 0;
 			tv.tv_usec = usec;

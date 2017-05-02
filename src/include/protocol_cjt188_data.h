@@ -32,7 +32,7 @@ typedef struct CJ188_901F{
 	long read_tt;
 } GASMETER_CJT188_901F;
 
-///TODO:其他协议的报文结构 // history data to mainstation //
+///TODO:其他协议的报文结构
 
 #define MAX_HEXDATA_BUF 64
 #define PRINT_ADDRESS(x, a, b) hex_to_str(x, sizeof(x), a, b, FALSE)

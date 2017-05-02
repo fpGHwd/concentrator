@@ -25,9 +25,8 @@ static void process_scroll_show(void) {
 		msleep(300);
 		show_logo_and_date();
 
-		key = getch_timeout(1000);
-
-		if (key == KEY_ENTER) {
+		//key = getch_timeout(1000);
+		if ((key= getch_timeout(1000)) == KEY_ENTER) {
 			return; /// only KEY_ENTER can enter 
 		} else {
 			continue; /// KEY_ESC, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT refresh the logo and date

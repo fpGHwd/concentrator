@@ -745,5 +745,5 @@ BYTE process_param_set(PARAM_SET *param, const char *info)  /// set
 
 void lcd_update_comm_info(int flag)
 {
-	// TODO /// update_comm_info
+
 }

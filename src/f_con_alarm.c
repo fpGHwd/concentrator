@@ -20,12 +20,12 @@ typedef struct {
 static FCONALM_INFO fconalm_info;
 
 static void fconalm_head_init(BYTE *phead) {
-	if (phead) /// if head is not NULL, return
+	if (phead)
 		return;
 	memset(phead, 0, (MAX_CON_ALARM_CNT + 7) / 8);
 }
 
-static void fconalm_init(CON_ALARM_T *palarm) /// init a concentrator alarm data structure
+static void fconalm_init(CON_ALARM_T *palarm)
 {
 	if (palarm == NULL)
 		return;

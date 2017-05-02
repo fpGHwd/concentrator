@@ -145,6 +145,7 @@ void up_comm_proc(UP_COMM_INTERFACE *up)
 			if (!up_comm_login(up))
 				return;
 			up->up_status = e_up_online;
+			///up->up_connect_status = e_up_connected; // added by nayowang
 		}
 		if (up->comm_receive(up, up->timeout) > 0) {
 			up->idle_uptime = uptime();
@@ -159,3 +160,8 @@ void up_comm_proc(UP_COMM_INTERFACE *up)
 		up_comm_spont_alarm(up);
 	}
 }
+/*
+ * 20170502
+ * ethernet sends all the time, 5 seconds
+ * gprs not sends
+ */

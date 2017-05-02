@@ -122,7 +122,7 @@ int plt_gasup_pack_special(UINT16 fn, UINT8 *buf, UINT32 max_len, UINT8 *data,
 
 	if (buf == NULL || max_len <= 0)
 		return FALSE;
-	msg.fn = fn;  /// (int)2004
+	msg.fn = fn;
 	msg.direction = PTL_GASUP_DIR_SLAVE;
 	msg.flag = PTL_GASUP_NEED_REQUEST;
 	fparam_get_value(FPARAMID_CON_ADDRESS, msg.address, sizeof(msg.address));
@@ -160,6 +160,9 @@ int plt_gasup_pack_special(UINT16 fn, UINT8 *buf, UINT32 max_len, UINT8 *data,
 	}
 	return plt_gasup_pack(buf, max_len, &msg);
 }
+
+// TODO: mainstation set heartbeat time crc error
+// AT+CFUN -> change location.
 
 int ptl_gasup_pack_gasmeteralarm_data(BYTE *buf, int maxlen, WORD *pfn,
 		GASMETER_ALARM_T *palarm) {

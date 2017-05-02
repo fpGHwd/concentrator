@@ -1627,7 +1627,6 @@ static void query_data(BYTE flag, void *para, const char *info) {
 static void set_comm_channel(BYTE flag, void *para, const char *info) // 通讯讯道
 {
 	// TODO set the communication channel: rf485, ethernet, gprs/cdma
-
 	menu_ongoing(flag, para, info);
 
 }
@@ -1738,7 +1737,6 @@ static void set_apn(BYTE flag, void *para, const char *info) {
 	if (verify_password() != 0)
 		return;
 
-	// TODO:set APN to use
 	PARAM_SET param_set;
 	char apn_id[APN_LENGTH], apn_user_id[APN_LENGTH],
 			apn_user_password[APN_LENGTH];
@@ -2467,7 +2465,7 @@ static void set_terminal_time(BYTE flag, void *para, const char *info) {
 		}
 
 		// TODO: not certain with time invalidness
-		if (true/*if_date_str_is_valid(terminal_date, 2)*/) { //  TODO:judge 时间有效
+		if (true/*if_date_str_is_valid(terminal_date, 2)*/) {
 			// valid continue;
 		} else {
 			// invalid continue; // tips

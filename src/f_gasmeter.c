@@ -163,7 +163,7 @@ BOOL fgasmeter_getcollector(int index, BYTE *address) /// get gasmeter
 	if (index < 0)
 		return FALSE;
 	sem_wait(&pinfo->sem_db); /// set memory wait /// river structure make us clear and release, while other complex structure do not
-	pdb = &pinfo->db.collector_db[index]; /// collector struct
+	pdb = &pinfo->db.collector_db[index];
 	if (!pdb->b_valid) {
 		sem_post(&pinfo->sem_db);
 		return FALSE;
@@ -175,21 +175,21 @@ BOOL fgasmeter_getcollector(int index, BYTE *address) /// get gasmeter
 	return index;
 }
 
-BOOL fgasmeter_getgasmeter(int index, BYTE *address, BYTE *collector) /// 
+BOOL fgasmeter_getgasmeter(int index, BYTE *address, BYTE *collector)
 {
-	GASMETER_INFO *pinfo = &gasmeter_info; /// has been refreshed
-	GASMETER_DB *pdb1; /// a gasmter
-	COLLECTOR_DB *pdb2; /// a_collecter
+	GASMETER_INFO *pinfo = &gasmeter_info;
+	GASMETER_DB *pdb1;
+	COLLECTOR_DB *pdb2;
 
 	if (index < 0)
 		return FALSE;
 	sem_wait(&pinfo->sem_db);
 	pdb1 = &pinfo->db.gasmeter_db[index];
 	if (!pdb1->b_valid) {
-		sem_post(&pinfo->sem_db); /// 信号量-
+		sem_post(&pinfo->sem_db);
 		return FALSE;
 	}
-	if (address) { /// pdb1->b_valid = valid
+	if (address) {
 		memcpy(address, pdb1->address, 7);
 	}
 	if (collector) {

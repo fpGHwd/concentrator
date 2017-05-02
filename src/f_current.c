@@ -76,10 +76,10 @@ void fcurrent_close(void) /// close file
 	sem_destroy(&pinfo->sem_db);
 }
 
-BOOL fcurrent_set_data(int mtidx, WORD di, const void *di_data) /// 
+BOOL fcurrent_set_data(int mtidx, WORD di, const void *di_data)
 {
 	FCURRENT_DATA *p;
-	FCURRENT_INFO *pinfo = &fcurrent_info; /// 
+	FCURRENT_INFO *pinfo = &fcurrent_info;
 	BYTE address[7];
 	BOOL b_success = FALSE;
 
@@ -97,7 +97,7 @@ BOOL fcurrent_set_data(int mtidx, WORD di, const void *di_data) ///
 			memcpy(&p->u.data.data_901f, di_data, sizeof(GASMETER_CJT188_901F));
 			p->u.data.data_901f.status = GASMETER_READ_STATUS_NORMAL;
 		}
-		fcurrent_update(mtidx, TRUE); /// write into file, and flush
+		fcurrent_update(mtidx, TRUE);
 		b_success = TRUE;
 		break;
 	default:

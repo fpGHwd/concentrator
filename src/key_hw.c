@@ -8,7 +8,7 @@
 
 /*
  按键值的定义在以下头文件中
- linux-devkit/sysroots/x86_64-arago-linux/usr/arm-linux-gnueabihf/libc/usr/include$ vi linux/input.h   
+ linux-devkit/sysroots/x86_64-arago-linux/usr/arm-linux-gnueabihf/libc/usr/include $ vi linux/input.h
  */
 
 /*
@@ -16,7 +16,7 @@
  KEY_UP、KEY_DOWN、KEY_LEFT、KEY_RIGHT、KEY_OK、KEY_CANCEL
  */
 
-#define KEY_PATH      "/dev/input/event1"
+#define KEY_PATH      "/dev/input/event0"
 
 int key_fd = -1;
 
@@ -24,12 +24,9 @@ int key_fd = -1;
 int KeyOpen(void) {
 	if (key_fd == -1) {
 		key_fd = open(KEY_PATH, O_RDWR); //// O_RDWR - linux descriptor
-		if (key_fd < 0) {
-			//printf("open key driver failed\n");
-			return 0;
-		}
+		return key_fd;
 	}
-	return 1;
+	return 0;
 }
 
 int KeyClose(void) {
@@ -56,11 +53,10 @@ int KeyRead(struct key_msg_t *msg) {
 		if (data.type == EV_KEY) /// EV_KEY
 		{
 			msg->code = data.code;
-			memset(&data, 0x0, sizeof(data)); /// driver not specified
-			///printf("wait here to read 2 the key value\n");
+			memset(&data, 0x0, sizeof(data));
 			ret = read(key_fd, &data, sizeof(data));
-			///printf("wait here to read 3 the key value\n");
 			ret = read(key_fd, &data, sizeof(data));
+			//printf("key code: %d\n", data.code);
 			if (data.type == EV_MSC)  /// EV_MSC
 			{
 				msg->type = (enum key_type_t) data.code;

@@ -115,7 +115,6 @@ void device_lcd_light(int on)
 #define MODEM_GPRS_ON   0x30 // 0x30 '0'
 #define MODEM_GPRS_OFF  0X31 // 0X31 '1'
 
-// TODO: rewrite the modem power reset
 void modem_hard_reset(void)
 {
 #if 1

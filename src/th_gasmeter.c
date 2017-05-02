@@ -20,7 +20,7 @@
 #include "f_day.h"
 #include "f_month.h"
 
-#define MAX_READ_DI_CNT 100 /// TODO: not forget to free this memory
+#define MAX_READ_DI_CNT 100
 
 #define EVENT_RDMETER 0x00000001
 
