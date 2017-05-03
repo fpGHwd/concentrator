@@ -913,20 +913,17 @@ UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata,
 	if (msg == NULL || msg->data == NULL || msg->datalen < 17 || outdata == NULL
 			|| max_outlen < 24 || max_datalen < 1)
 		return 0;
-	/// find meter address
 	if (memcmp(&msg->address[2], msg->data, 5) == 0) {
-		///meter index check
-		mtidx = fgasmeter_getidx_by_gasmeter(&msg->data[10]); /// get meter
+		mtidx = fgasmeter_getidx_by_gasmeter(&msg->data[10]);
 		if (mtidx < 0) {
 			PRINTF("%s [%s] is not exist in database\n", __FUNCTION__,
 					PRINT_ADDRESS((char *)addbuf, (const BYTE *)(&msg->data[10]), 7));
-			datalen[0] = ptl_gasup_pack_meterdata_nak(msg, ptr, max_outlen); /// datalen
+			datalen[0] = ptl_gasup_pack_meterdata_nak(msg, ptr, max_outlen);
 			if (datalen[0] > 0)
 				return 1;
 			else
 				return 0;
 		}
-		/// packet
 		next_blockidx = 0;
 		for (i = 0; i < PTL_GASUP_MAX_PACK_CNT; i++) {
 			for (blockidx = next_blockidx; blockidx < MAX_GASMETER_DAY_CNT;
@@ -936,8 +933,7 @@ UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata,
 			} /// 找到最近有效index ///最大的一个block
 			if (blockidx >= MAX_GASMETER_DAY_CNT)
 				break;
-			/// block index
-			pstart = ptr; ///
+			pstart = ptr;
 			bcd_be_stoc(ptr, 0);
 			ptr += 2;
 			memcpy(ptr, msg->data, 17); /// 上行的 2044 msg

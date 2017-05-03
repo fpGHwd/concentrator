@@ -12,7 +12,7 @@
 typedef struct {
 	COLLECTOR_DB collector_db[MAX_GASMETER_NUMBER];
 	GASMETER_DB gasmeter_db[MAX_GASMETER_NUMBER];
-}GASMETER_COLLECTOR_DB; /// collector database
+}GASMETER_COLLECTOR_DB;
 
 #define COLLECTOR_OFFSET offsetof(GASMETER_COLLECTOR_DB, collector_db) 
 #define GASMETER_OFFSET offsetof(GASMETER_COLLECTOR_DB, gasmeter_db)
@@ -22,18 +22,18 @@ typedef struct {
 	sem_t sem_db;
 	sem_t sem_f_gasmeter;
 	int fd;
-} GASMETER_INFO; /// domain info and file name, gas meter info
+} GASMETER_INFO;
 
 static GASMETER_INFO gasmeter_info; /// meters(not a meter), the biggest conception concrete, help you work
 
-static void fgasmeter_init_collector(COLLECTOR_DB *pdb) /// initiate collector db
+static void fgasmeter_init_collector(COLLECTOR_DB *pdb)
 {
 	if (!pdb)
 		return;
 	memset(pdb, 0, sizeof(COLLECTOR_DB));
 }
 
-static void fgasmeter_init_gasmeter(GASMETER_DB *pdb) /// initiate gasmeter db
+static void fgasmeter_init_gasmeter(GASMETER_DB *pdb)
 {
 	if (!pdb)
 		return;
@@ -77,13 +77,12 @@ static void fgasmeter_flush(void) {
 	fdatasync(gasmeter_info.fd);
 }
 
-static void fgasmeter_update_collector(int index, BOOL flush_flag) /// sem_t indicates a territory
-/// update fix-index collector
+static void fgasmeter_update_collector(int index, BOOL flush_flag)
 {
-	GASMETER_INFO *pinfo = &gasmeter_info; /// get static variable content
+	GASMETER_INFO *pinfo = &gasmeter_info;
 
 	sem_wait(&pinfo->sem_f_gasmeter);
-	lseek(pinfo->fd, COLLECTOR_OFFSET + index * sizeof(COLLECTOR_DB), SEEK_SET); /// COLLECTOR_OFFSET
+	lseek(pinfo->fd, COLLECTOR_OFFSET + index * sizeof(COLLECTOR_DB), SEEK_SET);
 	safe_write(pinfo->fd, pinfo->db.collector_db + index, sizeof(COLLECTOR_DB));
 	if (flush_flag) {
 		fgasmeter_flush();
@@ -94,13 +93,13 @@ static void fgasmeter_update_collector(int index, BOOL flush_flag) /// sem_t ind
 static void fgasmeter_update_gasmeter(int index, BOOL flush_flag) {
 	GASMETER_INFO *pinfo = &gasmeter_info; /// get static variable content
 
-	sem_wait(&pinfo->sem_f_gasmeter); /// ?
+	sem_wait(&pinfo->sem_f_gasmeter);
 	lseek(pinfo->fd, GASMETER_OFFSET + index * sizeof(GASMETER_DB), SEEK_SET);
 	safe_write(pinfo->fd, pinfo->db.gasmeter_db + index, sizeof(GASMETER_DB)); /// pinfo->db.gasmeter_db + index
 	if (flush_flag) {
 		fgasmeter_flush();
 	}
-	sem_post(&pinfo->sem_f_gasmeter); /// ?
+	sem_post(&pinfo->sem_f_gasmeter);
 }
 
 void fgasmeter_close(void) {
@@ -121,14 +120,14 @@ int fgasmeter_getidx_by_collector(const BYTE *address) /// find the address inde
 	sem_wait(&pinfo->sem_db);
 	for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 		pdb = &pinfo->db.collector_db[i];
-		if (!pdb->b_valid) ///
+		if (!pdb->b_valid)
 			continue;
-		if (memcmp(address, pdb->address, 5) == 0) { /// compare 5 bytes /// read source codes in little C project
+		if (memcmp(address, pdb->address, 5) == 0) {
 			index = i;
 			break;
 		}
 	}
-	sem_post(&pinfo->sem_db); /// ?
+	sem_post(&pinfo->sem_db);
 	return index;
 }
 

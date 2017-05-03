@@ -5,7 +5,6 @@
  *      Author: Johnnyzhang
  */
 
-/// 上行协议
 #include "protocol_gasup.h"
 #include "protocol_gasup_fn.h"
 #include "common.h"
@@ -22,19 +21,19 @@
 
 static UINT8 msg_buf[UP_CHANNEL_CNT * MSG_BUF_LEN];
 
-static struct msg { /// 上行的报文结构
+static struct msg {
 	INT32 que_in, que_out;
-	UINT8 *buf; /// UINT8* buf
-	INT32 saved_fcb; /// never used
+	UINT8 *buf;
+	INT32 saved_fcb;
 	PTL_GASUP_MSG msg_in;
 	INT32 msg_out_cnt;
-	PTL_GASUP_MSG msg_out[MAX_PACK_CNT]; /// 
-} msg_arr[UP_CHANNEL_CNT] = { /// GPRS/CDMA + ETH
+	PTL_GASUP_MSG msg_out[MAX_PACK_CNT];
+} msg_arr[UP_CHANNEL_CNT] = {
 				{ MSG_QUE_GPRSCDMA_IN, MSG_QUE_GPRSCDMA_OUT, msg_buf
 						+ MSG_BUF_LEN * 0 }, { MSG_QUE_ETH_IN, MSG_QUE_ETH_OUT,
 						msg_buf + MSG_BUF_LEN * 0 }, };
 
-int plt_gasup_pack(UINT8 *buf, UINT32 max_len, const PTL_GASUP_MSG *msg) //// PTL_GASUP_MSG: protocol gas up message
+int plt_gasup_pack(UINT8 *buf, UINT32 max_len, const PTL_GASUP_MSG *msg)
 {
 	int len;
 	UINT8 *ptr = buf;
@@ -160,9 +159,6 @@ int plt_gasup_pack_special(UINT16 fn, UINT8 *buf, UINT32 max_len, UINT8 *data,
 	}
 	return plt_gasup_pack(buf, max_len, &msg);
 }
-
-// TODO: mainstation set heartbeat time crc error
-// AT+CFUN -> change location.
 
 int ptl_gasup_pack_gasmeteralarm_data(BYTE *buf, int maxlen, WORD *pfn,
 		GASMETER_ALARM_T *palarm) {

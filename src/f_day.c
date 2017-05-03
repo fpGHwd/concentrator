@@ -44,7 +44,7 @@ static void fday_block_init(FDAY_DATA_BLOCK *pdata)
 		fday_data_init(&pdata->daydata[i]);
 	}
 }
-// TODO key migration, key driver
+
 void fday_open(void)
 {
 	int i, size;

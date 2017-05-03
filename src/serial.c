@@ -46,9 +46,9 @@ void set_baudrate(int fd, int baud) {
 	struct termios newtios;
 
 	if (fd >= 0) {
-		tcgetattr(fd, &newtios);  // get attr
-		cfsetospeed(&newtios, baud);  // output speed
-		cfsetispeed(&newtios, baud); // input speed
+		tcgetattr(fd, &newtios);
+		cfsetospeed(&newtios, baud);
+		cfsetispeed(&newtios, baud);
 		tcsetattr(fd, TCSADRAIN, &newtios);
 		PRINTF("Change baud to %d, fd is %d\n", baud, fd);
 	}

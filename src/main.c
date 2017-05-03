@@ -5,6 +5,7 @@
  *      Author: Johnnyzhang
  */
 
+#include <key_hw.h.BAK>
 #include "main.h"
 #include "common.h"
 #include "f_tables.h"
@@ -20,7 +21,6 @@
 #include "f_gasmeter_alarm.h"
 #include "lcd.h"
 #include "gpio.h"
-#include "key_hw.h"
 #include <stdlib.h>
 //#include "gprs_flux.h"
 

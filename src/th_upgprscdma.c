@@ -65,44 +65,10 @@ static BOOL gprscdma_device_init(struct UP_COMM_ST *up) {
 	return !!modem_check(modem_device, modem_lockname, MODEM_DEFAULT_BAUD);
 }
 
-
-/*
-static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up) {
-	char ip_addr[16];
-	BYTE host_ip[4], host_port[2]; /// this can be write into struct UP_COMM_ST *up
-	short ip_port;
-
-	if (!remote_ppp_connect(modem_device, modem_lockpid_name,
-			MODEM_DEFAULT_BAUD_STR)) {
-		PRINTF("GPRS/CDMA PPP connect fail\n");
-		return FALSE;
-	}
-
-	memset(host_ip, 0, sizeof(host_ip));
-	memset(host_port, 0, sizeof(host_port));
-	memset(ip_addr, 0, sizeof(ip_addr));
-	fparam_get_value(FPARAMID_COMM_HOST_IP_PRI, host_ip, sizeof(host_ip)); /// when to use minor ip and port
-	fparam_get_value(FPARAMID_COMM_HOST_PORT_PRI, host_port, sizeof(host_port));
-	snprintf(ip_addr, sizeof(ip_addr), "%u.%u.%u.%u", host_ip[0], host_ip[1],
-			host_ip[2], host_ip[3]);
-	ip_port = (host_port[0] << 8) + host_port[1];
-	if (g_socket_type == UP_COMM_SOCKET_TYPE_TCP) {
-		up->fd = remote_tcpudp_connect(0, ip_addr, ip_port, 30 * 1000); /// up->fd indicates connect status; not module entity
-	} else {
-		up->fd = remote_tcpudp_connect(1, ip_addr, ip_port, 30 * 1000);
-	}
-
-	if (up->fd <= 0) {
-		PRINTF("GPRS/CDMA TCP/UCP connect fail\n");
-		return FALSE;
-	}
-	return TRUE;
-}
-*/
 static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up)
 {
 	char ip_addr[16];
-	BYTE host_ip[4], host_port[2]; /// this can be write into struct UP_COMM_ST *up
+	BYTE host_ip[4], host_port[2];
 	short ip_port;
 
 	if (remote_ppp_connect(modem_device, modem_lockpid_name, MODEM_DEFAULT_BAUD_STR))
@@ -121,8 +87,7 @@ static BOOL gprscdma_tcpip_connect(struct UP_COMM_ST *up)
 			up->fd = remote_tcpudp_connect(1, ip_addr, ip_port, 30 * 1000);
 		}
 		if (up->fd > 0)
-		return TRUE;
-		//PRINTF("GPRS/CDMA TCP/UCP connect success\n");
+			return TRUE;
 		else {
 			PRINTF("GPRS/CDMA TCP/UCP connect fail\n");
 			return FALSE;
@@ -187,14 +152,11 @@ static BOOL gprscdma_fep_send(struct UP_COMM_ST *up) {
 		/* send success and add flux */
 		//get_date(date_string);
 		//add_byte_via_date( len,date_string);
-
 		return TRUE;
 	} else {
 		if (errcode != REMOTE_MODULE_RW_NORMAL) {
-
 			up->up_status = e_up_offline;
 			up->up_connect_status = e_up_disconnected;
-
 			PRINTF("GPRS/CDMA OFFLINE for send ERROR\n");
 		}
 		return FALSE;
@@ -208,8 +170,6 @@ static void gprscdma_disconnect(struct UP_COMM_ST *up) {
 int fep_is_connect(void) {
 	return gprscdma_comm.up_status == e_up_online;
 }
-
-/// change C to G
 
 void *th_upgprscdma(void * arg) {
 	RECEIVE_BUFFER receive;
@@ -225,11 +185,8 @@ void *th_upgprscdma(void * arg) {
 	while (!g_terminated) {
 		notify_watchdog();
 		fparam_get_value(FPARAMID_HEARTBEAT_CYCLE, hb_cycle, 2);
-		// gprscdma_comm.heartbeat_cycle = (hb_cycle[1] << 8) + hb_cycle[0]; // 128 * 60 = 7680
 		gprscdma_comm.heartbeat_cycle = (hb_cycle[0] << 8) + hb_cycle[1];
-
 		up_comm_proc(&gprscdma_comm);
-
 		check_gprscdma_online(&gprscdma_comm);
 		msleep(CONFIG_GPRSCDMA_THREAD_SLEEP);
 	}

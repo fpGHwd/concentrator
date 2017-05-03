@@ -15,12 +15,12 @@ typedef struct {
 	int fd;
 } FMON_INFO;
 
-static FMON_INFO fmon_info; /// pointer of th FMON_INFO
+static FMON_INFO fmon_info;
 
 static void fmon_data_init(FMON_DATA *pdata) {
 	if (pdata == NULL)
 		return;
-	pdata->valid = FALSE; /// 初始化时设为false /// used
+	pdata->valid = FALSE;
 	ptl_cjt188_data_init(0x901F, &pdata->u.data.data_901f);
 }
 
@@ -29,22 +29,22 @@ static void fmon_block_init(FMON_DATA_BLOCK *pdata) {
 
 	if (pdata == NULL)
 		return;
-	for (i = 0; i < MAX_GASMETER_NUMBER; i++) { //// 1000 meters
-		pdata->valid = FALSE; /// 初始化时设为false
+	for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
+		pdata->valid = FALSE;
 		fmon_data_init(&pdata->mondata[i]);
 	}
 }
 
-void fmon_open(void) /// write some part of the file core( which is core of this file: not main, is the data structure fmon_info)
+void fmon_open(void)
 {
 	int i, size;
 	const char *name = F_MON_NAME;
-	FMON_INFO *pinfo = &fmon_info; /// pointer info
+	FMON_INFO *pinfo = &fmon_info;
 
 	size = sizeof(FMON_DATA_BLOCK) * MAX_GASMETER_MON_CNT;
 	sem_init(&pinfo->sem_db, 0, 1);
 	sem_init(&pinfo->sem_f_mon, 0, 1);
-	if (!check_file(name, size)) { /// check file in current directory
+	if (!check_file(name, size)) {
 		PRINTF("File %s is created, size:%d\n", name, size);
 		pinfo->fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0600);
 		for (i = 0; i < MAX_GASMETER_MON_CNT; i++) {

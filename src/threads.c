@@ -14,7 +14,7 @@
 
 #define SIGWATCHDOG		SIGRTMIN
 
-int watchdog_fd; /// wd
+int watchdog_fd;
 
 static int pid_watchdog = 0;
 
@@ -37,7 +37,6 @@ void threads_create(void)
 	pthread_create(&th[0], NULL, func[0], NULL);
 	return;
 #endif
-
 
 	for (i = 0; i < THREADS_COUNT; i ++) {
 		pthread_create(&th[i], NULL, func[i], NULL);

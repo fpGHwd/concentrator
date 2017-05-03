@@ -10,7 +10,6 @@
 
 #include "typedef.h"
 
-//#define F_PARAM_NAME "f_param.dat"
 #define F_PARAM_NAME "/opt/concentrator/data/f_param.dat"
 
 #define FPARAM_PROGRAM_KEY_HOLD_TIME	3
@@ -43,9 +42,9 @@ struct param {
 	WORD len; /* length of DI */
 	WORD offset; /* offset of data */
 };
-typedef struct f_param { /// concentrator parameters data structure
-	struct param params[FPARAM_COUNT]; /// 128
-	BYTE data[FPARAM_LENGTH]; /// unsigned char, 3072
+typedef struct f_param {
+	struct param params[FPARAM_COUNT];
+	BYTE data[FPARAM_LENGTH];
 } F_PARAM;
 
 void fparam_init(void);

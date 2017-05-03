@@ -128,10 +128,6 @@ static void fparam_default_init(void) {
 	offset += APN_LENGTH;
 	fparam_add(idx++, FPARAMID_CON_VERIFY_PASSWD, 3, offset, "\x00\x00\x00");
 	offset += 3;
-	fparam_add(idx++, FPARAMID_COMM_CON_IP, 4, offset, "\x00\x00\x00\x00"); // terminal ip /// 45.78.42.189
-	offset += 4;
-	fparam_add(idx++, FPARAMID_COMM_CON_PORT, 2, offset, "\x00\x00"); // terminal_port /// 443
-	offset += 2;
 
 }
 

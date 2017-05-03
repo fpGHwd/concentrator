@@ -342,8 +342,7 @@ int safe_write(int fd, const void *buf, int len) /// save p_buf to fd
 
 int check_file(const char *name, int size) {
 	struct stat buf;
-	///printf("check_file: %d\n", (stat(name, &buf) == 0 && buf.st_size == size)?1:0);
-	return stat(name, &buf) == 0 && buf.st_size == size; /// check file in direcotry
+	return stat(name, &buf) == 0 && buf.st_size == size;
 }
 
 int create_file(const char *name, int size, int log) {

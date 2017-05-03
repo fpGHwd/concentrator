@@ -485,7 +485,6 @@ int cm180_shutdown(int fd) {
 
 		return (FALSE);
 	}
-
 	msleep(500);
 	//----------------------------------------------------------------------------
 	return ( TRUE);
@@ -508,6 +507,7 @@ BOOL cm180_getip(int fd, char *ipstr) {
 	}
 }
 
+// TODO: implement CDMA
 bool cm180_update_time_via_gprs(int fd, time_t *time) {
 
 	UINT8 *rbp;
@@ -544,21 +544,9 @@ bool cm180_update_time_via_gprs(int fd, time_t *time) {
 		if(rbp == NULL){
 			perror("Fatal error in getting receive buffer and pointer\n");
 		}
-		// TODO string to time and set the time
-		//PRINTF("print the string get: %s\n", rbp);
-		// print result: AT+CCLK?\rCCLK: "17/04/20,10;43:16"\rOK
 	} else {
 		return false;
 	}
-
-	/*
-	if(AT_CmdSend(fd, AT_C_CNCT_PPP, NULL) == 0){
-		PRINTF("exception: need to be paied attention to\n");
-	}else{
-		PRINTF("set back the mynetact to 0,1\n");
-	}
-	*/
-
 	return true;
 }
 

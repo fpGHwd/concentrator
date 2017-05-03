@@ -5,11 +5,11 @@
 #include "serial.h"
 #include "main.h"
 //------------------------------------------------------------------------------------------------
-#define AT_TIMEOUT (2000UL) //// 2s
+#define AT_TIMEOUT (2000UL)
 //------------------------------------------------------------------------------------------------
 static AT_t tAT;
 //------------------------------------------------------------------------------------------------
-int AT_EXPECT_OK(const UINT8 *Rsp)  /// typedef unsigned char  UINT8
+int AT_EXPECT_OK(const UINT8 *Rsp)
 {
 	if (Rsp == NULL) {
 		return (-1);
