@@ -5,6 +5,7 @@
  *      Author: Johnnyzhang
  */
 
+#include <key_hw.h.BAK>
 #include "lcd.h"
 #include "main.h"
 #include "common.h"
@@ -17,7 +18,6 @@
 #include "input.h"
 #include "gprscdma.h"
 
-#include "key_hw.h"
 
 #define LCD_WIDTH			scr.width
 #define LCD_HEIGHT			scr.height
@@ -1178,4 +1178,78 @@ BYTE key_getch(int flag) {
 		}
 		return KEY_NONE;
 	}
+}
+
+
+#define KEY_PATH      "/dev/input/event0"
+#include <linux/input.h>
+#include "lcd.h"
+int key_fd = -1;
+int KeyOpen(void) {
+	if (key_fd == -1) {
+		key_fd = open(KEY_PATH, O_RDWR); //// O_RDWR - linux descriptor
+		return key_fd;
+	}
+	return 0;
+}
+
+int KeyClose(void) {
+	if (key_fd > 0) {
+		close(key_fd);
+		key_fd = -1;
+	}
+
+	return 1;
+}
+
+int KeyRead(struct key_msg_t *msg) {
+	static struct input_event data;
+	int ret;
+
+	msg->code = 0;
+	msg->type = 0;
+
+	if (key_fd > 0) {
+
+		///printf("wait here to read 1 the key value\n");
+		ret = read(key_fd, &data, sizeof(data));
+
+		if (data.type == EV_KEY) /// EV_KEY
+		{
+			msg->code = data.code;
+			memset(&data, 0x0, sizeof(data));
+			ret = read(key_fd, &data, sizeof(data));
+			ret = read(key_fd, &data, sizeof(data));
+			//printf("key code: %d\n", data.code);
+			if (data.type == EV_MSC)  /// EV_MSC
+			{
+				msg->type = (enum key_type_t) data.code;
+				return 1;
+			}
+		}
+		return 0;
+	}
+	return 0;
+}
+
+void testkey(void) {
+	struct key_msg_t msg = { 0 };
+
+	KeyOpen();
+	while (1) {
+		if (KeyRead(&msg) == 1)
+			printf("key:code = %x,type=%x\n", msg.code, msg.type);
+	}
+	KeyClose();
+}
+
+void key_exit(void) {
+	KeyClose();
+}
+
+void key_initiate(void) {
+	int ret;
+	ret = KeyOpen();
+	if (ret != 0)
+		PRINTF(stderr, "WARNNING: key initiated error\n");
 }
