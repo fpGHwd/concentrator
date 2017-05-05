@@ -1071,6 +1071,8 @@ void lcd_show_arrow(int up, int down, int left, int right) {
 	lcd_refresh(x, y, LCD_FONT_SIZE, LCD_FONT_SIZE);
 }
 
+// int KeyRead(struct key_msg_t *msg);
+//int KeyRead_noneblock_version(struct key_msg_t *msg, int msec)
 int lcd_key_in(int flag) {
 	static int lightwait_time = 60;
 	static long idle_time = 0;
@@ -1081,7 +1083,7 @@ int lcd_key_in(int flag) {
 		idle_time = uptime();
 
 	//if (LCD_FD < 0 || read(LCD_FD, &ch, 1) <= 0)
-	if(LCD_FD<0 || KeyRead(&msg) != 0){
+	if(KeyRead_NONE_BLOCKING(&msg) != 0){
 		ch = 0;
 	}else{
 		ch = (unsigned char)msg.code;
@@ -1181,7 +1183,7 @@ BYTE key_getch(int flag) {
 }
 
 
-#define KEY_PATH      "/dev/input/event0"
+#define KEY_PATH  "/dev/input/event0"
 #include <linux/input.h>
 #include "lcd.h"
 int key_fd = -1;
@@ -1198,7 +1200,6 @@ int KeyClose(void) {
 		close(key_fd);
 		key_fd = -1;
 	}
-
 	return 1;
 }
 
@@ -1211,7 +1212,7 @@ int KeyRead(struct key_msg_t *msg) {
 
 	if (key_fd > 0) {
 
-		///printf("wait here to read 1 the key value\n");
+		/// TODO:printf("wait here to read 1 the key value\n");
 		ret = read(key_fd, &data, sizeof(data));
 
 		if (data.type == EV_KEY) /// EV_KEY
@@ -1228,6 +1229,36 @@ int KeyRead(struct key_msg_t *msg) {
 			}
 		}
 		return 0;
+	}
+	return 0;
+}
+
+int KeyRead_NONE_BLOCKING(struct key_msg_t *msg){
+
+	static struct input_event data;
+	int ret;
+
+	msg->code = 0;
+	msg->type = 0;
+
+	if(key_fd < 0)
+		return 0;
+
+	if(wait_for_ready(key_fd, 500, 0)>0){
+		ret = read(key_fd, &data, sizeof(data));
+		if (data.type == EV_KEY)
+		{
+			msg->code = data.code;
+			memset(&data, 0x0, sizeof(data));
+			ret = read(key_fd, &data, sizeof(data));
+			ret = read(key_fd, &data, sizeof(data));
+			//printf("key code: %d\n", data.code);
+			if (data.type == EV_MSC)  /// EV_MSC
+			{
+				msg->type = (enum key_type_t) data.code;
+				return 1;
+			}
+		}
 	}
 	return 0;
 }

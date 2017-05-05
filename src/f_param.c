@@ -10,27 +10,8 @@
 
 static F_PARAM f_param;
 static F_PARAM *p_f_param = &f_param;
-static int fd_f_param;  /// file descriptor
-static sem_t sem_f_param; /// f_param secure access description 
-
-/*
- typedef struct{
- unsigned char apn_id[APN_LENGTH];
- unsigned char apn_user_id[APN_LENGTH];
- unsigned char apn_password[APN_LENGTH];
- int apn_len[3];
- } apn_data_t;
-
- static apn_data_t apn = {
- .apn_id = "UNINET",
- .apn_user_id = "CMNET",
- .apn_password = "CMNET",
- .apn_len = {6, 5, 5}, /// char length
- };
-
- static apn_data_t *apn_ptr;
-
- */
+static int fd_f_param;
+static sem_t sem_f_param;
 
 static int fparam_find(WORD id) {
 	int i;
@@ -162,7 +143,7 @@ void fparam_destroy(void) /// ?
 }
 
 WORD fparam_get_value(WORD id, void *buf, INT32 max_len) {
-	int idx; /// id(enum) to find it supporting data entity
+	int idx;
 	struct param *ptr = p_f_param->params;
 
 	fparam_lock();

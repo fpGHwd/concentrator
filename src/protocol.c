@@ -128,7 +128,7 @@ INT32 get_data_from_receive(const RECEIVE_BUFFER *receive, UINT8 *buf,
 		if (maxlen >= len) {
 			memcpy(buf, receive->head, len);
 			return len;
-		} else { /// maxlen < len
+		} else {
 			return 0;
 		}
 	} else if ((receive->tail - receive->head) < 0) {

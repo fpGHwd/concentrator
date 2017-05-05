@@ -42,8 +42,8 @@ void start_read_gasmeter(void) {
 	last_read_tm = cur_tm;
 }
 
-void *th_gasmeter_event(void *arg) {
 	BYTE read_freq[2];
+void *th_gasmeter_event(void *arg) {
 	static BOOL is_first = TRUE;
 	struct tm cur_tm;
 
@@ -53,7 +53,7 @@ void *th_gasmeter_event(void *arg) {
 	while (!g_terminated) {
 		sleep(100); /// add by nayowang
 		notify_watchdog();
-		if (fgasmeter_is_empty()) {
+		if (fgasmeter_is_empty()){
 			msleep(10);
 			continue;
 		}
@@ -181,7 +181,7 @@ int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 	}
 
 	yl800_len = yl800_read_packet(yl800_respbuf, sizeof(yl800_respbuf), timeout,
-			gasmeter_read_serial); //int (*read_fn)(void *buf, int len, int timeout);
+			gasmeter_read_serial);
 
 	sem_post(&sem_serial);
 
@@ -542,7 +542,6 @@ void *th_gasmeter(void *arg) {
 									read_dis[j], GASMETER_READ_STATUS_ABORT);
 							continue;
 						}else{
-							/* save data */
 							gasmeter_save_data(address, collector, read_dis[j],
 									read_tt, resp_buf, resp_len);
 							break;

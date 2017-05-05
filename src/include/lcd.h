@@ -169,6 +169,6 @@ struct key_msg_t {
 int KeyOpen(void);
 int KeyClose(void);
 int KeyRead(struct key_msg_t *msg);
-
+int KeyRead_NONE_BLOCKING(struct key_msg_t *msg);
 
 #endif /* LCD_H_ */

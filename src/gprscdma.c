@@ -32,7 +32,7 @@ typedef struct {
 			const char *baudstr);
 	int (*tcp_connect)(int fd, const char *addr, int port, int timeout);
 	int (*udp_connect)(int fd, const char *addr, int port);
-	int (*send)(int fd, const BYTE *buf, int len, int *errcode); /// n -> send
+	int (*send)(int fd, const BYTE *buf, int len, int *errcode);
 	int (*receive)(int fd, BYTE *buf, int maxlen, int timeout, int *errcode);
 	int (*shutdown)(int fd);
 	BOOL (*getip)(int fd, char *ipstr);
@@ -74,11 +74,11 @@ static int write_lock_file(const char *lockfile) {
 	int fd, pid, lock_pid, len;
 	char buf[PATH_MAX + 1], apid[16];
 
-	snprintf(buf, sizeof(buf), "/var/lock/%s", "TM.XXXXXX"); /// 
-	if ((fd = mkstemp(buf)) < 0) /// system call
+	snprintf(buf, sizeof(buf), "/var/lock/%s", "TM.XXXXXX");
+	if ((fd = mkstemp(buf)) < 0)
 		return 0;
-	chmod(buf, 0644); /// system call
-	pid = getpid(); /// now pid
+	chmod(buf, 0644);
+	pid = getpid();
 	len = snprintf(apid, sizeof(apid), "%10d\n", pid);
 	safe_write(fd, apid, len);
 	close(fd);
@@ -120,7 +120,7 @@ int open_modem_device(const char *device_name, const char *lock_name,
 	int fd, lock_pid;
 
 	/* added by wd */
-	if ((pcur_module_attr != NULL) && (pcur_module_attr->remote_fd != -1)) { /// correspond to the close modem device
+	if ((pcur_module_attr != NULL) && (pcur_module_attr->remote_fd != -1)) {
 		return pcur_module_attr->remote_fd;
 	}
 
@@ -130,7 +130,7 @@ int open_modem_device(const char *device_name, const char *lock_name,
 		//lcd_update_head_enable(1);
 		return -1;
 	}
-	if ((fd = open_serial(device_name, baudrate, 8, 0)) < 0) { /// not lock file and can write
+	if ((fd = open_serial(device_name, baudrate, 8, 0)) < 0) {
 		remove(lock_name);  /// open serial failed
 		PRINTF("Open modem device FAIL\n");
 		//lcd_update_head_enable(1);
@@ -441,7 +441,7 @@ static int do_modem_check_baud(const char *device_name, const char *lock_name) {
 	struct {
 		int baud;
 		char *str;
-	} baud_test[] = { { MODEM_DEFAULT_BAUD, MODEM_DEFAULT_BAUD_STR }, /// 115200
+	} baud_test[] = { { MODEM_DEFAULT_BAUD, MODEM_DEFAULT_BAUD_STR },
 			{ B57600, "57600" }, { B9600, "9600" }, { B115200, "115200" }, };
 
 	for (i = 0; i < sizeof(baud_test) / sizeof(baud_test[0]) /// for (i=0; i< 4; i++)
@@ -476,10 +476,9 @@ static int do_modem_check_baud(const char *device_name, const char *lock_name) {
 					ret);
 			return ret;
 		} else
-			/// ret = 0, failed
 			break;
 	}
-	return 0; /// failed when return 0
+	return 0;
 }
 
 int modem_check(const char *device_name, const char *lock_name, int baudrate) /// serial port operations
@@ -556,11 +555,7 @@ int remote_ppp_connect(const char *device_name, const char *lock_name,
 	else {
 		if (p_pclstack->ppp_connect) {
 
-			// if(pcur_module_attr != NULL && pcur_module_attr->remote_fd > 0){ /// added by wd
-			// 	ret = pcur_module_attr->remote_fd;
-			// }else{
 			ret = p_pclstack->ppp_connect(device_name, lock_name, baudstr); /// can't set pcur_module_attr
-			// }
 
 			if (ret > 0) {
 				pcur_module_attr->remote_fd = ret;
@@ -612,7 +607,7 @@ int remote_tcpudp_connect(BYTE type, const char *addr, int port, int timeout) {
 					pcur_module_attr->describe, addr, port);
 			return -1;
 		}
-	} else { // connect TCP
+	} else {
 		if (tcp_fn
 				&& (ret = tcp_fn(pcur_module_attr->remote_fd, addr, port,
 						timeout)) >= 0) {
@@ -641,7 +636,7 @@ int remote_tcpudp_read(int fd, void *buf, int max_len, int timeout,
 	*errcode = REMOTE_MODULE_RW_NORMAL;
 	if (NULL == pcur_module_attr)
 		return 0;
-	if (pcur_module_attr->protocol_stack_type == MODEM_PCL_STACK_IN_OS) { /// OS TYPE
+	if (pcur_module_attr->protocol_stack_type == MODEM_PCL_STACK_IN_OS) {
 		*errcode = REMOTE_MODULE_UNREAD_PCLSTACKINOS;
 		return 0;
 	} else {
@@ -650,16 +645,15 @@ int remote_tcpudp_read(int fd, void *buf, int max_len, int timeout,
 	if (NULL == p_pclstack)
 		return 0;
 	if (pcur_module_attr->protocol_stack_type == MODEM_PCL_STACK_IN_OS) {
-		ret = p_pclstack->receive(fd, buf, max_len, timeout, errcode); /// cm180_receive
-	} else {  /// MODEM_PCL_STACK_IN_MODULE
-		ret = p_pclstack->receive(pcur_module_attr->remote_fd, buf, max_len,
-				timeout, errcode);
+		ret = p_pclstack->receive(fd, buf, max_len, timeout, errcode);
+	} else {
+		ret = p_pclstack->receive(pcur_module_attr->remote_fd, buf, max_len, timeout, errcode);
 	}
 	if (ret > 0) {
 		*errcode = REMOTE_MODULE_RW_NORMAL;  /// NORMAL READ AND WRITE
-	}/*else{
+	}else{
 	 *errcode = REMOTE_MODULE_RW_UNORMAL; /// UNNORMAL READ AND WRITE
-	 }*/
+	}
 	return ret;
 }
 
@@ -693,7 +687,7 @@ int remote_tcpudp_write(int fd, const void *buf, int len, int *errcode) {
 	return ret;
 }
 
-int remote_module_close(const char *lock_name) // remote module close
+int remote_module_close(const char *lock_name)
 {
 	int fd;
 
@@ -724,7 +718,7 @@ BOOL remote_module_get_ip(char *des_addr) /// remote ip address
 		p_pclstack = &pcur_module_attr->pcl_in_module;
 	}
 	if (p_pclstack && p_pclstack->getip) {
-		return p_pclstack->getip(pcur_module_attr->remote_fd, des_addr); /// getip function
+		return p_pclstack->getip(pcur_module_attr->remote_fd, des_addr);
 	} else
 		return FALSE;
 }

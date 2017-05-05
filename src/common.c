@@ -229,7 +229,7 @@ void bcd_be_ltoc(BYTE *buf, int val) /// long(4B, val) to char(buf, BYTE*)
 	}
 }
 
-BYTE check_sum(const void *buf, int len) /// 
+BYTE check_sum(const void *buf, int len)
 {
 	const BYTE *ptr = buf;
 	BYTE sum = 0;
@@ -239,7 +239,7 @@ BYTE check_sum(const void *buf, int len) ///
 	return sum;
 }
 
-int wait_for_ready(int fd, int msec, int flag) /// flag: read or write fd
+int wait_for_ready(int fd, int msec, int flag)
 {
 	int ret;
 	fd_set fds;
@@ -251,14 +251,14 @@ int wait_for_ready(int fd, int msec, int flag) /// flag: read or write fd
 		if (fd < 0) {
 			ret = select(0, NULL, NULL, NULL, &tv);
 		} else {
-			FD_ZERO(&fds); /// clean fd_set
-			FD_SET(fd, &fds); /// assign fd_set 
+			FD_ZERO(&fds);
+			FD_SET(fd, &fds);
 			if (!flag)
 				ret = select(fd + 1, &fds, NULL, NULL, &tv); /// check read status
 			else
 				ret = select(fd + 1, NULL, &fds, NULL, &tv); /// check write
 		}
-		if (ret < 0 && errno == EINTR) /// errno
+		if (ret < 0 && errno == EINTR)
 			continue;
 		return ret;
 	}

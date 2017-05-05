@@ -63,7 +63,6 @@ int m590e_ppp_connect(const char *device_name, const char *lock_name, const char
 	while (at_cmd(fd, "AT$MYNETURC=1\r", resp, sizeof(resp), t1, t2) > 0){
 		if((ptr = strstr(resp, "OK"))!= NULL){
 			at_cmd(fd, "AT$MYNETACT=0,1\r", resp, sizeof(resp), t1, t2);
-			///if((strstr(resp, "$MYNETACT:") != NULL) || (strstr(resp, "902") != NULL)){
 			if((ptr = strstr(resp, ",\"")) != NULL && (ptr1 = strstr(resp, "\"\r")) != NULL){
 				memcpy(m590e_ip_str, ptr + 2, ptr1 - ptr - 2);
 				return fd;
@@ -189,38 +188,16 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 		if (at_cmd_receive(fd, resp, min(sizeof(resp), 4), t1, t2) == 4 // 3 + 2  //when they send, it want to receive
 				&& (resp_ptr = strstr(resp, "OK")) != NULL) { // send ok // "SEND OK"
 			*errcode = REMOTE_MODULE_RW_NORMAL;
-			send_len += ret; // send length
-			len -= ret; // len remaining
-			buf_ptr += ret; // pointer in buf to send
-			PRINTF("%s Send %d HEX bytes OK\n", __FUNCTION__, ret); // send ok
-			if (len <= 0)// no len to send
+			send_len += ret;
+			len -= ret;
+			buf_ptr += ret;
+			PRINTF("%s Send %d HEX bytes OK\n", __FUNCTION__, ret);
+			if (len <= 0)
 				break;
 			else{
 				PRINTF("WARNNING: force here to break, \n");
 				break;
 			}
-			// TODO: what you want to do
-			/*
-			wait_cnt = 10;
-			while (wait_cnt-- > 0) {
-				data_len = 0;
-				if (at_cmd(fd, "AT+CIPSEND?\r", resp, sizeof(resp), t1, t2) > 0) {
-					if ((resp_ptr = strstr(resp, "CLOSED")) != NULL) {
-						*errcode = REMOTE_MODULE_RW_ABORT;
-						return send_len; // may not send all
-					}
-					if ((resp_ptr = strstr(resp, "+CIPSEND:")) != NULL) {
-						resp_ptr = strstr(resp_ptr, ":");
-						data_len = atoi(resp_ptr + 1); //
-						PRINTF("MAX send length is %d bytes for next in module\n", data_len);
-					}
-				}
-				if (data_len > 0)
-					break;
-				else {
-					msleep(200);
-				}
-			}*/
 		}
 		else {
 			*errcode = REMOTE_MODULE_RW_ABORT; // receive error
@@ -243,6 +220,12 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 	while(timeout/1000 > (uptime() - t) && !g_terminated){
 		if(fd<0)
 			return FALSE;
+
+		if(ret = at_cmd_receive(fd, resp, sizeof(resp), t1, t2) > 0){
+			if(strstr(resp, "$MYURCREAD: 0") == NULL)
+				return 0;
+		}
+
 		snprintf(send,sizeof(send),"AT$MYNETREAD=%d,2048\r",M590E_SOCKET_ID);
 		ret = at_cmd_sub(fd, send, resp, sizeof(resp), t1, t2, TRUE);
 
@@ -287,7 +270,6 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 		}
 		msleep(500);
 	}
-	//ASSERT(data_len>0); // comment, it's probably for mainstaion not send the message, so cannot exit
 	return 0;
 }
 
