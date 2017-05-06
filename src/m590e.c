@@ -11,15 +11,26 @@
 
 void *g_m590e_resource = NULL;
 
-#define M590E_WRITE_TIMEOUT (2 * 1000u)
-#define M590E_READ_TIMEOUT (10 * 1000u)
+//#define M590E_WRITE_TIMEOUT (2 * 1000u)
+//#define M590E_READ_TIMEOUT (10 * 1000u)
+#define M590E_WRITE_TIMEOUT (1 * 1000u)
+#define M590E_READ_TIMEOUT (2 * 1000u)
+#define M590E_CONNECTO_TIMEOUT (10 * 1000u)
 
 #define M590E_SOCKET_ID 0
 static char m590e_ip_str[64] = {0};
 
+typedef enum{
+	SOCKETID_1,
+	SOCKETID_2,
+	SOCKETID_3,
+	SOCKETID_4,
+	SOCKETID_5,
+}GPRS_SOCKETID_T;
+
 e_remote_module_status m590e_init(int fd)
 {
-	char resp[1024], *ptr;
+	char resp[1024]; //*ptr;
 	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
 	const e_remote_module_status abort_st = e_modem_st_deivce_abort;
 
@@ -28,13 +39,12 @@ e_remote_module_status m590e_init(int fd)
 	else
 		PRINTF("%s Start\n", __FUNCTION__);
 
-	AT_CMD_CHECK("AT+CFUN=1,1\r", t1, t2, abort_st, "OK"); // restart module
-	msleep(2000);
+	AT_CMD_CHECK("AT+CFUN=1,1\r", t1, 5000u, abort_st, "OK"); // restart module
 
-	if(debug_ctrl.gprs_display_back_enable)
-		AT_CMD_CHECK("ATE1\r", t1, t2, abort_st, "OK");
-	else
-		AT_CMD_CHECK("ATE0\r", t1, t2, abort_st, "OK");
+	//if(debug_ctrl.gprs_display_back_enable)
+		//AT_CMD_CHECK("ATE1\r", t1, t2, abort_st, "OK");
+	//else
+		AT_CMD_CHECK("ATE0\r", t1, t2, abort_st, "OK");// should close display back
 
 	//AT_CMD_CHECK("AT$MYTYPE?\r", t1, t2, abort_st, "OK");
 	AT_CMD_CHECK("AT$MYGMR\r", t1, t2, abort_st, "OK");
@@ -74,7 +84,7 @@ int m590e_ppp_connect(const char *device_name, const char *lock_name, const char
 				}
 			}
 		}
-		if (wait_cnt < 0) /// 5 times to try, which now is meanless
+		if (wait_cnt < 0)
 			break;
 		wait_cnt--;
 		msleep(1000);
@@ -85,41 +95,40 @@ int m590e_ppp_connect(const char *device_name, const char *lock_name, const char
 static int m590e_tcpudp_connect(const char *connect_str, int fd,
 		const char *addr, int port, int timeout)
 {
-	int ret = 0;
-	char resp[1024] = { 0 }, *resp_ptr = resp, *ptr;
+	char resp[1024] = { 0 }, *resp_ptr = resp;
 	char send[1024] = { 0 };
 	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
-	long last_uptime;
+
 
 	if(connect_str == NULL || fd < 0)
-		return fd;
+		return -1;
 
-	// judge another later
 	if(strcmp(connect_str, "TCP") == 0){
 		snprintf(send, sizeof(send), "AT$MYNETSRV=%d,%d,%d,%d,\"%s:%d\"\r", 0,0,0,0, addr, port);
 		if(at_cmd(fd, send,resp, sizeof(resp), t1, t2)>0){
-			if(strstr(resp, "OK") == NULL)
-				return -1;
-			snprintf(send, sizeof(send), "AT$MYNETOPEN=%d\r", 0);
-			if(at_cmd(fd, send, resp, sizeof(resp), t1, t2)> 0){
-				if(strstr(resp, "OK") != NULL)
-					return fd;
-				else
-					return -1;
-			}else{
+			if(strstr(resp, "OK") == NULL){
+				PRINTF("%s Not found 'OK' for AT$MYNETSRV=%d,%d,%d,%d,\"%s:%d\"\n", __FUNCTION__, 0,0,0,0, addr, port);
 				return -1;
 			}
-		}else{
-			return -1;
+			snprintf(send, sizeof(send), "AT$MYNETOPEN=%d\r", M590E_SOCKET_ID);
+			if((at_cmd(fd, send, resp, sizeof(resp), t1, M590E_CONNECTO_TIMEOUT))> 0){
+				if(strstr(resp, "OK") != NULL)
+					return fd;
+				else{
+					PRINTF("%s Not found 'OK' for 'AT$MYNETOPEN=%d'\n", __FUNCTION__);
+					return -1;
+				}
+			}else{
+				PRINTF("%s Not receive for 'AT$MYNETOPEN=%d'\n", __FUNCTION__,M590E_SOCKET_ID);
+				return -1;
+			}
 		}
-		// timeout set it later
 	}else if(strcmp(connect_str,"UDP") == 0){
-		PRINTF("NO UDP IMPLEMENTATION\n");
+		PRINTF("choose udp connect and NO UDP implementation\n");
 		return -1;
-	}else{
-		PRINTF("%s: invalid connect string\n");
-		return 0;
 	}
+	PRINTF("%s: unknown addressed reason for failure to connect\n", __FUNCTION__);
+	return -1;
 }
 
 
@@ -141,16 +150,16 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 	BYTE *buf_ptr = (BYTE *)buf;
 	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
 	int data_len = 0, send_len = 0;
-	int wait_cnt;
 
 #define MAX_DEFAULT_SEND_LEN 1024
 
 	if (fd < 0)
 		return 0;
-	while (len > 0) { // send length
-		memset(send,0x0,sizeof(send)); // send command
+
+	while (len > 0) {
+		memset(send,0x0,sizeof(send));
 		if (len > MAX_DEFAULT_SEND_LEN) { /// to send len > MAX len limited
-			snprintf(send, sizeof(send), "%s=%d\r", "AT$MYNETOPEN", M590E_SOCKET_ID);
+			snprintf(send, sizeof(send), "AT$MYNETOPEN=%d\r", M590E_SOCKET_ID);
 			if (at_cmd(fd, send, resp, sizeof(resp), t1, t2) > 0) { // query the socket size of m590e
 				if ((resp_ptr = strstr(resp, "$MYNETOPEN:")) != NULL) {// if CIPSEND: IN
 					resp_ptr = strstr(resp_ptr, ":");
@@ -161,9 +170,9 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 			if (data_len == 0) {
 				data_len = MAX_DEFAULT_SEND_LEN;
 			}
-		} // if len is out of max_set_value, then data_leb = len
+		}
 		else {
-			data_len = len; ///
+			data_len = len;
 		}
 		data_len = min(data_len, sizeof(send) - 1);
 		data_len = min(data_len, len);
@@ -178,34 +187,32 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 			*errcode = REMOTE_MODULE_RW_ABORT;
 			return 0;
 		}
-		if ((resp_ptr = strstr(resp, "$MYNETWRITE:")) == NULL) { // TIP TO SEND
+		if ((resp_ptr = strstr(resp, "$MYNETWRITE:")) == NULL) {// TIP TO SEND
 			*errcode = REMOTE_MODULE_RW_ABORT;
 			return 0;
 		}
 		memcpy(send,buf_ptr,data_len);
 		send[data_len] = 0x0d; // enter as ending-character // send[data_len] =0x1A; // 0x1A = CTRL + Z
-		ret = at_cmd_send(fd, send, data_len + 1, t1, t2) - 1; // write send(data) // core send
-		if (at_cmd_receive(fd, resp, min(sizeof(resp), 4), t1, t2) == 4 // 3 + 2  //when they send, it want to receive
-				&& (resp_ptr = strstr(resp, "OK")) != NULL) { // send ok // "SEND OK"
+		ret = at_cmd_send(fd, send, data_len + 1, t1, t2) - 1;
+		if (at_cmd_receive(fd, resp, min(sizeof(resp), 6), t1, t2) == 6
+				&& (resp_ptr = strstr(resp, "OK")) != NULL) {
 			*errcode = REMOTE_MODULE_RW_NORMAL;
 			send_len += ret;
 			len -= ret;
 			buf_ptr += ret;
 			PRINTF("%s Send %d HEX bytes OK\n", __FUNCTION__, ret);
 			if (len <= 0)
-				break;
-			else{
-				PRINTF("WARNNING: force here to break, \n");
-				break;
-			}
+				return send_len;
+			else
+				continue;
 		}
 		else {
-			*errcode = REMOTE_MODULE_RW_ABORT; // receive error
+			*errcode = REMOTE_MODULE_RW_ABORT;
 			PRINTF("%s FAIL\n", __FUNCTION__);
 			return 0;
 		}
 	}
-	return send_len;
+	return 0;
 }
 
 int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
@@ -213,63 +220,56 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 	int ret,data_len = 0;
 	char resp[1024] = {0},*resp_ptr = resp;
 	char send[1024] = {0};
-	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT; //int t1 = M590E_WRITE_TIMEOUT, t2 = M590E_READ_TIMEOUT;
-	long t = 0;
+	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
 
-	t = uptime();
-	while(timeout/1000 > (uptime() - t) && !g_terminated){
-		if(fd<0)
-			return FALSE;
+	if(fd<0)
+		return FALSE;
 
-		if(ret = at_cmd_receive(fd, resp, sizeof(resp), t1, t2) > 0){
-			if(strstr(resp, "$MYURCREAD: 0") == NULL)
-				return 0;
-		}
-
-		snprintf(send,sizeof(send),"AT$MYNETREAD=%d,2048\r",M590E_SOCKET_ID);
-		ret = at_cmd_sub(fd, send, resp, sizeof(resp), t1, t2, TRUE);
-
-		if(ret<0){ // send failed
-			PRINTF("%s AT CMD send FAIL for AT$MYNETREAD=%d,2048\n", __FUNCTION__,M590E_SOCKET_ID);
-			return 0; // send command failed then receive invalid although, so conduct a proceeding return 0
-		}
-
-		if((resp_ptr = strstr(resp, "$MYNETREAD")) == NULL){ // check receive  // $MYNETREAD: 0,33
-			PRINTF("%s Not found '$MYNETREAD'\n", __FUNCTION__);
-			*errcode = REMOTE_MODULE_RW_ABORT;
+	if((ret = at_cmd_receive(fd, resp, sizeof(resp), t1, t2)) > 0)
+		if(strstr(resp, "$MYURCREAD: 0") == NULL){
+			PRINTF("%s Not found '$MYURCREAD'\n", __FUNCTION__);
 			return 0;
 		}
 
-		if((resp_ptr = strstr(resp, ":")) == NULL){
-			PRINTF("%s Not found ':'\n", __FUNCTION__);
-			*errcode = REMOTE_MODULE_RW_ABORT;
-			return 0;
-		}
+	snprintf(send,sizeof(send),"AT$MYNETREAD=%d,2048\r",M590E_SOCKET_ID);
+	ret = at_cmd_sub(fd, send, resp, sizeof(resp), t1, t2, TRUE);
 
-		// check if the socket id is the using one(upwards) // no need
-
-		if((resp_ptr = strstr(resp,",")) == NULL){ /// \r = enter, \n = next line
-			PRINTF("%s Not found ','\n");
-			*errcode = REMOTE_MODULE_RW_ABORT;
-			return 0;
-		}
-		sscanf(resp_ptr + 1, "%d", &data_len); // close display-back you can get receive data length
-		if ((resp_ptr = strstr(resp_ptr, "\n")) == NULL) {
-			PRINTF("%s Not found '\\n'(character)",__FUNCTION__);
-			*errcode = REMOTE_MODULE_RW_ABORT;
-			return 0;
-		}
-
-		if(data_len > 0 && (data_len < 100)){ // check data_len
-			memcpy(buf,resp_ptr + 1,data_len);
-			PRINTF("%s %d bytes\n", __FUNCTION__, data_len);
-			*errcode = REMOTE_MODULE_RW_NORMAL;
-			return data_len;
-		}else{ // no need this branch
-			//PRINTF("Read data_len(%d)\n", data_len); /// jsut trying
-		}
-		msleep(500);
+	if(ret<0){
+		PRINTF("%s AT CMD send FAIL for AT$MYNETREAD=%d,2048\n", __FUNCTION__,M590E_SOCKET_ID);
+		return 0;
 	}
+
+	if((resp_ptr = strstr(resp, "$MYNETREAD")) == NULL){ // check receive  // $MYNETREAD: 0,33
+		PRINTF("%s Not found '$MYNETREAD'\n", __FUNCTION__);
+		*errcode = REMOTE_MODULE_RW_ABORT;
+		return 0;
+	}
+
+	if((resp_ptr = strstr(resp, ":")) == NULL){
+		PRINTF("%s Not found ':'\n", __FUNCTION__);
+		*errcode = REMOTE_MODULE_RW_ABORT;
+		return 0;
+	}
+
+	if((resp_ptr = strstr(resp,",")) == NULL){ /// \r = enter, \n = next line
+		PRINTF("%s Not found ','\n");
+		*errcode = REMOTE_MODULE_RW_ABORT;
+		return 0;
+	}
+	sscanf(resp_ptr + 1, "%d", &data_len); //Only close display-back can we get data_len
+	if ((resp_ptr = strstr(resp_ptr, "\n")) == NULL) {
+		PRINTF("%s Not found '\\n'(character)",__FUNCTION__);
+		*errcode = REMOTE_MODULE_RW_ABORT;
+		return 0;
+	}
+
+	if(data_len > 0){
+		memcpy(buf,resp_ptr + 1,data_len);
+		PRINTF("%s %d bytes\n", __FUNCTION__, data_len);
+		*errcode = REMOTE_MODULE_RW_NORMAL;
+		return data_len;
+	}
+	PRINTF("%s: unknown addressed reason for receive\n", __FUNCTION__);
 	return 0;
 }
 

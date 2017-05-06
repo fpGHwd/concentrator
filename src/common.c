@@ -271,7 +271,7 @@ int safe_read_timeout(int fd, void *buf, int len, int timeout) {
 
 	while (len > 0 && wait_for_ready(fd, timeout, 0) > 0) {
 		notify_watchdog();
-		ret = read(fd, ptr, len); /// read
+		ret = read(fd, ptr, len);
 		if (ret < 0 && errno == EINTR)
 			continue;
 		if (ret < 0)
