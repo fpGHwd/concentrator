@@ -13,9 +13,10 @@ void *g_m590e_resource = NULL;
 
 //#define M590E_WRITE_TIMEOUT (2 * 1000u)
 //#define M590E_READ_TIMEOUT (10 * 1000u)
-#define M590E_WRITE_TIMEOUT (1 * 1000u)
-#define M590E_READ_TIMEOUT (2 * 1000u)
-#define M590E_CONNECTO_TIMEOUT (10 * 1000u)
+#define M590E_WRITE_TIMEOUT 	(500u)
+#define M590E_READ_TIMEOUT 		(2 * 1000u)
+#define AT_FUN_TIMEOUT 			(5000u)
+#define M590E_CONNECT_TIMEOUT 	(10 * 1000u)
 
 #define M590E_SOCKET_ID 0
 static char m590e_ip_str[64] = {0};
@@ -39,7 +40,7 @@ e_remote_module_status m590e_init(int fd)
 	else
 		PRINTF("%s Start\n", __FUNCTION__);
 
-	AT_CMD_CHECK("AT+CFUN=1,1\r", t1, 5000u, abort_st, "OK"); // restart module
+	AT_CMD_CHECK("AT+CFUN=1,1\r", t1, AT_FUN_TIMEOUT, abort_st, "OK"); // restart module
 
 	//if(debug_ctrl.gprs_display_back_enable)
 		//AT_CMD_CHECK("ATE1\r", t1, t2, abort_st, "OK");
@@ -99,7 +100,6 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 	char send[1024] = { 0 };
 	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
 
-
 	if(connect_str == NULL || fd < 0)
 		return -1;
 
@@ -111,7 +111,7 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 				return -1;
 			}
 			snprintf(send, sizeof(send), "AT$MYNETOPEN=%d\r", M590E_SOCKET_ID);
-			if((at_cmd(fd, send, resp, sizeof(resp), t1, M590E_CONNECTO_TIMEOUT))> 0){
+			if((at_cmd(fd, send, resp, sizeof(resp), t1, M590E_CONNECT_TIMEOUT))> 0){
 				if(strstr(resp, "OK") != NULL)
 					return fd;
 				else{
