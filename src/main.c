@@ -5,7 +5,7 @@
  *      Author: Johnnyzhang
  */
 
-#include <key_hw.h.BAK>
+//#include <key_hw.h.BAK>
 #include "main.h"
 #include "common.h"
 #include "f_tables.h"
@@ -117,6 +117,7 @@ static void power_fail(int sig) {
 
 static void handler_power_fail(void) {
 	int flags;
+
 	/*
 	if (gpio_fd < 0) {
 	 PRINTF("Can't open /dev/gpio\n");
@@ -131,6 +132,7 @@ static void handler_power_fail(void) {
 	signal(SIGIO, power_fail);
 }
 
+void sqlite_initiate(void);
 static void system_init(void) {
 	modem_gprs_turn_on();
 	if(debug_ctrl.key_enable)
@@ -138,11 +140,19 @@ static void system_init(void) {
 	read_rtc();
 
 	msg_que_init();
+
+#ifdef ORIGIN_FILE_SAVE
 	fparam_init();
 	fgasmeter_open();
 	fcurrent_open();
 	fday_open();
 	fmon_open();
+#endif
+
+#ifdef SQLITE_SAVE
+	sqlite_initiate();
+#endif
+
 	fconalm_open();
 	fgasmeteralm_open();
 	//sim_card_flux_database_init();

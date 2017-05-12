@@ -107,7 +107,7 @@ static int gasmeter_read_serial(void *buf, int len, int timeout) {
 }
 
 
-// # every thread need a watchdog
+// TODO:every thread need a watchdog
 
 int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 		BYTE *buf, int max_len) /// read meter

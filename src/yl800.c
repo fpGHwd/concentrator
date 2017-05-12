@@ -13,7 +13,7 @@
 static YL800_CONFIG yl800_config = {
 		.speed = YL800_CFG_SPEED_1200,
 		.parity = YL800_CFG_PARITY_NONE,
-		.freq = 0x6C4012, // 433M
+		.freq = 0x6C4012,
 		.factor = YL800_CFG_FACTOR_128,
 		.mode = YL800_CFG_MODE_NORMAL,
 		.bandwidth = YL800_CFG_BANDWIDTH_61_5K,

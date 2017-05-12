@@ -145,8 +145,8 @@ static int sim900a_tcpudp_connect(const char *connect_str, int fd,
 			} else
 				break;
 		}
-		return -1;
 	}
+	return -1;
 }
 
 int sim900a_tcp_connect(int fd, const char *addr, int port, int timeout) {

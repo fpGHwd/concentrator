@@ -7,6 +7,11 @@
 
 #include "protocol_cjt188_data.h"
 
+/**
+ *
+ * @param di
+ * @param p
+ */
 void ptl_cjt188_data_print(WORD di, void *p) {
 #define PRINT_HEX(x, a, b) hex_to_str(x, sizeof(x), a, b, TRUE)
 	GASMETER_CJT188_901F *data_901f;
@@ -46,14 +51,24 @@ void ptl_cjt188_data_init(WORD di, void *p) /// p == (GASMETER_CJT188-901f*) ///
 	}
 }
 
-BOOL ptl_cjt188_data_format(void *p, WORD di, long tt, const BYTE *buf, /// 判断是否为cjt188数据
-		int buflen) //// p即数据指针
+/**
+ *
+ * @param p
+ * @param di
+ * @param tt
+ * @param buf
+ * @param buflen
+ * @return
+ */
+BOOL ptl_cjt188_data_format(void *p, WORD di, long tt, const BYTE *buf,
+		int buflen)
 {
 	GASMETER_CJT188_901F *data_901f;
 
 	if (p == NULL || buf == NULL || buflen < 0)
 		return FALSE;
 	switch (di) {
+	// TODO: the protocol analysis
 	case 0x901F:
 		if (buflen < 22)
 			return FALSE;
@@ -67,8 +82,9 @@ BOOL ptl_cjt188_data_format(void *p, WORD di, long tt, const BYTE *buf, /// 判�
 		memcpy(data_901f->di_data.clock, &buf[13], 7);
 		memcpy(data_901f->di_data.st, &buf[20], 2);
 		return TRUE;
+
 	default:
-		PRINTF("%s DI: %04X is not support\n", __FUNCTION__, di); /////
+		PRINTF("%s DI: %04X is not support\n", __FUNCTION__, di);
 		return FALSE;
 	}
 }

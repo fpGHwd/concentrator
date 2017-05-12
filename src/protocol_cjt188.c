@@ -8,7 +8,7 @@
 #include "protocol_cjt188.h"
 #include "common.h"
 
-static UINT8 cjt188_ser; /// 
+static UINT8 cjt188_ser;
 
 int plt_cjt188_pack(UINT8 *buf, UINT32 max_len, const PTL_CJT188_MSG *msg) /// CJT188 /// 不包含网络地址
 {
@@ -19,22 +19,20 @@ int plt_cjt188_pack(UINT8 *buf, UINT32 max_len, const PTL_CJT188_MSG *msg) /// C
 		return 0;
 	if (max_len < 17 || max_len < 17 + msg->datalen)
 		return 0;
-	/* // 
-	 if(max_len < 17 + msg->datalen)
-	 return 0; // */ /// added by wd 
-	memset(ptr, 0xFE, 4); /// 4个字节0xFE
+
+	memset(ptr, 0xFE, 4);
 	ptr += 4;
 	pstart = ptr;
-	*ptr++ = 0x68;  //// 0x68
-	*ptr++ = msg->type; /// 仪表类型, 0x30
+	*ptr++ = 0x68;
+	*ptr++ = msg->type;
 	for (i = 0; i < 7; i++) {
-		*ptr++ = msg->address[7 - i - 1]; /// 表号, 23051606000102
+		*ptr++ = msg->address[7 - i - 1];
 	}
-	*ptr++ = msg->ctrl; /// 控制码,C,
-	*ptr++ = msg->datalen; /// 数据长度L /// 0x03 一个字节
-	memcpy(ptr, msg->data, msg->datalen); /// 数据域DATA
+	*ptr++ = msg->ctrl;
+	*ptr++ = msg->datalen;
+	memcpy(ptr, msg->data, msg->datalen);
 	ptr += msg->datalen;
-	*ptr = check_sum(pstart, ptr - pstart); /// CS ， 一个字节
+	*ptr = check_sum(pstart, ptr - pstart);
 	ptr++;
 	*ptr++ = 0x16;
 	return ptr - buf;
@@ -125,6 +123,15 @@ BOOL plt_cjt188_check_packet(PTL_CJT188_MSG *msg, const UINT8 *buf,
 
 /// command type(code) 9015, 必要的message , pack message with 188 protocol, 
 /// pack message with yl800, send message, waiting for response.
+/**
+ * read realtime meter
+ * @param buf
+ * @param max_len
+ * @param address
+ * @param ctr_0
+ * @param di
+ * @return
+ */
 int plt_cjt188_pack_read(UINT8 *buf, UINT32 max_len, const UINT8 *address,UINT8 ctr_0, UINT16 di)
 {
 	UINT8 databuf[3];
@@ -134,7 +141,7 @@ int plt_cjt188_pack_read(UINT8 *buf, UINT32 max_len, const UINT8 *address,UINT8 
 		return 0;
 	stoc(databuf, di); /// 0x901F // 将2bytes字节设置到databuf[0]
 	databuf[2] = cjt188_ser; /// service
-	msg.type = CJT188_METER_TYPE_GAS; /// T
+	msg.type = CJT188_METER_TYPE_GAS;
 	memcpy(msg.address, address, 7); //// address domain
 	msg.ctrl = ctr_0; /// ctr_0
 	msg.datalen = 0x03;  /// data length
@@ -142,6 +149,17 @@ int plt_cjt188_pack_read(UINT8 *buf, UINT32 max_len, const UINT8 *address,UINT8 
 	return plt_cjt188_pack(buf, max_len, &msg);
 }
 
+/**
+ * write
+ * @param buf
+ * @param max_len
+ * @param address
+ * @param ctr_3
+ * @param di
+ * @param data // data need to be
+ * @param datalen
+ * @return
+ */
 int plt_cjt188_pack_write(UINT8 *buf, UINT32 max_len, const UINT8 *address,
 		UINT8 ctr_3, UINT16 di, UINT8 *data, UINT8 datalen) {
 	UINT8 databuf[255];
@@ -160,13 +178,20 @@ int plt_cjt188_pack_write(UINT8 *buf, UINT32 max_len, const UINT8 *address,
 	return plt_cjt188_pack(buf, max_len, &msg);
 }
 
+/**
+ *
+ * @param buf
+ * @param max_len
+ * @param timeout
+ * @param read_fn
+ * @return
+ */
 int plt_cjt188_read_packet(UINT8 *buf, UINT32 max_len, int timeout,
 		int (*read_fn)(void *, int, int)) {
 	UINT8 *ptr = buf;
 	UINT8 value = 0;
 	UINT8 datalen;
 
-	///printf("cjt188 read funtion\n"); /// printf == print function
 	if (buf == NULL || max_len < 13 || read_fn == NULL)
 		return 0;
 	while (value != 0x68) {

@@ -657,6 +657,15 @@ static UINT32 ptl_gasup_pack_meterdata_nak(const PTL_GASUP_MSG *msg,
 	return ptr - outbuf;
 }
 
+/**
+ *
+ * @param msg
+ * @param outdata
+ * @param max_outlen
+ * @param datalen
+ * @param max_datalen
+ * @return
+ */
 UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		INT32 max_outlen, INT32 *datalen, INT32 max_datalen) /// 集抄数据
 {
@@ -760,7 +769,15 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata,
 	return 0;
 }
 
-/// 单表月用量查询
+/**
+ * 单表月用量查询
+ * @param msg
+ * @param outdata
+ * @param max_outlen
+ * @param datalen
+ * @param max_datalen
+ * @return
+ */
 UINT32 ptl_gasup_fn_2042(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		INT32 max_outlen, INT32 *datalen, INT32 max_datalen) {
 	INT8 *ptr = outdata;
@@ -813,6 +830,15 @@ UINT32 ptl_gasup_fn_2042(const PTL_GASUP_MSG *msg, INT8 *outdata,
 }
 
 ///单表月用量历史查询
+/**
+ *
+ * @param msg
+ * @param outdata
+ * @param max_outlen
+ * @param datalen
+ * @param max_datalen
+ * @return
+ */
 UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		INT32 max_outlen, INT32 *datalen, INT32 max_datalen) /// int8-> unsigned char? /// 0x68 96+8 = 104<255
 {
@@ -899,6 +925,15 @@ UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata,
 }
 
 ///单表日用量历史查询
+/**
+ *
+ * @param msg
+ * @param outdata
+ * @param max_outlen
+ * @param datalen
+ * @param max_datalen
+ * @return
+ */
 UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		INT32 max_outlen, INT32 *datalen, INT32 max_datalen) {
 	INT8 *ptr = outdata, *lastframe_ptr = NULL, *pstart;
