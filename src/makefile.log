@@ -1,0 +1,93 @@
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/app_event.o -c app_event.c
+  Create objs/app_event.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/AT.o -c AT.c
+  Create objs/AT.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/atcmd.o -c atcmd.c
+  Create objs/atcmd.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/cm180.o -c cm180.c
+  Create objs/cm180.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/common.o -c common.c
+  Create objs/common.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/con_test.o -c con_test.c
+  Create objs/con_test.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/data_save.o -c data_save.c
+  Create objs/data_save.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/devices.o -c devices.c
+  Create objs/devices.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/f_con_alarm.o -c f_con_alarm.c
+  Create objs/f_con_alarm.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/fcs.o -c fcs.c
+  Create objs/fcs.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/f_current.o -c f_current.c
+  Create objs/f_current.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/f_day.o -c f_day.c
+  Create objs/f_day.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/f_gasmeter_alarm.o -c f_gasmeter_alarm.c
+  Create objs/f_gasmeter_alarm.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/f_gasmeter.o -c f_gasmeter.c
+  Create objs/f_gasmeter.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/f_month.o -c f_month.c
+  Create objs/f_month.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/font.o -c font.c
+  Create objs/font.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/f_param.o -c f_param.c
+  Create objs/f_param.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/f_tables.o -c f_tables.c
+  Create objs/f_tables.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/gpio.o -c gpio.c
+  Create objs/gpio.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/gprscdma.o -c gprscdma.c
+  Create objs/gprscdma.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/input.o -c input.c
+  Create objs/input.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/language.o -c language.c
+  Create objs/language.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/lcd.o -c lcd.c
+  Create objs/lcd.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/m590e.o -c m590e.c
+  Create objs/m590e.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/main.o -c main.c
+  Create objs/main.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/menu.o -c menu.c
+  Create objs/menu.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/menu_gas.o -c menu_gas.c
+  Create objs/menu_gas.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/msg_que.o -c msg_que.c
+  Create objs/msg_que.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/protocol.o -c protocol.c
+  Create objs/protocol.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/protocol_cjt188.o -c protocol_cjt188.c
+  Create objs/protocol_cjt188.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/protocol_cjt188_data.o -c protocol_cjt188_data.c
+  Create objs/protocol_cjt188_data.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/protocol_gasup.o -c protocol_gasup.c
+  Create objs/protocol_gasup.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/protocol_gasup_fn.o -c protocol_gasup_fn.c
+  Create objs/protocol_gasup_fn.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/serial.o -c serial.c
+  Create objs/serial.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/sim900a.o -c sim900a.c
+  Create objs/sim900a.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/spont_alarm.o -c spont_alarm.c
+  Create objs/spont_alarm.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/th_alarm.o -c th_alarm.c
+  Create objs/th_alarm.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/th_downcomm.o -c th_downcomm.c
+  Create objs/th_downcomm.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/th_gasmeter.o -c th_gasmeter.c
+  Create objs/th_gasmeter.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/th_hmisys.o -c th_hmisys.c
+  Create objs/th_hmisys.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/threads.o -c threads.c
+  Create objs/threads.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/th_upeth.o -c th_upeth.c
+  Create objs/th_upeth.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/th_upgprscdma.o -c th_upgprscdma.c
+  Create objs/th_upgprscdma.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/up_comm.o -c up_comm.c
+  Create objs/up_comm.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -o objs/yl800.o -c yl800.c
+  Create objs/yl800.o
+/opt/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-linux-gnueabihf-gcc -v -o ./gascon objs/app_event.o objs/AT.o objs/atcmd.o objs/cm180.o objs/common.o objs/con_test.o objs/data_save.o objs/devices.o objs/f_con_alarm.o objs/fcs.o objs/f_current.o objs/f_day.o objs/f_gasmeter_alarm.o objs/f_gasmeter.o objs/f_month.o objs/font.o objs/f_param.o objs/f_tables.o objs/gpio.o objs/gprscdma.o objs/input.o objs/language.o objs/lcd.o objs/m590e.o objs/main.o objs/menu.o objs/menu_gas.o objs/msg_que.o objs/protocol.o objs/protocol_cjt188.o objs/protocol_cjt188_data.o objs/protocol_gasup.o objs/protocol_gasup_fn.o objs/serial.o objs/sim900a.o objs/spont_alarm.o objs/th_alarm.o objs/th_downcomm.o objs/th_gasmeter.o objs/th_hmisys.o objs/threads.o objs/th_upeth.o objs/th_upgprscdma.o objs/up_comm.o objs/yl800.o -Iinclude/ -Os  -DRELEASE_APP_TIME=\"2017-05-13\ 10:27:40\" -DTHREADS_COUNT=7 -DTIMER_COUNT=7 -DAPP_VERSION=\"1.0.0.0\" -lpthread -lm -lsqlite3
+  Linking OK
+  Create gascon

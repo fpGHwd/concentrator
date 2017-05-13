@@ -78,7 +78,7 @@ scp:
 
 .PHONY: install
 install:
-	$(shell cp gascon ~/nfsroot)
+	$(shell scp gascon root@192.168.0.211:./gascon.bak)
 
 #@echo "gascon is sent to ~/nfs/"
-	@echo "gascon is sent to ~/nfsroot"
+	@echo "gascon is sent to root@192.168.0.211:./gascon.bak"
