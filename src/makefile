@@ -2,6 +2,7 @@
 # 2017-02-18 
 # Nayo Wang
 
+
 APP_MAJOR_VERSION = 1
 APP_MINOR_VERSION = 0
 APP_REVISION_VERSION = 0
@@ -51,14 +52,14 @@ cmd_print_create = @echo "  Create $@"
 .PHONY: all
 all: $(BIN)
 $(BIN): $(OBJECTS)
-	@$(CC) -o $(BIN) $(OBJECTS) $(CFLAGS) $(LIBS)
+	$(CC) -v -o $(BIN) $(OBJECTS) $(CFLAGS) $(LIBS)
 	@echo "  Linking OK"
 	$(call cmd_print_create)
 
 # attention
 $(OBJECTS):$(OBJS_DIR)%.o: %.c
 	@mkdir -p $(OBJS_DIR)
-	@$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) -v $(CFLAGS) -o $@ -c $<
 	$(call cmd_print_create)
 
 .PHONY: clean

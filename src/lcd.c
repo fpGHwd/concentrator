@@ -5,7 +5,7 @@
  *      Author: Johnnyzhang
  */
 
-#include <key_hw.h.BAK>
+//#include <key_hw.h.BAK>
 #include "lcd.h"
 #include "main.h"
 #include "common.h"
@@ -17,6 +17,7 @@
 #include "f_param.h"
 #include "input.h"
 #include "gprscdma.h"
+#include "devices.h"
 
 
 #define LCD_WIDTH			scr.width
@@ -1183,13 +1184,12 @@ BYTE key_getch(int flag) {
 }
 
 
-#define KEY_PATH  "/dev/input/event0"
 #include <linux/input.h>
 #include "lcd.h"
 int key_fd = -1;
 int KeyOpen(void) {
 	if (key_fd == -1) {
-		key_fd = open(KEY_PATH, O_RDWR); //// O_RDWR - linux descriptor
+		key_fd = open(key_device, O_RDWR); //// O_RDWR - linux descriptor
 		return key_fd;
 	}
 	return 0;

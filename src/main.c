@@ -141,13 +141,13 @@ static void system_init(void) {
 
 	msg_que_init();
 
-#ifdef ORIGIN_FILE_SAVE
+//#ifdef ORIGIN_FILE_SAVE
 	fparam_init();
 	fgasmeter_open();
 	fcurrent_open();
 	fday_open();
 	fmon_open();
-#endif
+//#endif
 
 #ifdef SQLITE_SAVE
 	sqlite_initiate();
