@@ -22,3 +22,4 @@ makefile.swp
 .settings/
 
 concentrator
+*.xml

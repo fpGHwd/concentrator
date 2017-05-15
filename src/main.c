@@ -33,7 +33,7 @@ const int g_retry_times = 3;
 const int rf_id = 0;
 
 const struct debug debug_ctrl = {
-		.gasmeter_test = false, /// -> false
+		.gasmeter_test = true, /// -> false
 		.watchdog_enable = false, /// -> true
 		.repeater_enable = false, /// -> ture;
 		.sqlite_enable = false, /// -> false

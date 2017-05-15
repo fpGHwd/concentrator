@@ -112,6 +112,8 @@ static void fparam_default_init(void) {
 
 }
 
+//  TODO: add add a meter to concentrator
+
 void fparam_init(void) {
 	int size = sizeof(F_PARAM);
 	const char *name = F_PARAM_NAME;

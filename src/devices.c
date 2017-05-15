@@ -42,5 +42,6 @@ const char *lcd_device = "/dev/char_cdev";
 const char *watch_dog_device = "/dev/watchdog";
 const char *clock_device = "/dev/rtc0";
 const char *key_device = "/dev/input/event0";
+const char *modem_reset_device_path = "/sys/class/gprs_cls/power_ctrl";
 
 #endif

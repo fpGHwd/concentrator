@@ -9,6 +9,8 @@
 
 #include "lcd.h"
 
+#ifndef IMX28
+
 #define CONFIG_MCU_LCD               1
 
 #define MODULE_DEV_PATH              "/dev/mcu_lcd"
@@ -1119,3 +1121,5 @@ int lcd_revese_string_lcd_hw(int x, int y, unsigned char *str, enum LCD_ASCII_FO
 	}
 
 }
+
+#endif

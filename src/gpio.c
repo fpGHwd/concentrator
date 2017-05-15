@@ -206,7 +206,8 @@ void modem_soft_reset(void) {
 #endif
 }
 
-void modem_gprs_shutdown(void) {
+void modem_gprs_shutdown(void)
+{
 
 	int fd;
 	char buf[2];
