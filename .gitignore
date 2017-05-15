@@ -5,3 +5,6 @@ Release/
 .project
 .cproject
 *.o
+
+gascon
+make.log
