@@ -2263,7 +2263,11 @@ static void usb_update_function(BYTE flag, void *para, const char *info) {
 	}
 	lcd_show_string(2, 1, strlen(c_find_update_file_and_reboot_then_str),
 			c_find_update_file_and_reboot_then_str);
-	ret = system("cp /media/usb/gascon ./gascon.bak"); // update, copy file
+#ifdef AM335X
+	ret = system("cp /media/usb/concentrator-am335x /opt/concentrator/bin/concentrator-am335x.bak");
+#elif defined IMX28
+	ret = system("cp /media/usb/concentrator-am335x /opt/concentrator/bin/concentrator-am335x");
+#endif
 
 	sleep(2);
 	restart_terminal_function( false, NULL, NULL); // reboot  //and //  return

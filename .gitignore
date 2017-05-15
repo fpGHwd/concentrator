@@ -1,12 +1,11 @@
-# sdcard
-filesystem/
-kernel/
-uboot/
-
-.vscode/
+bak/
 Debug/
-Release/
-.settings/
-.project
-.cproject
-*.o
+objs/
+
+
+cproject
+gitignore
+makefile.swp
+project
+settings/language.settings.xml
+README.md

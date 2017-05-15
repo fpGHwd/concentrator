@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 #include <semaphore.h>
-
 #include <assert.h>
 
 #include "data_save.h"

@@ -24,8 +24,6 @@
 #define GPIOCTL_MUX_SET			_IOW('G', 0x07, unsigned int)
 #define GPIOCTL_MUX_CLR			_IOW('G', 0x08, unsigned int) /* write 1~8 command*/
 
-//#define MISC_GPIO "/dev/misc/gpio"
-
 
 #define BIT_WATCHDOG			(1 << 12)
 #define BIT_EB_RELAY			(1 << 9)

@@ -12,7 +12,11 @@
 #include "f_alarm.h"
 
 //#define F_CON_ALARM_NAME "f_conalarm.dat"
+#ifdef IMX28
 #define F_CON_ALARM_NAME "/opt/concentrator/data/f_conalarm.dat"
+#elif defined(AM335X)
+#define F_CON_ALARM_NAME "/opt/concentrator/data/f_conalarm.dat"
+#endif
 
 #define MAX_CON_ALARM_CNT 1000
 

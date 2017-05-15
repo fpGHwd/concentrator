@@ -12,12 +12,12 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
-#if 1
-#define LOG_NAME			"../data/gascon.log" /// change by wd
-#define ERR_NAME			"../data/gascon.err" /// change by wd
-#else
-#define LOG_NAME			"gascon.log"
-#define ERR_NAME			"gascon.err"
+#ifdef IMX28
+#define LOG_NAME			"opt/concentrator/log/gascon.log"
+#define ERR_NAME			"opt/concentrator/log/gascon.err"
+#elif defined(AM335X)
+#define LOG_NAME			"opt/concentrator/log/gascon.log"
+#define ERR_NAME			"opt/concentrator/log/gascon.err"
 #endif
 
 #define GSTDEBUG_EN				1
