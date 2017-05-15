@@ -10,11 +10,11 @@ Debug/
 objs/
 
 
-cproject
+.cproject
 gitignore
 makefile.swp
-project
-settings/language.settings.xml
+.project
+.settings/
 README.md
 
 concentrator
