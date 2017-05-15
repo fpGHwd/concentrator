@@ -159,6 +159,7 @@ static void system_init(void) {
 
 	lcd_open(lcd_device, g_lcd_type, 0x10);
 	lcd_show_lines();
+
 	if(debug_ctrl.gpio_enable)
 		gpio_open();
 	else

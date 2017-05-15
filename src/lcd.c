@@ -19,7 +19,6 @@
 #include "gprscdma.h"
 #include "devices.h"
 
-
 #define LCD_WIDTH			scr.width
 #define LCD_HEIGHT			scr.height
 #define LCD_MAX_ROW			scr.max_row
@@ -457,6 +456,10 @@ static void lcd_refresh_cmd_0(int x, int y, int w, int h) {
 
 static BYTE lcd_position = 0x05;
 
+
+
+#ifdef IMX28
+
 static void lcd_refresh_cmd_1(int x, int y, int w, int h) {
 	unsigned char buf[2048], *ptr, val1, val2, val3;
 	const unsigned char *data;
@@ -499,6 +502,122 @@ static void lcd_refresh_cmd_1(int x, int y, int w, int h) {
 		}
 	}
 }
+
+#elif defined(AM335X)
+
+#include "lcd_hw.h"
+static void lcd_refresh_byte( int x, int y, unsigned char byte )
+{
+	int i = 0;
+	//--------------------------------------------------------------
+	for ( i=0; i<8; i++ ) {
+
+		if ( byte & 0x01 ) {
+
+			lcd_set_current_color(LCD_WHITE);
+		} else {
+
+			lcd_set_current_color(LCD_BLACK);
+		}
+
+		draw_dot( x, y, 1 );
+
+		x++;
+
+		byte >>= 1;
+
+		///printf("lcd_refresh_byte called\n");
+
+
+	}
+
+	lcd_set_current_color(LCD_WHITE);
+}
+
+void lcd_clrsrn(void)
+{
+	int x = 0;
+	int y = 0;
+
+	for ( y=0; y<LCD_HEIGHT; y++ ) {
+
+		for ( x=0; x<LCD_WIDTH; x++ ) {
+
+			draw_dot( x, y, 1 );
+		}
+	}
+
+}
+
+static void lcd_refresh_cmd_1(int x, int y, int w, int h)
+{
+
+	//int i, j, k, addr, off1, bit1, off2, bit2;
+
+	//unsigned int y1 = 0;
+	unsigned int uwIndx = 0;
+	unsigned int uwSize = 0;
+
+	int x1 = 0;
+	int x2 = 0;
+	//int y1 = 0;
+	unsigned char i = 0;
+	unsigned char k = 0;
+	unsigned char *p = NULL;
+	unsigned char *ucLcdBuffer = NULL;
+	//-----------------------------------------------------------------------------------
+	//x = 0 y = 0 w = 160 h = 160
+
+	if (LCD_BUF != NULL) {
+
+	x1 = 0; x2 = LCD_WIDTH;
+
+		w = (x2 - x1);
+
+		if ( (y + h) > LCD_HEIGHT ) {
+
+			h = (LCD_HEIGHT - y);
+		}
+
+		uwSize = ( h * (w / 8) );
+
+		ucLcdBuffer = malloc(uwSize);
+
+		if ( ucLcdBuffer == NULL ) {
+
+			return;
+		}
+
+		p = ucLcdBuffer;
+
+		for ( i=0; i<h; i++ ) {
+
+			uwIndx = ( ( (y + i) * (LCD_WIDTH / 8) ) + ( x1 / 8 ) ); /// block buffer start, left-up conner
+
+			for ( k=0; k<(w/8); k++ ) {
+
+				*p++ = LCD_BUF[uwIndx + k]; ///
+			}
+
+		}
+
+		LCD_DrawPicture_1( x1, y, w, h, ucLcdBuffer );
+
+		free(ucLcdBuffer);
+
+	} else {
+		printf("lcd.c: LCD_BUFF = NULL\n");
+	}
+
+}
+
+
+int get_screen_fd(void){
+	return LCD_FD;
+}
+
+#endif /// AM335X
+
 
 static void lcd_refresh(int x, int y, int w, int h) {
 	(*LCD_REFRESH_CMD)(x, y, w, h);
@@ -637,7 +756,7 @@ void lcd_open(const char *device, int lcd_type, int font_size) {
 		LCD_INIT_CMD = lcd_init_cmd_0;
 		LCD_REFRESH_CMD = lcd_refresh_cmd_0;
 	} else {
-		LCD_WIDTH = LCD_HEIGHT = 160; // 128;
+		LCD_WIDTH = LCD_HEIGHT = 160;
 		LCD_INIT_CMD = lcd_init_cmd_1;
 		LCD_REFRESH_CMD = lcd_refresh_cmd_1;
 	}
@@ -974,6 +1093,7 @@ void lcd_show_lines(void) {
 	lcd_show_line(0, y + LCD_FONT_SIZE, LCD_WIDTH - 1, y + LCD_FONT_SIZE, 1);
 	y = row_to_y(MAX_SCREEN_ROW);
 	lcd_show_line(0, y - 1, LCD_WIDTH - 1, y - 1, 1);
+	PRINTF("function here");
 }
 
 int fep_is_connect(void);
@@ -1077,17 +1197,26 @@ void lcd_show_arrow(int up, int down, int left, int right) {
 int lcd_key_in(int flag) {
 	static int lightwait_time = 60;
 	static long idle_time = 0;
+#ifdef AM335X
+	int ch;
+#elif defined IMX28
 	unsigned char ch;
+#endif
+
 	struct key_msg_t msg;
 
 	if (idle_time == 0)
 		idle_time = uptime();
 
 	//if (LCD_FD < 0 || read(LCD_FD, &ch, 1) <= 0)
-	if(KeyRead_NONE_BLOCKING(&msg) != 0){
+	if(KeyRead_NONE_BLOCKING(&msg) == 0){
 		ch = 0;
 	}else{
+#ifdef AM335X
+		ch = (int)msg.code;
+#elif defined IMX28
 		ch = (unsigned char)msg.code;
+#endif
 	}
 
 	//PRINTF("ch = %d\n", ch);
@@ -1142,6 +1271,8 @@ static int hold_key_time(BYTE key) {
 	return ret;
 }
 
+#ifdef IMX28
+
 BYTE key_getch(int flag) {
 	unsigned char ch;
 	int hold_time;
@@ -1183,13 +1314,62 @@ BYTE key_getch(int flag) {
 	}
 }
 
+#elif defined(AM335X)
+
+BYTE key_getch(int flag) {
+#ifdef AM335X
+	int ch;
+#elif defined IMX28
+	unsigned char ch;
+#endif
+	int hold_time;
+	static int long_press_valid = 1;
+
+	ch = lcd_key_in(flag);
+	switch (ch) {
+	//case 0x12:
+	case 352: // default 105
+		return KEY_LEFT;
+	//case 0x13:
+	case 108: // default 103
+		return KEY_UP;
+	//case 0x22:
+	case 105: /// default 106
+		return KEY_RIGHT;
+	//case 0x23:
+	case 106: //default 108
+		return KEY_DOWN;
+	//case 0x32:
+	case 103: // default 158
+		return KEY_ESC;
+	//case 0x33:
+	case 223: // default 159
+		hold_time = hold_key_time(KEY_ENTER);
+		if (long_press_valid && hold_time >= FPARAM_PROGRAM_KEY_HOLD_TIME) {
+			fparam_change_program_status();
+			lcd_update_head_info();
+			long_press_valid = 0;
+			key_hold_time[5] = 0;
+		}
+		return KEY_ENTER;
+	default:
+		hold_time = hold_key_time(KEY_NONE);
+		if (hold_time >= 1) {
+			long_press_valid = 1;
+		}
+		return KEY_NONE;
+	}
+}
+
+#endif
+
 
 #include <linux/input.h>
 #include "lcd.h"
 int key_fd = -1;
 int KeyOpen(void) {
 	if (key_fd == -1) {
-		key_fd = open(key_device, O_RDWR); //// O_RDWR - linux descriptor
+		key_fd = open(key_device, O_RDWR);
 		return key_fd;
 	}
 	return 0;
@@ -1201,36 +1381,6 @@ int KeyClose(void) {
 		key_fd = -1;
 	}
 	return 1;
-}
-
-int KeyRead(struct key_msg_t *msg) {
-	static struct input_event data;
-	int ret;
-
-	msg->code = 0;
-	msg->type = 0;
-
-	if (key_fd > 0) {
-
-		/// TODO:printf("wait here to read 1 the key value\n");
-		ret = read(key_fd, &data, sizeof(data));
-
-		if (data.type == EV_KEY) /// EV_KEY
-		{
-			msg->code = data.code;
-			memset(&data, 0x0, sizeof(data));
-			ret = read(key_fd, &data, sizeof(data));
-			ret = read(key_fd, &data, sizeof(data));
-			//printf("key code: %d\n", data.code);
-			if (data.type == EV_MSC)  /// EV_MSC
-			{
-				msg->type = (enum key_type_t) data.code;
-				return 1;
-			}
-		}
-		return 0;
-	}
-	return 0;
 }
 
 int KeyRead_NONE_BLOCKING(struct key_msg_t *msg){
@@ -1246,23 +1396,29 @@ int KeyRead_NONE_BLOCKING(struct key_msg_t *msg){
 
 	if(wait_for_ready(key_fd, 500, 0)>0){
 		ret = read(key_fd, &data, sizeof(data));
+		//printf("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
 		if (data.type == EV_KEY)
 		{
 			msg->code = data.code;
 			memset(&data, 0x0, sizeof(data));
 			ret = read(key_fd, &data, sizeof(data));
+			//printf("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
 			ret = read(key_fd, &data, sizeof(data));
-			//printf("key code: %d\n", data.code);
-			if (data.type == EV_MSC)  /// EV_MSC
+			//printf("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
+			if (data.value == 1)
 			{
-				msg->type = (enum key_type_t) data.code;
+				msg->type = (enum key_type_t) data.type;
+				printf("msg code: %d, key msg:%d \n", msg->code, msg->type);
 				return 1;
+			}else if(data.value == 0){
+
 			}
 		}
 	}
 	return 0;
 }
 
+#if 0
 void testkey(void) {
 	struct key_msg_t msg = { 0 };
 
@@ -1273,6 +1429,7 @@ void testkey(void) {
 	}
 	KeyClose();
 }
+#endif
 
 void key_exit(void) {
 	KeyClose();

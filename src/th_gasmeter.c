@@ -517,10 +517,12 @@ void *th_gasmeter(void *arg) {
 
 	print_thread_info();
 	sem_init(&sem_serial, 0, 1);
+	//PRINTF("PROBLEM HERE");
 	gasmeter_fd = open_serial(rdmeter_device, B9600, 8, 0);
+	//PRINTF("gasmeter_fd = %d", gasmeter_fd);
 	while (!g_terminated) {
 		notify_watchdog();
-		app_event_wait(&event_rdmeter, 1, EVENT_RDMETER, &ev); /// event_rdmeter
+		app_event_wait(&event_rdmeter, 1, EVENT_RDMETER, &ev);
 		if (ev & EVENT_RDMETER) {
 			for (i = 0; !g_terminated && i < MAX_GASMETER_NUMBER; i++) {
 				if (!fgasmeter_getgasmeter(i, address, collector))

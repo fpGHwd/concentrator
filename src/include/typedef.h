@@ -38,7 +38,7 @@
 #include <assert.h>
 #include <stdbool.h>
 
-typedef unsigned char BITS; /// 1B /// 最小寻址单位一个字节
+typedef unsigned char BITS; /// 1B
 typedef unsigned char BOOL; /// 1B
 typedef unsigned char BYTE; /// 1B
 typedef unsigned short WORD; /// 2B

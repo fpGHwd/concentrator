@@ -1,11 +1,24 @@
+bak/
+# sdcard
+scripts/
+filesystem/
+kernel/
+uboot/
+
 .vscode/
 Debug/
-Release/
-.settings/
-.project
+objs/
+
+
 .cproject
 *.o
 
 gascon
 make.log
 .settings/
+gitignore
+makefile.swp
+.project
+.settings/
+
+concentrator

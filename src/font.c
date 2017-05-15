@@ -16,11 +16,22 @@ struct font_info {
 	unsigned int len; /* font memory size */
 };
 
+#ifdef IMX28
 static struct font_info font_info[] = {
 		{ 12, "/opt/concentrator/font/font12" },
-		{ 16, "/opt/concentrator/font/font16" }, //hzk16s for test
+		{ 16, "/opt/concentrator/font/font16" },
 		{ 0, NULL }
 };
+#elif defined(AM335X)
+static struct font_info font_info[] = {
+		{ 12, "/opt/concentrator/font/font12" },
+		{ 16, "/opt/concentrator/font/font16" },
+		{ 0, NULL }
+};
+
+// TODO: why font need to be the same directory of the concentrator-am335x
+#endif
+
 
 static struct font_info *font = NULL;
 
