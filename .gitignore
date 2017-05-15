@@ -1,4 +1,11 @@
 bak/
+# sdcard
+scripts/
+filesystem/
+kernel/
+uboot/
+
+.vscode/
 Debug/
 objs/
 
@@ -9,3 +16,5 @@ makefile.swp
 project
 settings/language.settings.xml
 README.md
+
+concentrator
