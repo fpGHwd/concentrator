@@ -1418,19 +1418,6 @@ int KeyRead_NONE_BLOCKING(struct key_msg_t *msg){
 	return 0;
 }
 
-#if 0
-void testkey(void) {
-	struct key_msg_t msg = { 0 };
-
-	KeyOpen();
-	while (1) {
-		if (KeyRead(&msg) == 1)
-			printf("key:code = %x,type=%x\n", msg.code, msg.type);
-	}
-	KeyClose();
-}
-#endif
-
 void key_exit(void) {
 	KeyClose();
 }
@@ -1439,5 +1426,5 @@ void key_initiate(void) {
 	int ret;
 	ret = KeyOpen();
 	if (ret != 0)
-		PRINTF(stderr, "WARNNING: key initiated error\n");
+		PRINTF("WARNNING: key initiated error\n");
 }

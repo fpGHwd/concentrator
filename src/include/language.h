@@ -181,6 +181,7 @@ extern const char *c_meters_file_importing_str;
 extern const char *c_meters_import_success_str;
 extern const char *modem_flux_sum_str;
 extern const char *modem_flux_sum_menu;
+extern const char *c_invalid_value;
 
 extern const char *c_get_valid_meter_str;
 extern const char *c_get_valid_day_block_from_variable_str;

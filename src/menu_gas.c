@@ -1482,6 +1482,7 @@ static void meter_repeater_setting_new(BYTE flag, void *para, const char *info) 
  }
  */
 
+#include <regex.h>
 /// #include <unistd.h>
 /// #include <fcntl.h>
 /// int open(const char *pathname, int oflag, ... /* mode_t mode */ );
@@ -1550,7 +1551,6 @@ static void import_meters_in_bunch_function(BYTE flag, void *para,
 	const char suffix[5][5];
 	bool file_exist_flag;
 	struct stat buf;
-	// int i;
 
 	///printf("sizeof(suffix) = %d\n",sizeof(suffix));
 	memset(suffix, 0, sizeof(suffix));
@@ -1626,7 +1626,7 @@ static void query_data(BYTE flag, void *para, const char *info) {
 
 static void set_comm_channel(BYTE flag, void *para, const char *info) // 通讯讯道
 {
-	// TODO set the communication channel: rf485, ethernet, gprs/cdma
+	// TODO:set the communication channel: rf485, ethernet, gprs/cdma
 	menu_ongoing(flag, para, info);
 
 }
@@ -1681,6 +1681,13 @@ static void set_prior_host_ip_and_port(BYTE flag, void *para, const char *info) 
 	fparam_set_value(FPARAMID_COMM_HOST_PORT_PRI, host_port, sizeof(host_port)); /// set port
 }
 
+
+/**
+ *  TODO: useless
+ * @param flag
+ * @param para
+ * @param info
+ */
 static void set_minor_host_ip_and_port(BYTE flag, void *para, const char *info) {
 	if (verify_password() != 0)
 		return;
@@ -1713,9 +1720,9 @@ static void set_minor_host_ip_and_port(BYTE flag, void *para, const char *info) 
 	param_set.group_num = 2;
 	param_set.group_idx = 0;
 	idx = 0;
-	init_input_set(&param_set.input[idx], 2, 1, strlen(ip_addr), ip_addr, 15); /// 
+	init_input_set(&param_set.input[idx], 2, 1, strlen(ip_addr), ip_addr, 15);
 	param_set.keyboard_type[idx++] = _num_keyboard;
-	init_input_set(&param_set.input[idx], 3, 6, strlen(port_buf), port_buf, 5); ///
+	init_input_set(&param_set.input[idx], 3, 6, strlen(port_buf), port_buf, 5);
 	param_set.keyboard_type[idx++] = _num_keyboard;
 	process_param_set(&param_set, info);
 	strcpy(ip_addr, param_set.input[0].str);
@@ -1728,7 +1735,7 @@ static void set_minor_host_ip_and_port(BYTE flag, void *para, const char *info) 
 	ip_port = atoi(port_buf); /// char -> int "1000" -> 1000
 	host_port[0] = ip_port >> 8;
 	host_port[1] = ip_port;
-	fparam_set_value(FPARAMID_COMM_HOST_IP_MINOR, host_ip, sizeof(host_ip)); /// set ip
+	fparam_set_value(FPARAMID_COMM_HOST_IP_MINOR, host_ip, sizeof(host_ip));
 	fparam_set_value(FPARAMID_COMM_HOST_PORT_MINOR, host_port,
 			sizeof(host_port)); /// set port
 }
@@ -1742,16 +1749,15 @@ static void set_apn(BYTE flag, void *para, const char *info) {
 			apn_user_password[APN_LENGTH];
 	int idx;
 
-	memset(&param_set, 0, sizeof(param_set)); /// incompatible type for argument 1 of 'memset'
+	memset(&param_set, 0, sizeof(param_set));
 	memset(apn_id, 0, sizeof(apn_id));
 	memset(apn_user_id, 0, sizeof(apn_user_id));
 	memset(apn_user_password, 0, sizeof(apn_user_password));
 
-	/// SET apn and use it later
 	fparam_get_value(FPARAMID_APN_ID, apn_id, sizeof(apn_id));
 	fparam_get_value(FPARAMID_APN_USER_ID, apn_user_id, sizeof(apn_user_id));
 	fparam_get_value(FPARAMID_APN_USER_PASSWD, apn_user_password,
-			sizeof(apn_user_password)); /// 获得当前VPN值 /// read the data //printf("APN_ID: %s\n", apn_id); // OK
+			sizeof(apn_user_password));
 
 	init_menu(&param_set.menu);
 	param_set.menu.line_num = 6;
@@ -1776,7 +1782,6 @@ static void set_apn(BYTE flag, void *para, const char *info) {
 
 	process_param_set(&param_set, info);
 
-	/// break the paramset and save the data;
 	strcpy(apn_id, param_set.input[0].str);
 	strcpy(apn_user_id, param_set.input[1].str);
 	strcpy(apn_user_password, param_set.input[2].str);
@@ -1785,7 +1790,7 @@ static void set_apn(BYTE flag, void *para, const char *info) {
 	fparam_set_value(FPARAMID_APN_USER_PASSWD, apn_user_password, 32);
 
 	/*
-	 * APN: 
+	 * APN:
 	 * UNINET
 	 * APN用户名：
 	 * CMNET
@@ -1823,24 +1828,25 @@ static void set_heartbeat_to_mainstation(BYTE flag, void *para,
 	param_set.keyboard_type[idx++] = _num_keyboard;
 	process_param_set(&param_set, info);
 
-	strcpy(hb_s, param_set.input[0].str); /// hb_s
+	strcpy(hb_s, param_set.input[0].str);
 
 	buf = atoi((const char*) hb_s);
 
 	if (buf > 65525) {
-		return; /// set value is too big
+		// DONE: show tips for invalid value
+		lcd_show_string(MAX_SCREEN_ROW-1, 1, strlen(c_invalid_value),
+				c_invalid_value);
+		return;
 	} else if (buf <= 65525) {
-		// seconds = buf * 60;
 		heart_beat[0] = buf / (0x01 << 8);
 		heart_beat[1] = buf % (0x01 << 8);
-		fparam_set_value(FPARAMID_HEARTBEAT_CYCLE, heart_beat, 2); /// len
-		/// tip set OK
+		fparam_set_value(FPARAMID_HEARTBEAT_CYCLE, heart_beat, 2);
 	}
 
 	return;
 }
 
-static void set_con_addr(BYTE flag, void *para, const char *info) //// byte-flag
+static void set_con_addr(BYTE flag, void *para, const char *info)
 {
 
 	ITEMS_MENU items_menu;
@@ -1852,9 +1858,9 @@ static void set_con_addr(BYTE flag, void *para, const char *info) //// byte-flag
 	items_menu.menu.str[idx] = menu_name2_1_1;
 	items_menu.func[idx++] = set_comm_channel;
 	items_menu.menu.str[idx] = menu_name2_1_2;
-	items_menu.func[idx++] = set_prior_host_ip_and_port;  /// 主IP与端口
+	items_menu.func[idx++] = set_prior_host_ip_and_port;
 	items_menu.menu.str[idx] = menu_name2_1_3;
-	items_menu.func[idx++] = set_minor_host_ip_and_port; /// 备用IP与端口
+	items_menu.func[idx++] = set_minor_host_ip_and_port;
 	items_menu.menu.str[idx] = menu_name2_1_4;
 	items_menu.func[idx++] = set_apn;
 	items_menu.menu.str[idx] = menu_name2_1_5;
@@ -1922,13 +1928,22 @@ static void set_host_param(BYTE flag, void *para, const char *info) {
 }
 */
 
-static void reconstruct_network(BYTE flag, void *para, const char *info) { // no details
+static void add_a_meter_for_test(BYTE flag, void *para, const char *info)
+{
+	if (verify_password() != 0)
+		return;
+	menu_ongoing(flag, para, info);
+
+}
+
+static void reconstruct_network(BYTE flag, void *para, const char *info)
+{
 	if (verify_password() != 0)
 		return;
 	menu_ongoing(flag, para, info);
 }
 
-static void set_param(BYTE flag, void *para, const char *info) // 参数查询与设置
+static void set_param(BYTE flag, void *para, const char *info)
 {
 	int idx = 0;
 	ITEMS_MENU items_menu;
@@ -2521,15 +2536,14 @@ static void password_setting(BYTE flag, void *para, const char *info) {
 	PARAM_SET param_set;
 	BYTE password_byte[3];
 	char buf_s[7];
-	int idx; // DWORD buf;
+	int idx;
 
 	memset(password_byte, 0, sizeof(password_byte));
-	///memcpy(password_str, "000000", 7); // see the password
 	memset(&param_set, 0, sizeof(param_set));
 
 	if (!fparam_get_value(FPARAMID_CON_VERIFY_PASSWD, password_byte,
 			sizeof(password_byte)))
-		return; // failed
+		return;
 	snprintf(buf_s, 7, "%02d%02d%02d", bcd_to_bin(password_byte[0]),
 			bcd_to_bin(password_byte[1]), bcd_to_bin(password_byte[2])); // 0x12, 0x34, 0x56 -> "123456"
 
@@ -2562,7 +2576,6 @@ static void password_setting(BYTE flag, void *para, const char *info) {
 	return;
 }
 
-/*
 static void local_module_status(BYTE flag, void *para, const char *info) {
 	menu_ongoing(flag, para, info);
 }
@@ -2571,16 +2584,6 @@ static void signal_intensity_and_battery_status(BYTE flag, void *para,
 		const char *info) {
 	menu_ongoing(flag, para, info);
 }
-
-*/
-
-//#include "gpio.h"
-/*
-static void modem_soft_reset_hmisys(BYTE flag, void *para, const char *info) {
-	///menu_ongoing(flag, para, info);
-	modem_soft_reset();
-}
-*/
 
 static void get_modem_flux_in_sum(BYTE flag, void *para, const char *info) {
 	MENU menu;
@@ -2594,10 +2597,9 @@ static void get_modem_flux_in_sum(BYTE flag, void *para, const char *info) {
 		menu.str[i] = string[i];
 	i = 0;
 	sprintf(string[i++], "%s", modem_flux_sum_str);
-	///sprintf(string[i++], "   %dMb, %dKb", j/1024, j%1024);
 	sprintf(string[i++], (j / (1024 * 1024)) ? "   %8.2f MB" : "   %8.2f KB",
 			(j / (1024 * 1024)) ? (j / (1024.0 * 1024)) : (j / 1024.0));
-	process_menu(&menu, info); /// stop
+	process_menu(&menu, info);
 }
 
 static void terminal_management(BYTE flag, void *para, const char *info) {
@@ -2629,7 +2631,7 @@ static void terminal_management(BYTE flag, void *para, const char *info) {
 	//items_menu.menu.str[idx] = menu_name3_8;
 	//items_menu.func[idx++] = local_module_status;
 	//items_menu.menu.str[idx] = menu_name3_9;
-	//items_menu.func[idx++] = signal_intensity_and_battery_status; // we just know items part details
+	//items_menu.func[idx++] = signal_intensity_and_battery_status;
 	items_menu.menu.str[idx] = modem_flux_sum_menu;
 	items_menu.func[idx++] = get_modem_flux_in_sum;
 
@@ -2674,7 +2676,7 @@ int verify_password(void) {
 				c_please_input_password_str);
 		lcd_show_string(9, 1, strlen(c_allspace_str), c_allspace_str);
 		lcd_show_string(9, 1, strlen(c_password_setting_str),
-				c_password_setting_str); // 请输入密码
+				c_password_setting_str);
 		if (input_string(3, "   ", fmt_num, buf, strlen(buf))) {
 			lcd_show_string(3, 4, strlen(buf), buf); // valid continue the verification
 		} else {
@@ -2685,7 +2687,9 @@ int verify_password(void) {
 				sizeof(password_byte));
 		snprintf(buf_save, 7, "%02d%02d%02d", bcd_to_bin(password_byte[0]),
 				bcd_to_bin(password_byte[1]), bcd_to_bin(password_byte[2]));
-		PRINTF("SECURITY! PASSWORD SAVED IN: %s\n", buf_save); /// show password for test
+#ifdef TEST
+		PRINTF("SECURITY! PASSWORD SAVED IN: %s\n", buf_save);
+#endif
 		if (memcmp(buf, buf_save, 6) == 0)
 			return 0; // success in verifying
 		tries_times--;

@@ -203,21 +203,20 @@ void fparam_update_program_status(void) {
 	}
 }
 
-int reset_fparam_data(void) /// add by wd
+int reset_fparam_data(void)
 {
 	int ret;
 	int size = sizeof(F_PARAM);
 	const char *name = F_PARAM_NAME;
 
-	fparam_lock(); // lock
+	fparam_lock();
 
 	if (remove(F_PARAM_NAME) == 0) {
 		ret = 0;
 	} else {
 		ret = -1;
-	} // remove file
+	}
 
-	///sem_init(&sem_f_param, 0, 1);
 	if (!check_file(name, size)) {
 		PRINTF("File %s is created, size:%d\n", name, size);
 		fd_f_param = open(name, O_CREAT | O_RDWR | O_TRUNC, 0600);
@@ -231,7 +230,7 @@ int reset_fparam_data(void) /// add by wd
 		ret = -1;
 	safe_read(fd_f_param, p_f_param, size);
 
-	fparam_unlock(); // unlock
+	fparam_unlock();
 
 	return ret;
 }

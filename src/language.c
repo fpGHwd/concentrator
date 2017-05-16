@@ -205,6 +205,7 @@ const char *c_meters_file_importing_str = "导入中...";
 const char *c_meters_import_success_str = "导入成功!";
 const char *modem_flux_sum_str = "GPRS/CDMA总流量:";
 const char *modem_flux_sum_menu = "流量查询";
+const char *c_invalid_value = "无效值！";
 
 
 // 数据库中的数据调试
@@ -215,4 +216,3 @@ const char *c_write_variable_into_file_str = "把变量写入文件";
 const char *c_update_day_block_from_varieble_into_file_str = "update day_block in file";
 
 
-/// add 20161011 /// 

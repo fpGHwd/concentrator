@@ -11,6 +11,7 @@
 
 void *g_m590e_resource = NULL;
 
+/// origin default value
 //#define M590E_WRITE_TIMEOUT (2 * 1000u)
 //#define M590E_READ_TIMEOUT (10 * 1000u)
 #define M590E_WRITE_TIMEOUT 	(500u)
@@ -51,8 +52,8 @@ e_remote_module_status m590e_init(int fd)
 	AT_CMD_CHECK("AT$MYGMR\r", t1, t2, abort_st, "OK");
 	AT_CMD_CHECK("AT+CPIN?\r", t1, t2, abort_st, "+CPIN: READY");
 	AT_CMD_CHECK("AT$MYCCID\r", t1, t2, abort_st, "$MYCCID: ");
-	AT_CMD_CHECK("AT+CSQ\r", t1, t2, abort_st, "+CSQ: "); // check
-	AT_CMD_CHECK("AT+CREG?\r",t1, t2, abort_st, "+CREG: "); // check
+	AT_CMD_CHECK("AT+CSQ\r", t1, t2, abort_st, "+CSQ: ");
+	AT_CMD_CHECK("AT+CREG?\r",t1, t2, abort_st, "+CREG: ");
 	AT_CMD_CHECK("AT$MYNETCON=0,APN,CMNET\r", t1, t2, abort_st, "OK");
 	AT_CMD_CHECK("AT$MYNETCON=0,AUTH,0\r", t1, t2, abort_st, "OK");
 	AT_CMD_CHECK("AT$MYNETCON=0,USERPWD,CMNET,CMNET\r", t1, t2, abort_st, "OK");
