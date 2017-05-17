@@ -15,7 +15,7 @@
 #include "protocol_gasup.h"
 #include "spont_alarm.h"
 
-#define CONFIG_ETH_THREAD_SLEEP 100
+#define CONFIG_ETH_THREAD_SLEEP 5000
 
 static UP_COMM_PRIVATE eth_private = {
 	.packetID = 1,

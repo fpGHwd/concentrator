@@ -17,8 +17,8 @@ const char *rdmeter_device = "/dev/ttyO2";
 //const char *modem_device = "/dev/ttyPSHS2";
 const char *modem_device = "/dev/ttyO4";  /// gprs modern
 //const char *modem_device = "/dev/ttySP2";
-const char *modem_lockname = "/var/lock/LCK..ttyPSHS2";
-const char *modem_lockpid_name = "/var/run/ppp-ttyPSHS2.pid";
+const char *modem_lockname = "/var/lock/LCK..ttyO4";
+const char *modem_lockpid_name = "/var/run/ppp-ttyO4.pid";
 const char *gpio_device = "/dev/gpio";
 //const char *lcd_device = "/dev/fb";
 const char *lcd_device = "/dev/mcu_lcd";
@@ -33,10 +33,10 @@ const char *key_device = "/dev/input/event0";
 
 #elif defined(IMX28)
 
-const char *rdmeter_device = "/dev/ttySP0";
-const char *modem_device = "/dev/ttySP2";
-const char *modem_lockname = "/var/lock/LCK..ttyPSHS2";
-const char *modem_lockpid_name = "/var/run/ppp-ttyPSHS2.pid";
+const char *rdmeter_device = "/dev/ttySP1";
+const char *modem_device = "/dev/ttySP4";
+const char *modem_lockname = "/var/lock/LCK..ttySP4";
+const char *modem_lockpid_name = "/var/run/ppp-ttySP4.pid";
 const char *gpio_device = "/dev/gpio";
 const char *lcd_device = "/dev/char_cdev";
 const char *watch_dog_device = "/dev/watchdog";
