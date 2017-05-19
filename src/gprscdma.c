@@ -138,7 +138,7 @@ int open_modem_device(const char *device_name, const char *lock_name,
 	}
 
 	PRINTF("Open modem device success fd: %d\n", fd);
-	modem_rtscts(fd, 0); /// 设置
+	modem_rtscts(fd, 0);
 	return fd;
 }
 
@@ -146,7 +146,7 @@ void close_modem_device(const char *lock_name) {
 	int fd;
 
 	if (pcur_module_attr == NULL)
-		return; /// when test, return here
+		return;
 
 	fd = pcur_module_attr->remote_fd;
 	if (fd >= 0) {
@@ -336,14 +336,12 @@ static int test_modem_cmd(const char *device_name, const char *lock_name) {
 	if ((fd = open_modem_device(device_name, lock_name, MODEM_DEFAULT_BAUD))
 			< 0)
 		return 0;
-	for (i = 0; !g_terminated && i < 3; i++) { /// test 3 time
+	for (i = 0; !g_terminated && i < 3; i++) {
 		at_cmd(fd, "AT\r", resp, sizeof(resp), 1000, 500);
 		if (strstr(resp, "OK") != NULL) {
 			ret = 1;
 			break;
 		}
-		///wait_delay(1000);
-		wait_delay(500); /// add by wd
 	}
 	///close_modem_device (lock_name); /// close fd and remove the lockname /// cannot modify upper data structure easily  /// lower function have no priviledge to modify upper data structure
 	close_serial(fd);
@@ -353,7 +351,7 @@ static int test_modem_cmd(const char *device_name, const char *lock_name) {
 	return ret;
 }
 
-static int modem_st_to_ret(e_remote_module_status status) /// this function's usage
+static int modem_st_to_ret(e_remote_module_status status)
 {
 	switch (status) {
 	case e_modem_st_normal:
@@ -444,16 +442,16 @@ static int do_modem_check_baud(const char *device_name, const char *lock_name) {
 	} baud_test[] = { { MODEM_DEFAULT_BAUD, MODEM_DEFAULT_BAUD_STR },
 			{ B57600, "57600" }, { B9600, "9600" }, { B115200, "115200" }, };
 
-	for (i = 0; i < sizeof(baud_test) / sizeof(baud_test[0]) /// for (i=0; i< 4; i++)
+	for (i = 0; i < sizeof(baud_test) / sizeof(baud_test[0])
 	&& !g_terminated; i++) {
 		if (lcd_mode_get() == LCD_MODE_TEST)
 			return 0;
 		PRINTF("try use with %s\n", baud_test[i].str);
-		/// PRINTF("%s: try use with %s\n", __FUNCTION__, baud_test[i].str); /// ADD BY WD
-		if (!test_modem_cmd(device_name, lock_name)) /// ret = 0, failed
+
+		if (!test_modem_cmd(device_name, lock_name))
 			continue;
 		ret = do_modem_check(device_name, lock_name, baud_test[i].baud);
-		if (ret > 0) { /// ret > 0, success
+		if (ret > 0) {
 			if (!write_lock_file(lock_name)) {
 				lock_pid = read_lock_file(lock_name);
 				PRINTF("%s is locked by %d\n", device_name, lock_pid);

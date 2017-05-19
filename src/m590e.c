@@ -8,6 +8,8 @@
 #include "atcmd.h"
 #include "common.h"
 #include "main.h"
+#include "f_param.h"
+#include "stdio.h"
 
 void *g_m590e_resource = NULL;
 
@@ -35,6 +37,7 @@ e_remote_module_status m590e_init(int fd)
 	char resp[1024]; //*ptr;
 	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
 	const e_remote_module_status abort_st = e_modem_st_deivce_abort;
+	char apn_id[32] = {0}, apn_user_id[32] = {0}, apn_user_password[32] = {0}, buff[200] = {0};
 
 	if(fd<0)
 		return abort_st;
@@ -54,9 +57,20 @@ e_remote_module_status m590e_init(int fd)
 	AT_CMD_CHECK("AT$MYCCID\r", t1, t2, abort_st, "$MYCCID: ");
 	AT_CMD_CHECK("AT+CSQ\r", t1, t2, abort_st, "+CSQ: ");
 	AT_CMD_CHECK("AT+CREG?\r",t1, t2, abort_st, "+CREG: ");
-	AT_CMD_CHECK("AT$MYNETCON=0,APN,CMNET\r", t1, t2, abort_st, "OK");
+	//WORD fparam_get_value(WORD id, void *buf, INT32 max_len)
+
+	// add apn setting here // ok
+	fparam_get_value(FPARAMID_APN_ID, apn_id, sizeof(apn_id));
+	fparam_get_value(FPARAMID_APN_USER_ID, apn_user_id, sizeof(apn_user_id));
+	fparam_get_value(FPARAMID_APN_USER_PASSWD, apn_user_password,
+			sizeof(apn_user_password));
+
+	sprintf(buff, "AT$MYNETCON=0,APN,%s\r", apn_id);
+	AT_CMD_CHECK(buff, t1, t2, abort_st, "OK");
+	//sprinf(buff, "AT$MYNETCON=0,APN,%s\r", apn_id);
 	AT_CMD_CHECK("AT$MYNETCON=0,AUTH,0\r", t1, t2, abort_st, "OK");
-	AT_CMD_CHECK("AT$MYNETCON=0,USERPWD,CMNET,CMNET\r", t1, t2, abort_st, "OK");
+	sprintf(buff, "AT$MYNETCON=0,USERPWD,%s,%s\r", apn_user_id, apn_user_password);
+	AT_CMD_CHECK(buff, t1, t2, abort_st, "OK");
 
 	PRINTF("M590E initiated OK\n");
 
@@ -125,10 +139,10 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 			}
 		}
 	}else if(strcmp(connect_str,"UDP") == 0){
-		PRINTF("choose udp connect and NO UDP implementation\n");
+		PRINTF("choose udp connect and NO UDP implementation!\n");
 		return -1;
 	}
-	PRINTF("%s: unknown addressed reason for failure to connect\n", __FUNCTION__);
+	PRINTF("%s: unknown addressed/illustrated reason for failure to connect\n", __FUNCTION__);
 	return -1;
 }
 

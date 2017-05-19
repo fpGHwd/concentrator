@@ -152,7 +152,9 @@ void modem_hard_reset(void)
 
 }
 
-void modem_soft_reset(void) {
+// TODO: gprs gpio problem
+
+void modem_soft_reset(void) { // TODO:power reset
 	int ret;
 
 #if 1
@@ -206,7 +208,7 @@ void modem_soft_reset(void) {
 #endif
 }
 
-void modem_gprs_shutdown(void)
+void modem_gprs_shutdown(void) // power reset
 {
 
 	int fd;
