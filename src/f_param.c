@@ -109,10 +109,8 @@ static void fparam_default_init(void) {
 	offset += APN_LENGTH;
 	fparam_add(idx++, FPARAMID_CON_VERIFY_PASSWD, 3, offset, "\x00\x00\x00");
 	offset += 3;
-
+	// todo: add if repeater enable function
 }
-
-//  TODO: add add a meter to concentrator
 
 void fparam_init(void) {
 	int size = sizeof(F_PARAM);
@@ -134,10 +132,10 @@ void fparam_init(void) {
 }
 
 void fparam_flush(void) {
-	fdatasync(fd_f_param); /// system call
+	fdatasync(fd_f_param);
 }
 
-void fparam_destroy(void) /// ?
+void fparam_destroy(void)
 {
 	fdatasync(fd_f_param);
 	close(fd_f_param);
@@ -150,7 +148,7 @@ WORD fparam_get_value(WORD id, void *buf, INT32 max_len) {
 
 	fparam_lock();
 	if ((idx = fparam_find(id)) >= 0) {
-		ptr += idx; /// index
+		ptr += idx;
 		if (ptr->len <= max_len) {
 			memcpy(buf, p_f_param->data + ptr->offset, ptr->len);
 			fparam_unlock();
