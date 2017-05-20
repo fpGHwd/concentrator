@@ -2044,6 +2044,7 @@ static void restart_terminal_function(BYTE flag, void *para, const char *info) {
 			c_restarting_terminal_str);
 	g_terminated = 1; // reboot before making sure other threads exits normally
 	//led_fade();
+	// TODO: rewrite for error
 	modem_gprs_shutdown();
 	sleep(10);
 	lcd_clean_workspace();

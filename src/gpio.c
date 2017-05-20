@@ -153,6 +153,8 @@ void modem_hard_reset(void)
 }
 
 // TODO: gprs gpio problem
+// TODO: gpio for imx28
+// TODO: gpio for lora two gpio LORA_INT(GPIO1_17) AND LORA_STATE0(GPIO1_14)
 
 void modem_soft_reset(void) { // TODO:power reset
 	int ret;
@@ -243,14 +245,12 @@ void modem_gprs_turn_on(void) {
 }
 
 void control_led(enum led_index i, enum led_status s) {
-	char buf[100];
+	char buf[100]; // char buf[50]
 	int ret;
 
 	snprintf(buf, 100, "echo %d > /sys/class/am335x_led/LED%d/brightness",
 			s ? 1 : 0, i - 1);
 	ret = system(buf);
-
-	return; // NOT NECESSARY
 }
 
 void led_show(void) {

@@ -145,8 +145,11 @@ int open_modem_device(const char *device_name, const char *lock_name,
 void close_modem_device(const char *lock_name) {
 	int fd;
 
+	// modified in 20170520
+	/*
 	if (pcur_module_attr == NULL)
 		return;
+	*/
 
 	fd = pcur_module_attr->remote_fd;
 	if (fd >= 0) {
@@ -343,8 +346,8 @@ static int test_modem_cmd(const char *device_name, const char *lock_name) {
 			break;
 		}
 	}
-	///close_modem_device (lock_name); /// close fd and remove the lockname /// cannot modify upper data structure easily  /// lower function have no priviledge to modify upper data structure
-	close_serial(fd);
+	close_modem_device (lock_name);
+	//close_serial(fd);
 	PRINTF("(%s): %s, device name: %s\n", __FUNCTION__,
 			(ret > 0) ? "OK" : "FAIL", device_name);
 
@@ -411,7 +414,6 @@ static int do_modem_check(const char *device_name, const char *lock_name,
 
 	if (NULL == pcur_module_attr) {
 		ret = 0;
-		close_serial(fd); /// add by wd, not necessary
 	} else {
 		pcur_module_attr->remote_fd = fd;
 		PRINTF("GPRS/CDMA module model: %s\n", pcur_module_attr->describe);
@@ -429,6 +431,7 @@ static int do_modem_check(const char *device_name, const char *lock_name,
 		PRINTF("Check modem %s(ret: %d)\n", ret > 1 ? "ok" : "fail", ret);
 		close_modem_device(lock_name);
 	}
+	close_modem_device(lock_name);
 	// lcd_update_head_enable(1);
 	return ret;
 }
