@@ -79,10 +79,10 @@ static inline void gpio_unlock(void) {
 static void gpio_ioctl(int cmd, unsigned int *val) {
 	if (gpio_fd >= 0) {
 		gpio_lock();
-		ioctl(gpio_fd, cmd, val); /// system func control io-file-descriptor, to set io status /// refering
+		ioctl(gpio_fd, cmd, val);
 		gpio_unlock();
 	} else {
-		//printf("gpio_fd < 0\n");
+
 	}
 }
 
@@ -142,7 +142,7 @@ void modem_hard_reset(void)
 	gpio_ioctl(GPIOCTL_OUTP_SET, &val);
 
 	val = BIT_MODEM_RELAY;
-	gpio_ioctl(GPIOCTL_OUTP_CLR, &val); /// gpio_ioctl
+	gpio_ioctl(GPIOCTL_OUTP_CLR, &val);
 	clear_modem_flow_ctrl();
 	wait_delay(10000);
 	gpio_ioctl(GPIOCTL_OUTP_SET, &val);
@@ -155,6 +155,8 @@ void modem_hard_reset(void)
 // TODO: gprs gpio problem
 // TODO: gpio for imx28
 // TODO: gpio for lora two gpio LORA_INT(GPIO1_17) AND LORA_STATE0(GPIO1_14)
+
+// todo: the ability to solve problem is weak
 
 void modem_soft_reset(void) { // TODO:power reset
 	int ret;
@@ -177,7 +179,7 @@ void modem_soft_reset(void) { // TODO:power reset
 	buf[0] = MODEM_GPRS_ON;
 	ret = write(fd, buf, 2);
 	close(fd);
-	///PRINTF("Close %s successfully, fd: %d\n", modem_reset_device_path, fd);
+	//PRINTF("Close %s successfully, fd: %d\n", modem_reset_device_path, fd);
 	wait_delay(2000);
 	return;
 
