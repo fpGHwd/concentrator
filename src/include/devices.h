@@ -20,5 +20,7 @@ extern const char *watch_dog_device;
 extern const char *modem_reset_device_path;
 extern const char *clock_device;
 extern const char *key_device;
+extern const char *lora_led_rx;
+extern const char *lora_led_tx;
 
 #endif /* DEVICES_H_ */

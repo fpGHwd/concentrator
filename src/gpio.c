@@ -82,7 +82,6 @@ static void gpio_ioctl(int cmd, unsigned int *val) {
 		ioctl(gpio_fd, cmd, val);
 		gpio_unlock();
 	} else {
-
 	}
 }
 
@@ -106,6 +105,42 @@ void device_lcd_reset(void)
 void device_lcd_light(int on)
 {
 	// turn on light
+}
+
+
+static int lora_light_fd[2] = {0};
+
+void lora_lights(enum lora_light idx, int light)
+{
+	int fd;
+	int buf[2] = {0};
+
+	if(idx == BLUE_RECEIVE){
+		if(lora_light_fd[0] <= 0){
+			lora_light_fd[0] = open(lora_led_rx, O_WRONLY);
+			if(lora_light_fd[0] <= 0)
+				return;
+		}
+		fd = lora_light_fd[0];
+	}else if(idx == GREEN_SEND){
+		if(lora_light_fd[1] <= 0){
+			lora_light_fd[1] = open(lora_led_tx, O_WRONLY);
+			if(lora_light_fd[1] <= 0)
+				return;
+		}
+		fd = lora_light_fd[0];
+	}
+
+	if(light == 1){
+		buf[0] = '1';
+		write(fd, buf, 2);
+	}else if(light == 0){
+		buf[1] = '0';
+		write(fd, buf, 2);
+	}else{
+		return;
+	}
+	//close(fd);
 }
 
 #define MODEM_POWER_ON	0x33 // 0x33 '3'

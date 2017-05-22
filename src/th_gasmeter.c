@@ -19,6 +19,7 @@
 #include "f_current.h"
 #include "f_day.h"
 #include "f_month.h"
+#include "gpio.h"
 
 #define MAX_READ_DI_CNT 100
 
@@ -208,6 +209,11 @@ int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 		return -1;
 	}
 
+	// TODO: receive led tips
+	lora_lights(BLUE_RECEIVE, 1);
+	msleep(500);
+	lora_lights(BLUE_RECEIVE, 0);
+
 	memcpy(buf, cjt188_msg.data, cjt188_msg.datalen);
 	return (cjt188_msg.datalen);
 }
@@ -256,10 +262,17 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 		return ( FALSE);
 	}
 
+
 	sem_wait(&sem_serial);
 
 	while (read_serial(fd, yl800_respbuf, sizeof(yl800_respbuf), 100) > 0) // READ TO CLEAR BUFF
 		;
+
+	// TODO: send led tips
+	lora_lights(GREEN_SEND, 1);
+	msleep(500);
+	lora_lights(GREEN_SEND, 0);
+
 	tmplen = write_serial(fd, yl800_reqbuf, yl800_len, 500);
 	PRINTB("To GAS METER: ", yl800_reqbuf, yl800_len);
 	SER = plt_cjt188_get_ser();
@@ -293,6 +306,8 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 
 		return ( FALSE);
 	}
+
+	// led
 
 	return ( TRUE);
 }

@@ -27,6 +27,8 @@ const char *watch_dog_device = "/dev/watchdog";
 //#define WATCHDOG_DEV "/dev/watchdog"
 const char *modem_reset_device_path = "/sys/class/gprs_cls/power_ctrl"; // gprs0_19
 const char *modem_reset_device_path1 = "/sys/class/gprs_cls/power_ctrl1"; // gprs3_19
+const char *lora_led_rx = "/sys/class/gprs_cls/lora_int"; // gprs1_17 // blue receive
+const char *lora_led_tx = "/sys/class/gprs_cls/lora_state0"; // gprs1_14 //  green send
 const char *clock_device = "/dev/rtc0";
 const char *key_device = "/dev/input/event0";
 
