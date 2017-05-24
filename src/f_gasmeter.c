@@ -42,7 +42,7 @@ static void fgasmeter_init_gasmeter(GASMETER_DB *pdb)
 }
 
 void test_add_a_meter(void);
-void fgasmeter_open(void) /// open and initiate gasmeter_info
+void fgasmeter_open(void)
 {
 	int i, size,m;
 	const char *name = F_GASMETER_NAME;
