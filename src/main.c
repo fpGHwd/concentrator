@@ -37,8 +37,8 @@ const struct debug debug_ctrl = {
 		.watchdog_enable = false, /// -> true
 		.repeater_enable = false, /// -> ture;
 		.sqlite_enable = false, /// -> false
-		.led_enable = false, /// -> false
-		.gpio_enable = false,
+		.led_enable = true, /// -> false
+		.gpio_enable = true,
 		.gprs_display_back_enable = false,
 		.key_enable = true,
 };
@@ -135,7 +135,7 @@ static void handler_power_fail(void) {
 void sqlite_initiate(void);
 static void system_init(void) {
 	modem_gprs_turn_on();
-	if(debug_ctrl.key_enable)
+	//if(debug_ctrl.key_enable)
 		key_initiate();
 	read_rtc();
 
@@ -172,7 +172,6 @@ static void system_exit(void) {
 		control_led(1,0);
 	else
 		PRINTF("WARNNING: led is not enable\n");
-
 	if(debug_ctrl.key_enable)
 		key_exit();
 	gpio_close();

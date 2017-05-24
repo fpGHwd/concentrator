@@ -131,9 +131,8 @@ int fgasmeter_getidx_by_collector(const BYTE *address) /// find the address inde
 	return index;
 }
 
-int fgasmeter_getidx_by_gasmeter(const void *address) /// 可以查询是否有gasmeter
+int fgasmeter_getidx_by_gasmeter(const void *address)
 {
-	//PRINTB("fgasmeter_getidx_by_gasmeter", address, 7);
 	int i, index = -1;
 	GASMETER_INFO *pinfo = &gasmeter_info;
 	GASMETER_DB *pdb;
@@ -151,17 +150,17 @@ int fgasmeter_getidx_by_gasmeter(const void *address) /// 可以查询是否有g
 		}
 	}
 	sem_post(&pinfo->sem_db);
-	return index; /// index = -1; return;
+	return index;
 }
 
-BOOL fgasmeter_getcollector(int index, BYTE *address) /// get gasmeter
+BOOL fgasmeter_getcollector(int index, BYTE *address)
 {
 	GASMETER_INFO *pinfo = &gasmeter_info;
 	COLLECTOR_DB *pdb;
 
 	if (index < 0)
 		return FALSE;
-	sem_wait(&pinfo->sem_db); /// set memory wait /// river structure make us clear and release, while other complex structure do not
+	sem_wait(&pinfo->sem_db);
 	pdb = &pinfo->db.collector_db[index];
 	if (!pdb->b_valid) {
 		sem_post(&pinfo->sem_db);
@@ -357,12 +356,12 @@ BOOL fgasmeter_delgasmeter(const BYTE *address, const BYTE *collector) /// delet
 	return b_del_success;
 }
 
-BOOL fgasmeter_setgasmeter_clock(int index, long tt) /// index and time(long)
+BOOL fgasmeter_setgasmeter_clock(int index, long tt)
 {
 	GASMETER_INFO *pinfo = &gasmeter_info;
 	GASMETER_DB *pdb;
 
-	if (index < 0 || index >= MAX_GASMETER_NUMBER) /// overlimit check
+	if (index < 0 || index >= MAX_GASMETER_NUMBER)
 		return FALSE;
 	sem_wait(&pinfo->sem_db);
 	pdb = &pinfo->db.gasmeter_db[index];
@@ -372,7 +371,7 @@ BOOL fgasmeter_setgasmeter_clock(int index, long tt) /// index and time(long)
 	return TRUE;
 }
 
-long fgasmeter_getgasmeter_clock(int index) /// get
+long fgasmeter_getgasmeter_clock(int index)
 {
 	GASMETER_INFO *pinfo = &gasmeter_info;
 	GASMETER_DB *pdb;
@@ -387,7 +386,7 @@ long fgasmeter_getgasmeter_clock(int index) /// get
 	return tt;
 }
 
-BOOL fgasmeter_setgasmeter_wakeupcycle(int index, WORD wakeupcycle) /// wake up cycle
+BOOL fgasmeter_setgasmeter_wakeupcycle(int index, WORD wakeupcycle)
 {
 	GASMETER_INFO *pinfo = &gasmeter_info;
 	GASMETER_DB *pdb;
@@ -416,7 +415,7 @@ WORD fgasmeter_getgasmeter_wakeupcycle(int index) {
 	return wakeupcycle;
 }
 
-BOOL fgasmeter_get_repeater(const BYTE *address, BYTE *repeater) /// gas meteraddress - repeater
+BOOL fgasmeter_get_repeater(const BYTE *address, BYTE *repeater)
 {
 
 	GASMETER_INFO *pinfo = &gasmeter_info;
@@ -430,16 +429,16 @@ BOOL fgasmeter_get_repeater(const BYTE *address, BYTE *repeater) /// gas meterad
 	for (index = 0; index < MAX_GASMETER_NUMBER; index++) {
 		pdb = &pinfo->db.gasmeter_db[index];
 		if (memcmp(address, pdb->address, 7) == 0
-				&& pdb->u.private.b_repeater_valid) { // valid repeater
+				&& pdb->u.private.b_repeater_valid) {
 			memcpy(repeater, pdb->u.private.repeater, 2);
 			break;
 		}
 	}
 	sem_post(&pinfo->sem_db);
-	return TRUE; /// return FALSE; /// return FALSE FOR NOW IT'S NO REPEATER NOW;
+	return TRUE; /// return FALSE
 }
 
-BOOL fgasmeter_set_repeater(const BYTE *address, const BYTE *repeater) /// meter repeater, repeater in gasmeter struct //// 设置表的中继是否可用
+BOOL fgasmeter_set_repeater(const BYTE *address, const BYTE *repeater)
 {
 	GASMETER_INFO *pinfo = &gasmeter_info;
 	GASMETER_DB *pdb;
@@ -550,7 +549,9 @@ void test_add_a_meter(void) {
 	BYTE address[7] = { 0x23, 0x05, 0x16, 0x06, 0x00, 0x00, 0x02 }; /// 23051606000002
 	BYTE collector[7] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55 }; /// 00000000000055
 
-	fgasmeter_addgasmeter(address, collector);
-	printf("add a meter successfully\n");
+	if(fgasmeter_addgasmeter(address, collector)){
+		printf("add a meter for test successfully\n");
+	}
+
 	return;
 }

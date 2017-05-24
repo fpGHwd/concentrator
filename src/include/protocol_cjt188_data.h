@@ -35,7 +35,6 @@ typedef struct CJT188_901F{
 	long read_tt;
 } GASMETER_CJT188_901F;
 
-/// other protocol are forwarded
 
 /**
  * A017: open valve or shutdown valve
@@ -147,66 +146,7 @@ typedef struct TEMP_8515{
 	long read_tt;
 }GASMETER_TEMP_8515_R;
 
-/**
- * 904F: read July to December data
- */
 
-/**
- * 913f: read last 5 days history data
- */
-
-/**
- * 914f: read 6-10 days before history data
- */
-
-/**
- * 915f: read 6-10 days before history data
- */
-
-/**
- * 916f: read 6-10 days before history data
- */
-
-
-/**
- * 917f: read 6-10 days before history data
- */
-
-/**
- * 918f: read 6-10 days before history data
- */
-
-/**
- * ff80: write meter status
- */
-
-/**
- * ff00: read meter status
- */
-
-/**
- * a011: write bill day
- */
-
-/**
- * a012: write read-meter-day
- */
-
-/**
- * 8103: read bill-day
- */
-
-/**
- * 8104: read read-meter-day
- */
-
-/**
- * a019: factory-reset
- */
-
-/**
- * 5599: radio frequency module working-parameters setting
- */
 
 #define MAX_HEXDATA_BUF 64
 #define PRINT_ADDRESS(x, a, b) hex_to_str(x, sizeof(x), a, b, FALSE)

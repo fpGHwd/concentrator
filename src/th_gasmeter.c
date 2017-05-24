@@ -307,8 +307,6 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 		return ( FALSE);
 	}
 
-	// led
-
 	return ( TRUE);
 }
 
@@ -330,7 +328,7 @@ BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 	BYTE yl800_address[4];
 //-------------------------------------------------------------------------------------------------------
 	if (fd < 0){
-		fprintf(stderr,"FATAL ERROR: ivalid\n");
+		fprintf(stderr,"FATAL ERROR: invalid\n");
 		exit(-1);
 	}
 

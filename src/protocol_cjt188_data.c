@@ -35,7 +35,7 @@ void ptl_cjt188_data_print(WORD di, void *p) {
 	}
 }
 
-void ptl_cjt188_data_init(WORD di, void *p) /// p == (GASMETER_CJT188-901f*) /// just data initiate
+void ptl_cjt188_data_init(WORD di, void *p)
 {
 	GASMETER_CJT188_901F *data_901f;
 

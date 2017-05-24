@@ -19,7 +19,7 @@ void *g_m590e_resource = NULL;
 #define M590E_WRITE_TIMEOUT 	(500u)
 #define M590E_READ_TIMEOUT 		(2 * 1000u)
 #define AT_FUN_TIMEOUT 			(5000u)
-#define M590E_CONNECT_TIMEOUT 	(10 * 1000u)
+#define M590E_CONNECT_TIMEOUT 	(5 * 1000u)
 
 #define M590E_SOCKET_ID 0
 static char m590e_ip_str[64] = {0};
@@ -44,6 +44,7 @@ e_remote_module_status m590e_init(int fd)
 	else
 		PRINTF("%s Start\n", __FUNCTION__);
 
+	// clean socket status
 	AT_CMD_CHECK("AT+CFUN=1,1\r", t1, AT_FUN_TIMEOUT, abort_st, "OK"); // restart module
 
 	//if(debug_ctrl.gprs_display_back_enable)

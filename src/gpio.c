@@ -143,30 +143,27 @@ void lora_lights(enum lora_light idx, int light)
 	//close(fd);
 }
 
-#define MODEM_POWER_ON	0x33 // 0x33 '3'
-#define MODEM_POWER_OFF 0x32 // 0x32 '2'
-#define MODEM_GPRS_ON   0x30 // 0x30 '0'
-#define MODEM_GPRS_OFF  0X31 // 0X31 '1'
+#define OFF   0x30 // 0x30 '0'
+#define ON  0X31 // 0X31 '1'
 
 void modem_hard_reset(void)
 {
 #if 1
 	int fd;
-	char buf[2];
+	char buf[2] = {0};
 	int ret;
 
-	if ((fd = open(modem_reset_device_path, O_WRONLY)) < 0) {
+	if ((fd = open(modem_reset_device_path1, O_WRONLY)) < 0) {
 		PRINTF("Open %s failed\n", modem_reset_device_path);
 		return;
 	}
-	PRINTF("%s: 15 seconds for shutdown modem power and re-enpower\n",
+	PRINTF("%s: 2 seconds for shutdown modem power and re-enpower\n",
 			__FUNCTION__);
-	buf[0] = MODEM_POWER_OFF;
-	ret = write(fd, buf, 2);
-	wait_delay(5000);
-	buf[0] = MODEM_POWER_ON;
+	buf[0] = OFF;
 	ret = write(fd, buf, 2);
 	wait_delay(2000);
+	buf[0] = ON;
+	ret = write(fd, buf, 2);
 	close(fd);
 	return;
 #else
@@ -198,7 +195,7 @@ void modem_soft_reset(void) { // TODO:power reset
 
 #if 1
 	int fd;
-	char buf[2];
+	char buf[2] = {0};
 
 	if ((fd = open(modem_reset_device_path, O_WRONLY)) < 0) {
 		PRINTF("Open %s failed\n", modem_reset_device_path);
@@ -206,16 +203,15 @@ void modem_soft_reset(void) { // TODO:power reset
 	}
 	///PRINTF("Open %s successfully, fd: %d\n", modem_reset_device_path,fd);
 	PRINTF(
-			"%s: 7 seconds for disable gprs-function and re-enable gprs-function\n",
+			"%s: 2 seconds for disable gprs-function and re-enable gprs-function\n",
 			__FUNCTION__);
-	buf[0] = MODEM_GPRS_OFF;
+	buf[0] = OFF;
 	ret = write(fd, buf, 2);
-	wait_delay(5000);
-	buf[0] = MODEM_GPRS_ON;
+	wait_delay(2000);
+	buf[0] = ON;
 	ret = write(fd, buf, 2);
 	close(fd);
 	//PRINTF("Close %s successfully, fd: %d\n", modem_reset_device_path, fd);
-	wait_delay(2000);
 	return;
 
 #else 
@@ -260,7 +256,7 @@ void modem_gprs_shutdown(void) // power reset
 	}
 	///PRINTF("%s: 15 seconds for shutdown modem power and re-enpower\n", __FUNCTION__);
 	///printf("power delay for 10 seconds\n");
-	buf[0] = MODEM_POWER_OFF;
+	buf[0] = OFF;
 	ret = write(fd, buf, 2);
 	wait_delay(2000);
 	close(fd);
@@ -275,10 +271,18 @@ void modem_gprs_turn_on(void) {
 		PRINTF("Open %s failed\n", modem_reset_device_path);
 		return;
 	}
-	buf[0] = MODEM_POWER_ON;
+	buf[0] = ON;
 	ret = write(fd, buf, 2);
-	wait_delay(2000);
 	close(fd);
+
+	if ((fd = open(modem_reset_device_path1, O_WRONLY)) < 0) {
+		PRINTF("Open %s failed\n", modem_reset_device_path1);
+		return;
+	}
+	buf[0] = ON;
+	ret = write(fd, buf, 2);
+	close(fd);
+
 }
 
 void control_led(enum led_index i, enum led_status s) {
