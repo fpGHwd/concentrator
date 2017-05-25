@@ -327,11 +327,13 @@ UINT32 ptl_gasup_fn_2024(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 	UINT8 resp[64];
 	int resp_len, i;
 
+#define ERROR_CODE_2024  2122
+
 	if (msg == NULL || msg->data == NULL || msg->datalen < 17 || outdata == NULL
 			|| max_outlen < 26 || max_datalen < 1)
 		return 0;
 	if (memcmp(&msg->address[2], msg->data, 5) == 0) {
-		resp_len = gasmeter_read_di(&msg->data[10], &msg->data[5], 0x8115, resp, sizeof(resp));
+		resp_len = gasmeter_read_di(&msg->data[10], &msg->data[5], 0x8515, resp, sizeof(resp)); // 8515
 		if (resp_len >= 3 + 7) {
 			bcd_be_stoc(ptr, 0);
 			ptr += 2;
@@ -342,14 +344,14 @@ UINT32 ptl_gasup_fn_2024(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			}
 		}
 		else {
-			bcd_be_stoc(ptr, 2121);
+			bcd_be_stoc(ptr, ERROR_CODE_2024);
 			ptr += 2;
 			memcpy(ptr, msg->data, 17);
 			ptr += 17;
 		}
 	}
 	else {
-		bcd_be_stoc(ptr,2121);
+		bcd_be_stoc(ptr,ERROR_CODE_2024);
 		ptr += 2;
 		memcpy(ptr, msg->data, 17);
 		ptr += 17;
