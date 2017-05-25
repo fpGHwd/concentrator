@@ -32,7 +32,4 @@ struct debug{
 };
 extern const struct debug debug_ctrl;
 
-
-
-
 #endif /* MAIN_H_ */

@@ -18,7 +18,7 @@ void *g_m590e_resource = NULL;
 //#define M590E_READ_TIMEOUT (10 * 1000u)
 #define M590E_WRITE_TIMEOUT 	(500u)
 #define M590E_READ_TIMEOUT 		(2 * 1000u)
-#define AT_FUN_TIMEOUT 			(5000u)
+#define AT_FUN_TIMEOUT 			(2000u)
 #define M590E_CONNECT_TIMEOUT 	(5 * 1000u)
 
 #define M590E_SOCKET_ID 0

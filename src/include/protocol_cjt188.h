@@ -32,13 +32,13 @@ typedef enum {
 } CJT188_CTR; // 控制码
 
 typedef struct {
-	UINT8 type; /// 仪表类型
-	UINT8 address[7]; /// 地址 
-	UINT8 ctrl; /// 控制码 01
-	UINT8 datalen; /// 数据域长度
-	UINT8 *data; /// data
-	UINT8 cs; /// CS校验位
-} PTL_CJT188_MSG; //// pdf - 188 - page4
+	UINT8 type;
+	UINT8 address[7];
+	UINT8 ctrl;
+	UINT8 datalen;
+	UINT8 *data;
+	UINT8 cs;
+} PTL_CJT188_MSG;
 
 int plt_cjt188_pack(UINT8 *buf, UINT32 max_len, const PTL_CJT188_MSG *msg);
 BOOL plt_cjt188_unpack(PTL_CJT188_MSG *msg, const UINT8 *buf, UINT32 buflen);

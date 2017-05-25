@@ -10,7 +10,7 @@
 struct node {
 	int stamp;
 	int size;
-	char *data; /// data
+	char *data;
 	struct node *next;
 };
 
@@ -25,7 +25,7 @@ static sem_t msg_sem[MSG_QUE_MAX];
 static int cur_size[MSG_QUE_MAX];
 static const int max_size[MSG_QUE_MAX] = { 1024 * 1024, 1024 * 1024, 1024
 		* 1024, 1024 * 1024, 512 * 1024, 512 * 1024, 512 * 1024, 512 * 1024, 512
-		* 1024, }; /// 1M,1M,1M,1M,0.5M,0.5M,0.5M,0.5M
+		* 1024, };
 
 static void queue_init(struct queue *queue) {
 	queue->count = 0;

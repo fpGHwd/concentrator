@@ -570,7 +570,6 @@ static void month_data_query(BYTE flag, void *para, const char *info) {
 	memcpy(meter_id, "23051606000007", sizeof(meter_id));
 
 	while (1) {
-
 		lcd_clean_workspace(); /// clear 
 		lcd_show_string(9, 1, strlen(c_allspace_str), c_allspace_str);
 		lcd_show_string(9, 1, strlen(menu_name1_3_1), menu_name1_3_1);
@@ -1460,45 +1459,12 @@ static void meter_repeater_setting_new(BYTE flag, void *para, const char *info) 
 		lcd_show_string(4, 1, strlen("SUCCESS!"), "SUCCESS!");
 	}
 	sleep(1);
-	return; // ok and return 
+	return;
 }
 
-/*
- static void meter_repeater_setting(BYTE flag, void *para, const char *info)
- {
- ITEMS_MENU items_menu;
- int idx = 0;
-
- init_menu(&items_menu.menu);
- items_menu.cur_line = 2;
-
- items_menu.menu.str[idx] = c_repeater_query_str;
- items_menu.func[idx++] = repeter_query;
- items_menu.menu.str[idx] = c_repeater_setting_str;
- items_menu.func[idx++] = repeater_enable;
-
- items_menu.menu.line_num = idx;
- process_items(&items_menu, info, FALSE);
- }
- */
-
-#include <regex.h>
-/// #include <unistd.h>
-/// #include <fcntl.h>
-/// int open(const char *pathname, int oflag, ... /* mode_t mode */ );
-/// ssize_t read(int filedes, void *buf, size_t nbytes);
 void import_meters_into_the_fgasmeter_structure(const char *filename) {
 
-	/// read a file and get every line to change the meters structure
-	/// no <regex.h>, cannot use regex.h
-	/// find if exist regex.h // find /opt/linux-devkit/sysroots/x86_64-arago-linux/ -name "regex.h" -ls /// find /opt/linux-devkit/sysroots/x86_64-arago-linux/ -name "stdio.h" -ls
-	/// include <sys/types.h>
-	/// include <regex.h>
-	// grep check the file
-
 	FILE *fp;
-	///memset(buff, 0, sizeof(buff));
-	///char line[LINE_LENGTH];
 	char buff[50];
 	char a_meter_id[15];
 	BYTE meter_address[7], collector[5];
@@ -1579,7 +1545,7 @@ static void import_meters_in_bunch_function(BYTE flag, void *para,
 			c_meters_import_success_str);
 	sleep(1);
 
-	return; // return function
+	return;
 }
 
 static void import_meters_in_bunch(BYTE flag, void *para, const char *info) {
@@ -1617,6 +1583,8 @@ static void query_data(BYTE flag, void *para, const char *info) {
 	items_menu.func[idx++] = realtime_data_display;
 	items_menu.menu.str[idx] = menu_name1_5;
 	items_menu.func[idx++] = read_meter_assembly;
+	items_menu.menu.str[idx] = menu_name1_7;
+	items_menu.func[idx++] = import_meters_in_bunch;
 
 	items_menu.menu.line_num = idx;
 	process_items(&items_menu, info, FALSE);
@@ -1677,17 +1645,10 @@ static void set_prior_host_ip_and_port(BYTE flag, void *para, const char *info) 
 	ip_port = atoi(port_buf); /// char -> int "1000" -> 1000
 	host_port[0] = ip_port >> 8;
 	host_port[1] = ip_port;
-	fparam_set_value(FPARAMID_COMM_HOST_IP_PRI, host_ip, sizeof(host_ip)); /// set ip
-	fparam_set_value(FPARAMID_COMM_HOST_PORT_PRI, host_port, sizeof(host_port)); /// set port
+	fparam_set_value(FPARAMID_COMM_HOST_IP_PRI, host_ip, sizeof(host_ip));
+	fparam_set_value(FPARAMID_COMM_HOST_PORT_PRI, host_port, sizeof(host_port));
 }
 
-
-/**
- *  TODO: useless
- * @param flag
- * @param para
- * @param info
- */
 static void set_minor_host_ip_and_port(BYTE flag, void *para, const char *info) {
 	if (verify_password() != 0)
 		return;
@@ -1705,14 +1666,14 @@ static void set_minor_host_ip_and_port(BYTE flag, void *para, const char *info) 
 
 	fparam_get_value(FPARAMID_COMM_HOST_IP_MINOR, host_ip, sizeof(host_ip)); // 获得当前port
 	fparam_get_value(FPARAMID_COMM_HOST_PORT_MINOR, host_port,
-			sizeof(host_port)); // 获得当前port 
+			sizeof(host_port));
 
 	snprintf(ip_addr, sizeof(ip_addr), "%u.%u.%u.%u", host_ip[0], host_ip[1],
-			host_ip[2], host_ip[3]); /// 获取当前port字符串
+			host_ip[2], host_ip[3]);
 	ip_port = (host_port[0] << 8) + host_port[1];
-	sprintf(port_buf, "%d", ip_port); /// get port_str 
+	sprintf(port_buf, "%d", ip_port);
 
-	init_menu(&param_set.menu); /// 
+	init_menu(&param_set.menu);
 	param_set.menu.line_num = 3;
 	param_set.menu.str[0] = c_ip_address_str;
 	param_set.menu.str[1] = NULL;
@@ -1732,12 +1693,12 @@ static void set_minor_host_ip_and_port(BYTE flag, void *para, const char *info) 
 	host_ip[2] = ip >> 16;
 	host_ip[3] = ip >> 24;
 	strcpy(port_buf, param_set.input[1].str);
-	ip_port = atoi(port_buf); /// char -> int "1000" -> 1000
+	ip_port = atoi(port_buf);
 	host_port[0] = ip_port >> 8;
 	host_port[1] = ip_port;
 	fparam_set_value(FPARAMID_COMM_HOST_IP_MINOR, host_ip, sizeof(host_ip));
 	fparam_set_value(FPARAMID_COMM_HOST_PORT_MINOR, host_port,
-			sizeof(host_port)); /// set port
+			sizeof(host_port));
 }
 
 static void set_apn(BYTE flag, void *para, const char *info) {
@@ -1789,14 +1750,6 @@ static void set_apn(BYTE flag, void *para, const char *info) {
 	fparam_set_value(FPARAMID_APN_USER_ID, apn_user_id, 32);
 	fparam_set_value(FPARAMID_APN_USER_PASSWD, apn_user_password, 32);
 
-	/*
-	 * APN:
-	 * UNINET
-	 * APN用户名：
-	 * CMNET
-	 * APN用户密码：
-	 * CMNET
-	 */
 }
 
 static void set_heartbeat_to_mainstation(BYTE flag, void *para,
@@ -1813,6 +1766,7 @@ static void set_heartbeat_to_mainstation(BYTE flag, void *para,
 	memset(&param_set, 0, sizeof(param_set));
 	memset(heart_beat, 0, sizeof(heart_beat));
 	fparam_get_value(FPARAMID_HEARTBEAT_CYCLE, heart_beat, sizeof(heart_beat));
+	PRINTB("heartbeat: ", heart_beat, 2);
 	snprintf(hb_s, sizeof(hb_s), "%u", (heart_beat[0] << 8) + heart_beat[1]);
 
 	init_menu(&param_set.menu);
@@ -1855,16 +1809,11 @@ static void set_con_addr(BYTE flag, void *para, const char *info)
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
 
-	items_menu.menu.str[idx] = menu_name2_1_1;
-	items_menu.func[idx++] = set_comm_channel;
 	items_menu.menu.str[idx] = menu_name2_1_2;
 	items_menu.func[idx++] = set_prior_host_ip_and_port;
-	items_menu.menu.str[idx] = menu_name2_1_3;
-	items_menu.func[idx++] = set_minor_host_ip_and_port;
-	items_menu.menu.str[idx] = menu_name2_1_4;
-	items_menu.func[idx++] = set_apn;
-	items_menu.menu.str[idx] = menu_name2_1_5;
-	items_menu.func[idx++] = set_heartbeat_to_mainstation;
+	//items_menu.menu.str[idx] = menu_name2_1_3;
+	//items_menu.func[idx++] = set_minor_host_ip_and_port;
+
 
 	items_menu.menu.line_num = idx;
 	process_items(&items_menu, info, FALSE);
@@ -1950,16 +1899,22 @@ static void set_param(BYTE flag, void *para, const char *info)
 
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
+
+	///items_menu.menu.str[idx] = menu_name2_2;
+	///items_menu.func[idx++] = set_host_param;
+	items_menu.menu.str[idx] = menu_name1_6;
+	items_menu.func[idx++] = meter_repeater_setting_new; // repeater function setting
+	items_menu.menu.str[idx] = menu_name2_3;
+	items_menu.func[idx++] = reconstruct_network; // reconstruct
+	items_menu.menu.str[idx] = menu_name2_1_5;
+	items_menu.func[idx++] = set_heartbeat_to_mainstation;
 	items_menu.menu.str[idx] = menu_name2_1;
 	items_menu.func[idx++] = set_con_addr;
-	///items_menu.menu.str[idx] = menu_name2_2;
-	///items_menu.func[idx ++] = set_host_param;
-	items_menu.menu.str[idx] = menu_name1_6;
-	items_menu.func[idx++] = meter_repeater_setting_new;
-	items_menu.menu.str[idx] = menu_name1_7;
-	items_menu.func[idx++] = import_meters_in_bunch;
-	items_menu.menu.str[idx] = menu_name2_3;
-	items_menu.func[idx++] = reconstruct_network;
+	items_menu.menu.str[idx] = menu_name2_1_1;
+	items_menu.func[idx++] = set_comm_channel;
+	items_menu.menu.str[idx] = menu_name2_1_4;
+	items_menu.func[idx++] = set_apn;
+
 	items_menu.menu.line_num = idx;
 	process_items(&items_menu, info, FALSE);
 }
@@ -1986,7 +1941,7 @@ static void view_version_addr(BYTE flag, void *para, const char *info) {
 	process_menu(&menu, info); /// stop
 }
 
-static void query_network_ip(BYTE flag, void *para, const char *info) /// 查询网络IP
+static void query_network_ip(BYTE flag, void *para, const char *info)
 {
 	MENU menu;
 	char string[4][MAX_SCREEN_COL + 1];
@@ -2035,18 +1990,16 @@ static void query_network_ip(BYTE flag, void *para, const char *info) /// 查询
 
 void modem_gprs_shutdown(void);
 static void restart_terminal_function(BYTE flag, void *para, const char *info) {
-	//char buf[30];
-	//signed char sec = 10;
 	int ret;
 
 	lcd_clean_workspace();
 	lcd_show_string(2, 1, strlen(c_restarting_terminal_str),
 			c_restarting_terminal_str);
-	g_terminated = 1; // reboot before making sure other threads exits normally
+	g_terminated = 1;
 	//led_fade();
-	// TODO: rewrite for error
+	// TODO: rewrite for error // reboot before fsync files
 	modem_gprs_shutdown();
-	sleep(10);
+	sleep(5);
 	lcd_clean_workspace();
 
 	printf("reboot\n");
@@ -2243,7 +2196,6 @@ static void reset_param_data(BYTE flag, void *para, const char *info) {
 
 static void param_data_reset(BYTE flag, void *para, const char *info) {
 	//MENU menu;
-
 	int idx = 0;
 	ITEMS_MENU items_menu;
 
@@ -2257,7 +2209,12 @@ static void param_data_reset(BYTE flag, void *para, const char *info) {
 }
 
 static void usb_update_function(BYTE flag, void *para, const char *info) {
-	const char *filename = "/media/usb/gascon";
+
+#ifdef AM335X
+	const char *filename = "/media/usb/concentrator-am335x";
+#else if defined(IMX28)
+	const char *filename = "/media/usb/concentrator-imx28";
+#endif
 	bool file_exist_flag;
 	struct stat buf;
 	int ret;
@@ -2269,7 +2226,7 @@ static void usb_update_function(BYTE flag, void *para, const char *info) {
 		file_exist_flag = true;
 	} else {
 		file_exist_flag = false;
-	} // get file exist flag
+	}
 
 	if (!file_exist_flag) {
 		lcd_show_string(2, 1, strlen(c_no_update_file_str),
@@ -2282,13 +2239,13 @@ static void usb_update_function(BYTE flag, void *para, const char *info) {
 #ifdef AM335X
 	ret = system("cp /media/usb/concentrator-am335x /opt/concentrator/bin/concentrator-am335x.bak");
 #elif defined IMX28
-	ret = system("cp /media/usb/concentrator-am335x /opt/concentrator/bin/concentrator-am335x");
+	ret = system("cp /media/usb/concentrator-imx28 /opt/concentrator/bin/concentrator-am335x");
 #endif
 
 	sleep(2);
 	restart_terminal_function( false, NULL, NULL); // reboot  //and //  return
 
-	return; // return function
+	return;
 
 }
 
@@ -2306,6 +2263,7 @@ static void usb_update(BYTE flag, void *para, const char *info) {
 	process_items(&items_menu, info, FALSE);
 }
 
+
 /*
  static void usb_update(BYTE flag, void *para, const char *info)
  {
@@ -2313,11 +2271,11 @@ static void usb_update(BYTE flag, void *para, const char *info) {
  int row;
  bool file_exist_flag;
  struct stat buf;
- 
+
 
  lcd_clean_workspace();
  lcd_show_string( 9, 1, strlen(c_allspace_str), c_allspace_str);
- lcd_show_string( 9, 1, strlen(menu_name3_1_4), menu_name3_1_4);// tips 
+ lcd_show_string( 9, 1, strlen(menu_name3_1_4), menu_name3_1_4);// tips
 
  while(1){
 
@@ -2358,6 +2316,7 @@ static void usb_update(BYTE flag, void *para, const char *info) {
  return; // return function
  }
  */
+
 
 static void restart_terminal(BYTE flag, void *para, const char *info) /// 重启终端
 {
@@ -2568,6 +2527,7 @@ static void password_setting(BYTE flag, void *para, const char *info) {
 
 	if (!fparam_set_value(FPARAMID_CON_VERIFY_PASSWD, password_byte,
 			sizeof(password_byte))) {
+		// TIPS
 		printf("set password failed\n");
 		////return;
 	} else {
@@ -2603,18 +2563,18 @@ static void get_modem_flux_in_sum(BYTE flag, void *para, const char *info) {
 	process_menu(&menu, info);
 }
 
-static void terminal_management(BYTE flag, void *para, const char *info) {
+static void terminal_maintenance(BYTE flag, void *para, const char *info) {
 	ITEMS_MENU items_menu;
 	int idx = 0;
 
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
 	items_menu.menu.str[idx] = menu_name3_1;
-	items_menu.func[idx++] = restart_terminal;
+	items_menu.func[idx++] = restart_terminal; // restart terminal
 	//items_menu.menu.str[idx] = menu_name3_2;
-	//items_menu.func[idx++] = liquid_switch;
-	items_menu.menu.str[idx] = menu_name3_3;
-	items_menu.func[idx++] = terminal_id;
+	//items_menu.func[idx++] = liquid_switch; // crystal switch
+	//items_menu.menu.str[idx] = menu_name3_3;
+	//items_menu.func[idx++] = terminal_id;
 	items_menu.menu.str[idx] = menu_name3_4;
 	//items_menu.func[idx++] = view_con_info;
 	items_menu.func[idx++] = view_version_addr;
@@ -2624,16 +2584,14 @@ static void terminal_management(BYTE flag, void *para, const char *info) {
 	items_menu.menu.str[idx] = menu_name3_5;
 	items_menu.func[idx++] = set_terminal_time;
 	items_menu.menu.str[idx] = menu_name3_6;
-	items_menu.func[idx++] = password_setting;
-	///items_menu.menu.str[idx] = "modem soft reset";
-	///items_menu.func[idx++] = modem_soft_reset_hmisys;
-	//items_menu.menu.str[idx] = menu_name3_7;
+	items_menu.func[idx++] = password_setting; // password setting
+	//tems_menu.menu.str[idx] = menu_name3_7;
 	//items_menu.func[idx++] = channel_setting; // a duplicate
 	//items_menu.menu.str[idx] = menu_name3_8;
 	//items_menu.func[idx++] = local_module_status;
 	//items_menu.menu.str[idx] = menu_name3_9;
 	//items_menu.func[idx++] = signal_intensity_and_battery_status;
-	items_menu.menu.str[idx] = modem_flux_sum_menu;
+	items_menu.menu.str[idx] = modem_flux_sum_menu; // modem_flux
 	items_menu.func[idx++] = get_modem_flux_in_sum;
 
 	items_menu.menu.line_num = idx;
@@ -2643,24 +2601,19 @@ static void terminal_management(BYTE flag, void *para, const char *info) {
 void main_menu_init(ITEMS_MENU *items_menu) {
 	int idx = 0;
 
-	///printf("utf8中文输入与打印\n"); /// can not print normal Chinese character
 	init_menu(&items_menu->menu);
 	items_menu->cur_line = 1;
-	items_menu->menu.str[idx] = menu_name1; /// 数据查询
-	items_menu->func[idx++] = query_data;
-	items_menu->menu.str[idx] = menu_name2; /// 参数查询与设置
-	items_menu->func[idx++] = set_param;
-	items_menu->menu.str[idx] = menu_name3; /// 终端管理与维护
-	items_menu->func[idx++] = terminal_management;
+	items_menu->menu.str[idx] = menu_name1;
+	items_menu->func[idx++] = query_data; // query data
+	items_menu->menu.str[idx] = menu_name2;
+	items_menu->func[idx++] = set_param; // set parameter
+	items_menu->menu.str[idx] = menu_name3;
+	items_menu->func[idx++] = terminal_maintenance; // maintenance
+
 	items_menu->menu.line_num = idx;
 }
 
-/*
- void get_valid_day_block_from_file_test_out(void)
- {
- get_valid_day_block_from_file_test(TRUE, NULL, NULL);
- }
- */
+// TODO: test concentrator
 
 int verify_password(void) {
 	int tries_times;
@@ -2688,9 +2641,7 @@ int verify_password(void) {
 				sizeof(password_byte));
 		snprintf(buf_save, 7, "%02d%02d%02d", bcd_to_bin(password_byte[0]),
 				bcd_to_bin(password_byte[1]), bcd_to_bin(password_byte[2]));
-#ifdef TEST
-		PRINTF("SECURITY! PASSWORD SAVED IN: %s\n", buf_save);
-#endif
+		///PRINTF("SECURITY! PASSWORD SAVED IN: %s\n", buf_save);
 		if (memcmp(buf, buf_save, 6) == 0)
 			return 0; // success in verifying
 		tries_times--;

@@ -38,7 +38,7 @@ void led_fade(void);
 
 
 enum lora_light{
-	BLUE_RECEIVE,
+	BLUE_RECEIVE, // TODO: BLUE_SEND, GREEN_SEND
 	GREEN_SEND,
 };
 void lora_lights(enum lora_light idx, int light);

@@ -54,7 +54,7 @@ static void fparam_add(int idx, WORD id, WORD len, WORD offset, const void *buf)
 	head->len = len;
 	head->offset = offset;
 	memcpy(data, buf, len);
-	PRINTF("Add parameter of concentrator(ID: %04d)\n", id); /// 
+	PRINTF("Add parameter of concentrator(ID: %04d)\n", id);
 }
 
 static void fparam_default_init(void) {
@@ -97,7 +97,7 @@ static void fparam_default_init(void) {
 	offset += 4;
 	fparam_add(idx++, FPARAMID_COMM_HOST_PORT_MINOR, 2, offset, "\x01\xBB");
 	offset += 2;
-	fparam_add(idx++, FPARAMID_HEARTBEAT_CYCLE, 2, offset, "\x00\x78"); /// 300s /// 心跳周期 //120s
+	fparam_add(idx++, FPARAMID_HEARTBEAT_CYCLE, 2, offset, "\x00\x3C");
 	offset += 2;
 	fparam_add(idx++, FPARAMID_READMETER_FREQ, 2, offset, "\x00\x21"); //fparam_add(idx++, FPARAMID_READMETER_FREQ, 2, offset, "\x00\x21"); /// 21-每天抄表 
 	offset += 2;

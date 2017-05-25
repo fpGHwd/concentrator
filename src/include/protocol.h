@@ -10,7 +10,7 @@
 
 #include "typedef.h"
 
-#define CONFIG_MAX_APDU_LEN 16355 // RECEIVE BUFFER LENGTH
+#define CONFIG_MAX_APDU_LEN 16355
 
 typedef struct {
 	UINT8 *head;
@@ -20,8 +20,9 @@ typedef struct {
 } RECEIVE_BUFFER;
 
 typedef enum {
-	e_ptl_unknown, e_up_gasmeter, // 集中器和表的188协议
-	e_down_cjt188_2004, // 集中器和表的188协议，188协议
+	e_ptl_unknown,
+	e_up_gasmeter,
+	e_down_cjt188_2004,
 } E_PROTOCOL_TYPE;
 
 #define MAX_PROTOCOL_CNT  2

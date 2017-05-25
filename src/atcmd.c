@@ -38,13 +38,6 @@ int at_cmd_sub(int fd, const char *send, char *recv, int max_len, int timeout1,
 	return 0;
 }
 
-/* fd = file descriptor
- send  = send string
- recv = recv string
- max_len = return string lenth
- timeout1
- timeout2
- */
 int at_cmd(int fd, const char *send, char *recv, int max_len, int timeout1,
 		int timeout2) {
 	return at_cmd_sub(fd, send, recv, max_len, timeout1, timeout2, FALSE);

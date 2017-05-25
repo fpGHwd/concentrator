@@ -1006,7 +1006,6 @@ UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 }
 
 BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on);
-
 UINT32 ptl_gasup_fn_2051_2502(const PTL_GASUP_MSG *msg, INT8 *outdata,
 		INT32 max_outlen, INT32 *datalen, INT32 max_datalen, BOOL on)
 {
@@ -1035,12 +1034,12 @@ UINT32 ptl_gasup_fn_2051_2502(const PTL_GASUP_MSG *msg, INT8 *outdata,
 
 UINT32 ptl_gasup_fn_2051(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outlen, INT32 *datalen, INT32 max_datalen)
 {
-	return ptl_gasup_fn_2051_2502(msg, outdata, max_outlen, datalen, max_datalen, TRUE);
+	return ptl_gasup_fn_2051_2502(msg, outdata, max_outlen, datalen, max_datalen, TRUE); // TRUE -> SWITCH ON VALVE
 }
 
 UINT32 ptl_gasup_fn_2052(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outlen, INT32 *datalen, INT32 max_datalen)
 {
-	return ptl_gasup_fn_2051_2502(msg, outdata, max_outlen, datalen, max_datalen, FALSE);
+	return ptl_gasup_fn_2051_2502(msg, outdata, max_outlen, datalen, max_datalen, FALSE); // FALSE -> SWITCH OFF VALVE
 }
 
 UINT32 ptl_gasup_fn_2053(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outlen, INT32 *datalen, INT32 max_datalen)
@@ -1057,12 +1056,17 @@ UINT32 ptl_gasup_fn_2053(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 		bcd_be_stoc(ptr, 0);
 		resp_len = gasmeter_read_di(&msg->data[10], &msg->data[5], 0x901F, resp, sizeof(resp));
 		if (resp_len >= 22) {
-			switch ((resp[21] >> 6) & 0x03) {
+			//PRINTB("resp", resp, sizeof(resp));
+			//PRINTB("resp[21]", &resp[17], 1);
+			//switch ((resp[21] >> 6) & 0x03) { // 17
+			switch ((resp[20]) & 0x01) {
 			case 0:
-				valve_status = VALVE_STATUS_ON;
+				valve_status = 1;
+				//valve_status = VALVE_STATUS_ON;
 				break;
 			case 1:
-				valve_status = VALVE_STATUS_OFF;
+				valve_status = 0;
+				//valve_status = VALVE_STATUS_OFF;
 				break;
 			case 3:
 				valve_status = VALVE_STATUS_ABORT;

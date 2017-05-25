@@ -107,9 +107,9 @@ static int gasmeter_read_serial(void *buf, int len, int timeout) {
 	return read_serial(gasmeter_fd, buf, len, timeout);
 }
 
-
+// TODO:wakeup_circle_value how to use
 // TODO:every thread need a watchdog
-
+// todo:轮询表地址(zuwang)
 int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 		BYTE *buf, int max_len) /// read meter
 {
@@ -245,6 +245,7 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 
 	if (fgasmeter_get_repeater(address, repeater)) {
 		p_repeater = repeater;
+		p_repeater = NULL;
 	} else {
 		p_repeater = NULL;
 	}
@@ -310,6 +311,7 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 	return ( TRUE);
 }
 
+#include "main.h"
 BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 	BYTE cjt188_reqbuf[512];
 	BYTE yl800_reqbuf[512];
@@ -332,7 +334,6 @@ BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 		exit(-1);
 	}
 
-
 	valvabuf = (on ? 0x55 : 0x99);
 
 	cjt188_len = plt_cjt188_pack_write(cjt188_reqbuf, sizeof(cjt188_reqbuf),
@@ -344,26 +345,31 @@ BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 
 	if (fgasmeter_get_repeater(address, repeater)) {
 		p_repeater = repeater;
-		PRINTF(
-				"%s: Repeater[0] = 0x%x, Repeater[1] = 0x%x, Repeater[2] = 0x%x \n",
-				__FUNCTION__, repeater[0], repeater[1], repeater[2]);
+		PRINTB("repeater: ", repeater, 5);
 	} else {
 		PRINTF("%s: NO REPEATER connected to this gasmeter address\n",
 				__FUNCTION__);
 		p_repeater = NULL;
 	}
 
-	//memcpy(yl800_address, &address[5], 2);	//RF Node  Address
+	if(!debug_ctrl.repeater_enable)
+		p_repeater = NULL;
+
+	/*
+	yl800_address[0] = 0x00;
+	memcpy(yl800_address+1, address+4, 3);
+	*/
+
 	yl800_address[0] = 0x00;
 	yl800_address[1] = address[4];
 	yl800_address[2] = address[5];
 	yl800_address[3] = address[6];
 
-	/// PRINTB
-	PRINTF(
+
+	/*PRINTF(
 			"%s yl800_address[0] = 0x%x, yl800_address[1] = 0x%x, yl800_address[2] = 0x%x, yl800_address[3] = 0x%x \n",
 			__FUNCTION__, yl800_address[0], yl800_address[1], yl800_address[2],
-			yl800_address[3]);
+			yl800_address[3]);*/
 
 	yl800_len = yl800_pack(yl800_reqbuf, sizeof(yl800_reqbuf), p_repeater,
 			yl800_address, cjt188_reqbuf, cjt188_len);
@@ -417,7 +423,7 @@ BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 }
 
 BOOL gasmeter_save_currentdata(const BYTE *address, const BYTE *collector,
-		WORD di, long tt, BYTE *buf, int buflen)  /// save current data
+		WORD di, long tt, BYTE *buf, int buflen)
 {
 	int mtidx;
 	GASMETER_CJT188_901F di_data;
@@ -511,7 +517,7 @@ BOOL gasmeter_save_monthdata(const BYTE *address, const BYTE *collector,
 }
 
 static void gasmeter_save_data(const BYTE *address, const BYTE *collector,
-		WORD di, long tt, BYTE *buf, int buflen) /// it's new
+		WORD di, long tt, BYTE *buf, int buflen)
 {
 	gasmeter_save_currentdata(address, collector, di, tt, buf, buflen);
 	gasmeter_save_daydata(address, collector, di, tt, buf, buflen);
@@ -530,9 +536,7 @@ void *th_gasmeter(void *arg) {
 
 	print_thread_info();
 	sem_init(&sem_serial, 0, 1);
-	//PRINTF("PROBLEM HERE");
 	gasmeter_fd = open_serial(rdmeter_device, B9600, 8, 0);
-	//PRINTF("gasmeter_fd = %d", gasmeter_fd);
 	while (!g_terminated) {
 		notify_watchdog();
 		app_event_wait(&event_rdmeter, 1, EVENT_RDMETER, &ev);

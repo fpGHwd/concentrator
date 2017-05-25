@@ -462,7 +462,7 @@ static void do_log(const char *log_file, int log_max, int log_delta,
 	do_append(log_file, data, data_len);
 }
 
-void PRINTB(const char *name, const void *data, int data_len) /// printf bytes...
+void PRINTB(const char *name, const void *data, int data_len)
 {
 	int i, j;
 	const unsigned char *ptr = data;

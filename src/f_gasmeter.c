@@ -278,7 +278,7 @@ BOOL fgasmeter_delcollector(const BYTE *address) {
 }
 
 void start_read_gasmeter(void);
-BOOL fgasmeter_addgasmeter(const BYTE *address, const BYTE *collector) /// add gas meter
+BOOL fgasmeter_addgasmeter(const BYTE *address, const BYTE *collector)
 {
 	int i;
 	GASMETER_INFO *pinfo = &gasmeter_info;
@@ -304,7 +304,7 @@ BOOL fgasmeter_addgasmeter(const BYTE *address, const BYTE *collector) /// add g
 				fgasmeter_init_gasmeter(pdb);
 				memcpy(pdb->address, address, 7);
 				pdb->collector_idx = fgasmeter_addcollector_sub(collector,
-						FALSE); ///  allocate collector
+						FALSE);
 				fgasmeter_update_collector(pdb->collector_idx, TRUE);
 				pdb->b_valid = TRUE;
 				fgasmeter_update_gasmeter(i, TRUE);
@@ -422,7 +422,6 @@ BOOL fgasmeter_get_repeater(const BYTE *address, BYTE *repeater)
 	GASMETER_DB *pdb;
 	int index = -1;
 
-	////PRINTB("fgasmeter_get_repeater: ", address, 7);
 	if (address == NULL || repeater == NULL)
 		return FALSE;
 	sem_wait(&pinfo->sem_db);
@@ -431,11 +430,12 @@ BOOL fgasmeter_get_repeater(const BYTE *address, BYTE *repeater)
 		if (memcmp(address, pdb->address, 7) == 0
 				&& pdb->u.private.b_repeater_valid) {
 			memcpy(repeater, pdb->u.private.repeater, 2);
+			///PRINTB("fgasmeter_get_repeater: ", address, 7);
 			break;
 		}
 	}
 	sem_post(&pinfo->sem_db);
-	return TRUE; /// return FALSE
+	return TRUE;
 }
 
 BOOL fgasmeter_set_repeater(const BYTE *address, const BYTE *repeater)
