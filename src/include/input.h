@@ -46,7 +46,7 @@ typedef struct {
 	BYTE cur_day; // 1 - 31
 	// week of the first day in the month 0 - 6, 0 for Sunday
 	BYTE first_day_week;
-} CALENDAR_T; /// useful, i can use when using, all are data (abstract-)structure.
+} CALENDAR_T;
 
 BYTE key_getch(int flag);
 

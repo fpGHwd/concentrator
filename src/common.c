@@ -24,10 +24,10 @@ WORD ctos_be(const BYTE *buf) /// 0x01, 0x00 -> 256 (0~65525), char to string?
 	return buf[1] + (buf[0] << 8); // buf[0] * 256 + buf[1]
 }
 
-void stoc_be(BYTE *buf, WORD val) // 256(val) -> 0x01, 0x00
+void stoc_be(BYTE *buf, WORD val)
 {
-	buf[1] = val; ///
-	buf[0] = val >> 8; /// 2B(0~65525) -> 0x00 0x00 
+	buf[1] = val;
+	buf[0] = val >> 8;
 }
 
 DWORD ctol_be(const BYTE *buf) /// byte(4B) -> value
@@ -50,7 +50,7 @@ WORD ctos(const BYTE *buf) /// char to short
 
 void stoc(BYTE *buf, WORD val) /// short(WORD, unsigend short, 0~65525) to char
 {
-	buf[0] = val; ///BYTE val[2] = 0x901F,
+	buf[0] = val;
 	buf[1] = val >> 8;
 }
 
@@ -213,7 +213,7 @@ void bcd_be_stoc(void *buf, WORD val) /// val = 2004 /// bcd, short to char
 	}
 }
 
-void bcd_be_ltoc(BYTE *buf, int val) /// long(4B, val) to char(buf, BYTE*)
+void bcd_be_ltoc(BYTE *buf, int val)
 {
 	BYTE ch[4], high, low, *ptr = buf;
 	int i;
@@ -321,7 +321,7 @@ int safe_read(int fd, void *buf, int len) {
 	return ptr - buf;
 }
 
-int safe_write(int fd, const void *buf, int len) /// save p_buf to fd
+int safe_write(int fd, const void *buf, int len)
 {
 	int ret;
 	const void *ptr = buf;
@@ -628,6 +628,12 @@ void set_rtc(void) {
 
 }
 
+bool set_rtc_state(void){
+	int sys_ret;
+	sys_ret = system("/sbin/hwclock -wu");
+	return sys_ret;
+}
+
 int check_rtc(void) {
 	int fd, ret = 0;
 	struct tm tm;
@@ -814,7 +820,7 @@ unsigned long get_diff_ms(struct timeval * tv1, struct timeval * tv2) {
 			+ (tv1->tv_usec - tv2->tv_usec) / 1000;
 }
 
-int get_network_addr(const char *interface, char *addr, char *dstaddr) /// 获取socket的相关结构体的参数
+int get_network_addr(const char *interface, char *addr, char *dstaddr)
 {
 	int i, fd, ret = 0;
 	char buf[1024];
@@ -937,7 +943,7 @@ unsigned int byte2bcd(BYTE byte) {
 	return high * 10 + low;
 }
 
-unsigned int reverse_byte_array2bcd(BYTE *byte, int len) //// n bytes(len)
+unsigned int reverse_byte_array2bcd(BYTE *byte, int len)
 {
 	int ret, ret_byte;
 	int i, j;

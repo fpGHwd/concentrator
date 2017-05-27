@@ -189,4 +189,28 @@ extern const char *c_get_valid_day_block_from_file_str;
 extern const char *c_write_variable_into_file_str;
 extern const char *c_update_day_block_from_varieble_into_file_str;
 
+
+
+extern const char *date_test;
+extern const char *invalid_meter;
+extern const char *read_no_data;
+extern const char *inner_error;
+extern const char *please_input_meter_id;
+extern const char *read_meter_ok;
+extern const char *please_select_date;
+extern const char *meter_sum;
+extern const char *no_meter;
+extern const char *no_data;
+extern const char *day_data;
+extern const char *no_date_index;
+extern const char *date_string;
+extern const char *time_string;
+extern const char *none;
+extern const char *month_data;
+extern const char *current_data;
+extern const char *set_successfully;
+
+
+
+
 #endif /* LANGUAGE_H_ */

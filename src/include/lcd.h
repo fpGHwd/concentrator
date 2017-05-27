@@ -19,17 +19,18 @@
 #define MAX_MENU_LINE			100
 #define MAX_INPUT_GROUP_NUM		100
 #define MAX_INPUT_DIGIT_NUM		16
+//#define MAX_INPUT_STRING_LEN	32
 #define MAX_INPUT_STRING_LEN	16
 #define MAX_LIST_NUM			32
 
 typedef struct {
-	int row; /// current row idx
-	int col; /// current col idx
-	int vrow_num; /// viewable row
-	int vcol_num; /// viewable col
-	int line_num; /// all the line num
-	int start_line; /// start line num idx
-	const char *str[MAX_MENU_LINE]; /// str to show
+	int row;
+	int col;
+	int vrow_num;
+	int vcol_num;
+	int line_num;
+	int start_line;
+	const char *str[MAX_MENU_LINE];
 } MENU;
 
 /* used in ITEMS_MENU, flag: 0: view, 1: set */

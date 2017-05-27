@@ -244,7 +244,7 @@ BOOL fmon_get_data(int monidx, int mtidx, WORD di, void *di_data) /// get data w
 	return b_success;
 }
 
-int fmon_get_datablock_index(void) /// 寻找当前的时间的月份块
+int fmon_get_datablock_index(void)
 {
 	int i, index = -1;
 	struct tm cur_tm, mon_tm;
@@ -253,11 +253,7 @@ int fmon_get_datablock_index(void) /// 寻找当前的时间的月份块
 	sys_time(&cur_tm); /// write system time to cur_tm
 	sem_wait(&pinfo->sem_db);
 	for (i = 0; i < MAX_GASMETER_MON_CNT; i++) {
-		///time(&pinfo->datablock[i].tt);
-		localtime_r(&pinfo->datablock[i].tt, &mon_tm); /// tt is time(long)
-		///printf("pinfo->datablock[%d].valid = %d\n", i, (pinfo->datablock[i].valid ? 1 : 0));
-		//printf("current year - month: %d - %d;  ", cur_tm.tm_year, cur_tm.tm_mon);
-		///printf("index: %d, mon_tm year - month: %d - %d\n", i, mon_tm.tm_year+1900, mon_tm.tm_mon+1);
+		localtime_r(&pinfo->datablock[i].tt, &mon_tm);
 		if (pinfo->datablock[i].valid && cur_tm.tm_year == mon_tm.tm_year
 				&& cur_tm.tm_mon == mon_tm.tm_mon) {
 			index = i;
@@ -268,7 +264,7 @@ int fmon_get_datablock_index(void) /// 寻找当前的时间的月份块
 	return index;
 }
 
-int fmon_get_datablock_index_by_time(WORD year, BYTE month) /// 寻找特定时间的月份块
+int fmon_get_datablock_index_by_time(WORD year, BYTE month)
 {
 	int i, index = -1;
 	struct tm mon_tm;
@@ -277,12 +273,9 @@ int fmon_get_datablock_index_by_time(WORD year, BYTE month) /// 寻找特定时�
 	sem_wait(&pinfo->sem_db);
 	for (i = 0; i < MAX_GASMETER_MON_CNT; i++) {
 		localtime_r(&pinfo->datablock[i].tt, &mon_tm);
-		///printf("year: %d, month: %d\n", year, month);
-		///printf("mon_tm.tm_year: %d, mon_tm.tm_mon: %d\n", mon_tm.tm_year, mon_tm.tm_mon);
-		///printf("pinfo->datablock[%d].valid: %d\n", i,(pinfo->datablock[i].valid)?1:0);
 		if (pinfo->datablock[i].valid && (year - 1900) == mon_tm.tm_year
 				&& month == (mon_tm.tm_mon + 1)) {
-			index = i; /// get data 
+			index = i;
 			break;
 		}
 	}

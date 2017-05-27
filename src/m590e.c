@@ -19,7 +19,7 @@ void *g_m590e_resource = NULL;
 #define M590E_WRITE_TIMEOUT 	(500u)
 #define M590E_READ_TIMEOUT 		(2 * 1000u)
 #define AT_FUN_TIMEOUT 			(2000u)
-#define M590E_CONNECT_TIMEOUT 	(5 * 1000u)
+#define M590E_CONNECT_TIMEOUT 	(10 * 1000u)
 
 #define M590E_SOCKET_ID 0
 static char m590e_ip_str[64] = {0};
@@ -135,7 +135,8 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 					return -1;
 				}
 			}else{
-				PRINTF("%s Not receive for 'AT$MYNETOPEN=%d'\n", __FUNCTION__,M590E_SOCKET_ID);
+				PRINTF("%s Not receive for command 'AT$MYNETOPEN=%d'\n", __FUNCTION__,M590E_SOCKET_ID);
+				PRINTF("%s resp: %s\n", __FUNCTION__,resp);
 				return -1;
 			}
 		}

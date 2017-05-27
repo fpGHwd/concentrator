@@ -1394,7 +1394,7 @@ int KeyRead_NONE_BLOCKING(struct key_msg_t *msg){
 	if(key_fd < 0)
 		return 0;
 
-	if(wait_for_ready(key_fd, 500, 0)>0){
+	if(wait_for_ready(key_fd, 1, 0)>0){
 		ret = read(key_fd, &data, sizeof(data));
 		//printf("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
 		if (data.type == EV_KEY)

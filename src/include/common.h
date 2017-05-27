@@ -128,4 +128,6 @@ void get_date(char *time_str);
 int a_day_later(const char* data_string);
 ///extern inline int min_inline(int x, int y){ return ((x) <= (y)?(x):(y));} 
 
+bool set_rtc_state(void);
+
 #endif /* COMMON_H_ */

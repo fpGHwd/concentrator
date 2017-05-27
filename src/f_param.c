@@ -97,7 +97,7 @@ static void fparam_default_init(void) {
 	offset += 4;
 	fparam_add(idx++, FPARAMID_COMM_HOST_PORT_MINOR, 2, offset, "\x01\xBB");
 	offset += 2;
-	fparam_add(idx++, FPARAMID_HEARTBEAT_CYCLE, 2, offset, "\x00\x3C");
+	fparam_add(idx++, FPARAMID_HEARTBEAT_CYCLE, 2, offset, "\x78\x00");
 	offset += 2;
 	fparam_add(idx++, FPARAMID_READMETER_FREQ, 2, offset, "\x00\x21"); //fparam_add(idx++, FPARAMID_READMETER_FREQ, 2, offset, "\x00\x21"); /// 21-每天抄表 
 	offset += 2;

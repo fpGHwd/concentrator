@@ -111,7 +111,7 @@ void fgasmeter_close(void) {
 	sem_destroy(&pinfo->sem_db);
 }
 
-int fgasmeter_getidx_by_collector(const BYTE *address) /// find the address index in RAM
+int fgasmeter_getidx_by_collector(const BYTE *address)
 {
 	int i, index = -1;
 	GASMETER_INFO *pinfo = &gasmeter_info;
@@ -528,17 +528,14 @@ void fgasmeter_assembly_reading(void) {
 	}
 }
 
-int valid_meter_sum(void) { //// valid meter sum, if use fgasmeter_getgasmeter(idx, NULL, NULL)
+int valid_meter_sum(void) {
 	int ret;
 	unsigned short idx;
-	//BYTE address[7], collector[5];/// address = null, collector null
 
 	ret = 0;
 	for (idx = 0; idx < MAX_GASMETER_NUMBER; idx++) {
 		if (fgasmeter_getgasmeter(idx, NULL, NULL)) {
 			ret++;
-		} else {
-			; ///do nothing
 		}
 	}
 

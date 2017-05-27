@@ -246,7 +246,7 @@ void *th_upeth(void *arg)
 	while (!g_terminated) {
 		notify_watchdog();
 		fparam_get_value(FPARAMID_HEARTBEAT_CYCLE, hb_cycle, 2);
-		eth_comm.heartbeat_cycle = (hb_cycle[0] << 8) + hb_cycle[1];
+		eth_comm.heartbeat_cycle = (hb_cycle[1] << 8) + hb_cycle[0];
 		up_comm_proc(&eth_comm);
 		msleep(CONFIG_ETH_THREAD_SLEEP);
 	}

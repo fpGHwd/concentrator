@@ -842,6 +842,7 @@ UINT32 ptl_gasup_fn_2042(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outlen, INT32 *datalen, INT32 max_datalen)
 {
 	INT8 *ptr = outdata, *lastframe_ptr = NULL, *pstart, *pframe_cnt[PTL_GASUP_MAX_PACK_CNT];
+	INT8 *detail_num[PTL_GASUP_MAX_PACK_CNT];
 	int i;
 	UINT16 frame_cnt = 0;
 	int blockidx, block_cnt, next_blockidx, mtidx;
@@ -879,7 +880,8 @@ UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			*ptr++ = 0;
 			stoc(ptr, i + 1);
 			ptr += 2;
-			pframe_cnt[i] = ptr;
+			///pframe_cnt[i] = ptr;
+			detail_num[i] = ptr;
 			stoc(ptr, 0);
 			ptr += 2;
 			block_cnt = 0;
@@ -894,10 +896,11 @@ UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			next_blockidx = (blockidx + 1);
 			frame_cnt++;
 			datalen[i] = ptr - pstart;
+			stoc(detail_num[i], block_cnt);
 		}
 		if (frame_cnt > 0) {
 			for (i = 0; i < frame_cnt; i++) {
-				stoc(pframe_cnt[i], frame_cnt);
+				//stoc(pframe_cnt[i], frame_cnt);
 			}
 			if (lastframe_ptr) {
 				*lastframe_ptr = 1;
@@ -925,6 +928,7 @@ UINT32 ptl_gasup_fn_2043(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outlen, INT32 *datalen, INT32 max_datalen)
 {
 	INT8 *ptr = outdata, *lastframe_ptr = NULL, *pstart, *pframe_cnt[PTL_GASUP_MAX_PACK_CNT];
+	INT8 *detail_num[PTL_GASUP_MAX_PACK_CNT];
 	int i;
 	UINT16 frame_cnt = 0;
 	int blockidx, block_cnt, next_blockidx, mtidx;
@@ -954,15 +958,16 @@ UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			if (blockidx >= MAX_GASMETER_DAY_CNT)
 				break;
 			pstart = ptr;
-			bcd_be_stoc(ptr, 0);
+			bcd_be_stoc(ptr, 0); // xiang ying ma
 			ptr += 2;
-			memcpy(ptr, msg->data, 17);
+			memcpy(ptr, msg->data, 17); //  5 + 5 + 7
 			ptr += 17;
-			lastframe_ptr = ptr;
+			lastframe_ptr = ptr; // 01
 			*ptr++ = 0;
-			stoc(ptr, i + 1);
+			stoc(ptr, i + 1); // frame index
 			ptr += 2;
-			pframe_cnt[i] = ptr;
+			//pframe_cnt[i] = ptr; // number of meter
+			detail_num[i] = ptr;
 			stoc(ptr, 0);
 			ptr += 2;
 			block_cnt = 0;
@@ -977,10 +982,12 @@ UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			next_blockidx = (blockidx + 1);
 			frame_cnt++;
 			datalen[i] = ptr - pstart;
+			stoc(detail_num[i], block_cnt); // add by wd
 		}
 		if (frame_cnt > 0) {
 			for (i = 0; i < frame_cnt; i++) {
-				stoc(pframe_cnt[i], frame_cnt);
+				//stoc(pframe_cnt[i], frame_cnt);
+				//stoc(pframe_cnt[i], block_cnt); /// frame_cnt -> block_cnt
 			}
 			if (lastframe_ptr) {
 				*lastframe_ptr = 1;

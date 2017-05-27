@@ -180,7 +180,7 @@ void *th_upgprscdma(void * arg)
 	while (!g_terminated) {
 		notify_watchdog();
 		fparam_get_value(FPARAMID_HEARTBEAT_CYCLE, hb_cycle, 2);
-		gprscdma_comm.heartbeat_cycle = (hb_cycle[0] << 8) + hb_cycle[1];
+		gprscdma_comm.heartbeat_cycle = (hb_cycle[1] << 8) + hb_cycle[0];
 		up_comm_proc(&gprscdma_comm);
 		check_gprscdma_online(&gprscdma_comm);
 		msleep(CONFIG_GPRSCDMA_THREAD_SLEEP);

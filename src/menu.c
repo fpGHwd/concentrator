@@ -316,7 +316,7 @@ static int check_input_list(INPUT_LIST *list, int max) {
 		return 0;
 }
 
-BYTE process_param_list(PARAM_LIST *param, const char *info) /// process_param_list
+BYTE process_param_list(PARAM_LIST *param, const char *info)
 {
 	BYTE key, refresh_cursor = 1, refresh_menu = 1, refresh_list = 1;
 	BYTE temp, ret_key;
