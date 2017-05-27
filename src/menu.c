@@ -537,7 +537,7 @@ static void show_input(PARAM_SET *param, BYTE idx, int set_underline) {
 	}
 }
 
-BYTE process_param_set(PARAM_SET *param, const char *info)  /// set
+BYTE process_param_set(PARAM_SET *param, const char *info)
 {
 	int group_idx, ret, i, cursor_row, cursor_col;
 	int last_cursor_row = 0, last_cursor_col = 0;

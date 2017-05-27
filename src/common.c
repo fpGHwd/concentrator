@@ -50,7 +50,7 @@ WORD ctos(const BYTE *buf) /// char to short
 
 void stoc(BYTE *buf, WORD val) /// short(WORD, unsigend short, 0~65525) to char
 {
-	buf[0] = val;
+	buf[0] = val; ///BYTE val[2] = 0x901F,
 	buf[1] = val >> 8;
 }
 

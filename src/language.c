@@ -225,6 +225,7 @@ const char *none = "无";
 const char *month_data = "月数据:";
 const char *current_data = "当前数据:";
 const char *set_successfully = "设置成功";
+const char *set_unsuccessfully = "设置失败";
 
 // 数据库中的数据调试
 const char *c_get_valid_meter_str = "表号及状态";

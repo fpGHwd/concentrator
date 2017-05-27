@@ -209,6 +209,7 @@ extern const char *none;
 extern const char *month_data;
 extern const char *current_data;
 extern const char *set_successfully;
+extern const char *set_unsuccessfully;
 
 
 

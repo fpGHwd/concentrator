@@ -315,18 +315,7 @@ static void history_data_query(BYTE flag, void *para, const char *info) {
 					reverse_byte_array2bcd(read_data.di_data.flux, 5) * 0.1);
 			lcd_show_string(++current_row, 1, strlen(buff), buff);
 		}
-		/*
-		if(!blean){
-			sprintf(buff, "%s%s",time_string,none);
-		}else{
-			clock = read_data.di_data.clock;
-			sprintf(buff, "%s%d-%d-%d",time_string,
-					bcd_to_bin(clock[4]),bcd_to_bin(clock[5]),bcd_to_bin(clock[6]));
-		}
-		lcd_show_string(++current_row, strlen(day_data)+1, strlen(buff), buff);
-		*/
-		// display month
-		// display now
+
 		month_idx = fmon_get_datablock_index_by_time(tm.tm_year+1900,
 				tm.tm_mon+1);
 		blean = fmon_get_data(month_idx, meter_idx, 0x901F, &read_data);
@@ -510,10 +499,10 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 			lcd_show_string(4, 1, strlen(c_allspace_str), c_allspace_str);// 失败数：8/20
 			lcd_show_string(4, 1, strlen(buf), buf);
 
-			continue; /// complete control flow
+			continue;
 		} else {
 			continue;
-		} /// index has no meter_id for use
+		}
 	}
 
 	lcd_show_string(2, 1, strlen(c_allspace_str), c_allspace_str);
@@ -539,55 +528,41 @@ static void read_meter_assembly(BYTE flag, void *para, const char *info) {
 	process_items(&items_menu, info, FALSE);
 
 }
-// TODO
+
+
 static void repeater_involved(BYTE flag, void *para, const char *info)
 {
 	char repeater_str[5], address_str[15], buff[MAX_SCREEN_COL + 1];
 	BYTE repeater[2], address[7];
 	int i;
 
-	//idx = 0;
-	/*idx = */fgasmeter_getidx_by_gasmeter(address);
+	fgasmeter_getidx_by_gasmeter(address);
 
 	lcd_clean_workspace();
 	memcpy(address_str, "23051606000007", 15);
 	if (!input_string(2, c_history_meter_id_str, fmt_num, address_str, 14))
-		return;  // 表号:23051606000102 // input  // failed
+		return;
 
-	for (i = 0; i < sizeof(address); i++) { /// sizeof(address) = 7
+	for (i = 0; i < sizeof(address); i++) {
 		address[i] = bin_to_bcd(
 				(address_str[2 * i] - '0') * 10 + address_str[2 * i + 1] - '0');
 	}
-	///PRINTB("address: ", address, sizeof(address));
-
 	snprintf(buff, sizeof(buff), "%s%s", c_history_meter_id_str, address_str);
-	lcd_show_string(2, 1, strlen(buff), buff);  // 表号:23051606000102
+	lcd_show_string(2, 1, strlen(buff), buff);
 
 	if (!fgasmeter_get_repeater(address, repeater)) {
-		//enable_str[0] = 'N'; enable_str[1] = '\0';
 		memcpy(repeater_str, "0000", 5);
 	} else {
-		//enable_str[0] = 'Y'; enable_str[1] = '\0';
-		hex_to_str(repeater_str, sizeof(repeater_str), repeater, 2, FALSE); /// 中继复位 /// 全部成为0000
-	} /// repeater invalid or no repeater
+		hex_to_str(repeater_str, sizeof(repeater_str), repeater, 2, FALSE);
+	}
 
 	snprintf(buff, sizeof(buff), "%s", c_repeater_str);
-	/*
-	 snprintf(buff, sizeof(buff), "%s%s", c_repeater_str, repeater_str);
-	 lcd_show_string(4, 1, strlen(buff), buff);
-	 if(!input_string(3, c_enable_str, yes_or_no, enable_str,1)){
-	 return;
-	 }
-
-	 snprintf(buff, sizeof(buff), "%s%s", c_enable_str, enable_str);
-	 lcd_show_string(3, 1, strlen(buff), buff); // 使能:Y/N // input
-	 */
 
 	if (!input_string(3, c_repeater_str, fmt_num, repeater_str, 4)) {
 		return;
 	}
 	snprintf(buff, sizeof(buff), "%s%s", c_repeater_str, repeater_str);
-	lcd_show_string(3, 1, strlen(buff), buff); // 中继:000000 // input
+	lcd_show_string(3, 1, strlen(buff), buff);
 
 	for (i = 0; i < sizeof(repeater); i++) {
 		repeater[i] = bin_to_bcd(
@@ -595,7 +570,7 @@ static void repeater_involved(BYTE flag, void *para, const char *info)
 						- '0');
 	}
 
-	if (!fgasmeter_set_repeater(address, repeater)) // setting enable and the repeater_id;
+	if (!fgasmeter_set_repeater(address, repeater))
 			{
 		lcd_show_string(4, 1, strlen("FAILED!"), "FAILED!");
 	} else {
@@ -643,7 +618,7 @@ void import_meters_into_the_fgasmeter_structure(const char *filename) {
 			continue;
 		} else {
 			if (fgasmeter_addgasmeter(meter_address, collector))
-				printf("success adding a gasmeter: %s\n", a_meter_id);// add, continue to add the next gasmeter;
+				printf("success adding a gasmeter: %s\n", a_meter_id);
 			else
 				printf(
 						"fail adding a gasmeter: %s, which is already in the meters database\n",
@@ -683,7 +658,7 @@ static void import_meters_in_bunch_function(BYTE flag, void *para,
 
 	lcd_show_string(2, 1, strlen(c_meters_file_importing_str),
 			c_meters_file_importing_str);
-	import_meters_into_the_fgasmeter_structure(filename); /// start use file data save into the data
+	import_meters_into_the_fgasmeter_structure(filename);
 	lcd_show_string(3, 1, strlen(c_meters_import_success_str),
 			c_meters_import_success_str);
 	sleep(1);
@@ -695,8 +670,6 @@ static void import_meters_in_bunch(BYTE flag, void *para, const char *info) {
 	if (verify_password() != 0)
 		return;
 
-	//MENU menu;
-
 	int idx = 0;
 	ITEMS_MENU items_menu;
 
@@ -706,14 +679,6 @@ static void import_meters_in_bunch(BYTE flag, void *para, const char *info) {
 	items_menu.func[idx++] = import_meters_in_bunch_function;
 	items_menu.menu.line_num = idx;
 	process_items(&items_menu, info, FALSE);
-}
-
-static void date_test_func(BYTE flag, void *para, const char *info){
-
-	struct tm tm;
-	//int input_calendar(struct tm *out_tm)
-	input_calendar(&tm);
-
 }
 
 static void meter_data_reset(BYTE flag, void *para, const char *info);
@@ -728,11 +693,9 @@ static void query_data(BYTE flag, void *para, const char *info)
 	items_menu.menu.str[idx] = menu_name1_3;
 	items_menu.func[idx++] = history_data_query;
 	items_menu.menu.str[idx] = menu_name1_1;
-	items_menu.func[idx++] = meter_data_summery; // data
+	items_menu.func[idx++] = meter_data_summery;
 	items_menu.menu.str[idx] = menu_name1_2;
 	items_menu.func[idx++] = alarm_events;
-	//items_menu.menu.str[idx] = menu_name1_3;
-	//items_menu.func[idx++] = history_data_query;
 	items_menu.menu.str[idx] = menu_name1_4;
 	items_menu.func[idx++] = realtime_read_meter;
 	items_menu.menu.str[idx] = menu_name1_5;
@@ -741,14 +704,9 @@ static void query_data(BYTE flag, void *para, const char *info)
 	items_menu.func[idx++] = import_meters_in_bunch;
 	items_menu.menu.str[idx] = menu_name3_1_2;
 	items_menu.func[idx++] = meter_data_reset;
-	//items_menu.menu.str[idx] = date_test;
-	//items_menu.func[idx++] = date_test_func;
-
 
 	items_menu.menu.line_num = idx;
 	process_items(&items_menu, info, FALSE);
-
-	//menu_ongoing(flag, para, info);
 }
 
 static void set_comm_channel(BYTE flag, void *para, const char *info) // 通讯讯道
@@ -773,15 +731,15 @@ static void set_prior_host_ip_and_port(BYTE flag, void *para, const char *info) 
 	memset(ip_addr, 0, sizeof(ip_addr));
 	memset(port_buf, 0, sizeof(port_buf));
 
-	fparam_get_value(FPARAMID_COMM_HOST_IP_PRI, host_ip, sizeof(host_ip)); // 获得当前port
-	fparam_get_value(FPARAMID_COMM_HOST_PORT_PRI, host_port, sizeof(host_port)); // 获得当前port 
+	fparam_get_value(FPARAMID_COMM_HOST_IP_PRI, host_ip, sizeof(host_ip));
+	fparam_get_value(FPARAMID_COMM_HOST_PORT_PRI, host_port, sizeof(host_port));
 
 	snprintf(ip_addr, sizeof(ip_addr), "%u.%u.%u.%u", host_ip[0], host_ip[1],
-			host_ip[2], host_ip[3]); /// 获取当前port字符串
+			host_ip[2], host_ip[3]);
 	ip_port = (host_port[0] << 8) + host_port[1];
-	sprintf(port_buf, "%d", ip_port); /// get port_str 
+	sprintf(port_buf, "%d", ip_port);
 
-	init_menu(&param_set.menu); /// 
+	init_menu(&param_set.menu);
 	param_set.menu.line_num = 3;
 	param_set.menu.str[0] = c_ip_address_str;
 	param_set.menu.str[1] = NULL;
@@ -865,7 +823,7 @@ static void set_heartbeat_to_mainstation(BYTE flag, void *para,
 	PARAM_SET param_set;
 	BYTE heart_beat[2];
 	char heartbeat_string[6];
-	int value, idx;
+	int idx = 0;
 
 	if (verify_password() != 0)
 		return;
@@ -882,60 +840,18 @@ static void set_heartbeat_to_mainstation(BYTE flag, void *para,
 	param_set.menu.str[1] = NULL;
 	param_set.group_num = 1;
 	param_set.group_idx = 0;
-	idx = 0;
 
 	init_input_set(&param_set.input[idx], 2, 1, strlen(heartbeat_string), heartbeat_string, 4);
 	param_set.keyboard_type[idx++] = _num_keyboard;
 	process_param_set(&param_set, info);
 
-	//printf("hearbeat_string: %s\n", heartbeat_string);
-	memcpy(heartbeat_string, param_set.input[0].str, strlen(param_set.input[0].str));
-	printf("hearbeat_string: %s\n", heartbeat_string);
+	strcpy(heartbeat_string, param_set.input[0].str);
 	stoc(heart_beat, atoi(heartbeat_string));
-	//PRINTB("heartbeat:",heart_beat, 2);
-	fparam_set_value(FPARAMID_HEARTBEAT_CYCLE, heart_beat, 2);
-
-	/*
-	int i = strlen(hearbear_string);
-	value = 0;
-	while(i--){
-		value *= 10;
-		value += hearbear_string[strlen(hearbear_string) - i] - '0';
-	}
-	printf("value: %d\n", value);
-
-	if (value >= 65525) {
-		error_tip(c_invalid_value, ERROR_DELAY_TIME_MSECONDS);
-		return;
-	} else if (value < 65525) {
-		heart_beat[1] = value / (0x01 << 8);
-		heart_beat[0] = value % (0x01 << 8);
-		fparam_set_value(FPARAMID_HEARTBEAT_CYCLE, heart_beat, 2);
+	if(fparam_set_value(FPARAMID_HEARTBEAT_CYCLE, heart_beat, 2))
 		error_tip(set_successfully, ERROR_DELAY_TIME_MSECONDS);
-	}
-	*/
+	else
+		error_tip(set_unsuccessfully, ERROR_DELAY_TIME_MSECONDS);
 }
-
-/*
-static void set_con_addr(BYTE flag, void *para, const char *info)
-{
-
-	ITEMS_MENU items_menu;
-	int idx = 0;
-
-	init_menu(&items_menu.menu);
-	items_menu.cur_line = 1;
-
-	items_menu.menu.str[idx] = menu_name2_1_2;
-	items_menu.func[idx++] = set_prior_host_ip_and_port;
-	//items_menu.menu.str[idx] = menu_name2_1_3;
-	//items_menu.func[idx++] = set_minor_host_ip_and_port;
-
-	items_menu.menu.line_num = idx;
-	process_items(&items_menu, info, FALSE);
-}
-*/
-
 
 static void reconstruct_network(BYTE flag, void *para, const char *info)
 {
@@ -953,10 +869,8 @@ static void set_param(BYTE flag, void *para, const char *info)
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
 
-	///items_menu.menu.str[idx] = menu_name2_2;
-	///items_menu.func[idx++] = set_host_param;
 	items_menu.menu.str[idx] = menu_name1_6;
-	items_menu.func[idx++] = repeater_involved; // repeater function setting
+	items_menu.func[idx++] = repeater_involved; //TODO: repeater function setting
 	items_menu.menu.str[idx] = menu_name2_3;
 	items_menu.func[idx++] = reconstruct_network; // reconstruct
 	items_menu.menu.str[idx] = menu_name2_1_5;
