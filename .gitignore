@@ -25,3 +25,5 @@ concentrator
 *.xml
 
 .settings/
+concentrator-cross-gcc/
+.autotools

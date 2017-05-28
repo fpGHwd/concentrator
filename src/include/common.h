@@ -12,12 +12,12 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
-#ifdef IMX28
-#define LOG_NAME			"opt/concentrator/log/gascon.log"
-#define ERR_NAME			"opt/concentrator/log/gascon.err"
-#elif defined(AM335X)
-#define LOG_NAME			"opt/concentrator/log/gascon.log"
-#define ERR_NAME			"opt/concentrator/log/gascon.err"
+#ifdef AM335X
+#define LOG_NAME			"opt/concentrator/log/concentrator-am335x.log"
+#define ERR_NAME			"opt/concentrator/log/concentrator-am335x.err"
+#elif defined(IMX28)
+#define LOG_NAME			"opt/concentrator/log/concentrator-imx28.log"
+#define ERR_NAME			"opt/concentrator/log/concentrator-imx28.err"
 #endif
 
 #define GSTDEBUG_EN				1

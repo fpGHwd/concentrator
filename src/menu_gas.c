@@ -202,7 +202,6 @@ static void alarm_events(BYTE flag, void *para, const char *info) {
 }
 
 float get_month_flux(WORD year, BYTE month, BYTE *meter_id) {
-	///float flux = -1;
 	float start_flux, end_flux;
 	struct tm tm;
 	time_t rawtime;
@@ -210,7 +209,7 @@ float get_month_flux(WORD year, BYTE month, BYTE *meter_id) {
 	GASMETER_CJT188_901F di_data;
 
 	time(&rawtime);
-	localtime_r(&rawtime, &tm); //get_now_time
+	localtime_r(&rawtime, &tm);
 
 	mtidx = fgasmeter_getidx_by_gasmeter(meter_id);
 	if (mtidx < 0) {
@@ -257,7 +256,6 @@ float get_month_flux(WORD year, BYTE month, BYTE *meter_id) {
 	return end_flux - start_flux;
 }
 
-
 static void history_data_query(BYTE flag, void *para, const char *info) {
 
 	struct tm tm;
@@ -267,7 +265,6 @@ static void history_data_query(BYTE flag, void *para, const char *info) {
 	GASMETER_CJT188_901F read_data;
 	bool blean;
 	char buff[MAX_SCREEN_COL*2 + 1];
-	//BYTE clock[7];
 	unsigned char key;
 
 	do{
@@ -307,33 +304,29 @@ static void history_data_query(BYTE flag, void *para, const char *info) {
 		}*/
 		// display day
 		blean = fday_get_data(day_idx, meter_idx, 0x901F, &read_data);
-		if(!blean){
+		if(!blean)
 			sprintf(buff, "%s%s",day_data,no_data);
-			lcd_show_string(++current_row, 1, strlen(buff), buff);
-		}else{
+		else
 			sprintf(buff, "%s%.1f", day_data,
 					reverse_byte_array2bcd(read_data.di_data.flux, 5) * 0.1);
-			lcd_show_string(++current_row, 1, strlen(buff), buff);
-		}
+		lcd_show_string(++current_row, 1, strlen(buff), buff);
 
 		month_idx = fmon_get_datablock_index_by_time(tm.tm_year+1900,
 				tm.tm_mon+1);
 		blean = fmon_get_data(month_idx, meter_idx, 0x901F, &read_data);
-		if(!blean){
+		if(!blean)
 			sprintf(buff, "%s%s",month_data,no_data);
-		}else{
+		else
 			sprintf(buff, "%s%.1f", month_data,
 					reverse_byte_array2bcd(read_data.di_data.flux, 5) * 0.1);
-		}
 		lcd_show_string(++current_row, 1, strlen(buff), buff);
 
 		blean = fcurrent_get_data(meter_idx, 0x901F, &read_data);
-		if(!blean){
+		if(!blean)
 			sprintf(buff, "%s%s",current_data,no_data);
-		}else{
+		else
 			sprintf(buff, "%s%.1f", current_data,
 					reverse_byte_array2bcd(read_data.di_data.flux, 5) * 0.1);
-		}
 		lcd_show_string(++current_row, 1, strlen(buff), buff);
 
 		key = getch_timeout();
@@ -406,7 +399,6 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 		lcd_show_string(++current_row, 1, strlen(buff),buff); // valve state
 		// read time // meter save time or conentrator time? first meter time.
 		key = getch_timeout();
-		//wait_delay(5000);
 	}while(key != KEY_NONE && key != KEY_ESC);
 
 	return;
@@ -513,11 +505,11 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 }
 
 static void read_meter_assembly(BYTE flag, void *para, const char *info) {
-	if (verify_password() != 0)
-		return;
-
 	ITEMS_MENU items_menu;
 	int idx = 0;
+
+	if (verify_password() != 0)
+		return;
 
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
@@ -529,9 +521,12 @@ static void read_meter_assembly(BYTE flag, void *para, const char *info) {
 
 }
 
-
 static void repeater_involved(BYTE flag, void *para, const char *info)
 {
+
+	return;
+
+	/*
 	char repeater_str[5], address_str[15], buff[MAX_SCREEN_COL + 1];
 	BYTE repeater[2], address[7];
 	int i;
@@ -578,6 +573,7 @@ static void repeater_involved(BYTE flag, void *para, const char *info)
 	}
 	sleep(1);
 	return;
+	*/
 }
 
 void import_meters_into_the_fgasmeter_structure(const char *filename) {
@@ -667,11 +663,12 @@ static void import_meters_in_bunch_function(BYTE flag, void *para,
 }
 
 static void import_meters_in_bunch(BYTE flag, void *para, const char *info) {
-	if (verify_password() != 0)
-		return;
 
 	int idx = 0;
 	ITEMS_MENU items_menu;
+
+	if (verify_password() != 0)
+		return;
 
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
@@ -709,7 +706,7 @@ static void query_data(BYTE flag, void *para, const char *info)
 	process_items(&items_menu, info, FALSE);
 }
 
-static void set_comm_channel(BYTE flag, void *para, const char *info) // 通讯讯道
+static void set_comm_channel(BYTE flag, void *para, const char *info)
 {
 	// TODO:set the communication channel: rf485, ethernet, gprs/cdma
 	menu_ongoing(flag, para, info);
@@ -747,9 +744,9 @@ static void set_prior_host_ip_and_port(BYTE flag, void *para, const char *info) 
 	param_set.group_num = 2;
 	param_set.group_idx = 0;
 	idx = 0;
-	init_input_set(&param_set.input[idx], 2, 1, strlen(ip_addr), ip_addr, 15); /// initiate the input set.
+	init_input_set(&param_set.input[idx], 2, 1, strlen(ip_addr), ip_addr, 15);
 	param_set.keyboard_type[idx++] = _num_keyboard;
-	init_input_set(&param_set.input[idx], 3, 6, strlen(port_buf), port_buf, 5); ///
+	init_input_set(&param_set.input[idx], 3, 6, strlen(port_buf), port_buf, 5);
 	param_set.keyboard_type[idx++] = _num_keyboard;
 	process_param_set(&param_set, info);
 	strcpy(ip_addr, param_set.input[0].str);
@@ -759,7 +756,7 @@ static void set_prior_host_ip_and_port(BYTE flag, void *para, const char *info) 
 	host_ip[2] = ip >> 16;
 	host_ip[3] = ip >> 24;
 	strcpy(port_buf, param_set.input[1].str);
-	ip_port = atoi(port_buf); /// char -> int "1000" -> 1000
+	ip_port = atoi(port_buf);
 	host_port[0] = ip_port >> 8;
 	host_port[1] = ip_port;
 	fparam_set_value(FPARAMID_COMM_HOST_IP_PRI, host_ip, sizeof(host_ip));
@@ -940,23 +937,6 @@ static void query_network_ip(BYTE flag, void *para, const char *info)
 	process_menu(&menu, info);
 }
 
-/*
- static void view_con_info(BYTE flag, void *para, const char *info)  /// 集中器信息
- {
- ITEMS_MENU items_menu;
- int idx = 0;
-
- init_menu(&items_menu.menu);
- items_menu.cur_line = 1;
- items_menu.menu.str[idx] = menu_name3_4;
- items_menu.func[idx++] = view_version_addr;
- items_menu.menu.str[idx] = menu_name3_2;
- items_menu.func[idx++] = query_network_ip;
- items_menu.menu.line_num = idx;
- process_items(&items_menu, info, FALSE);
- }
- */
-
 void modem_gprs_shutdown(void);
 static void restart_terminal_function(BYTE flag, void *para, const char *info) {
 	int ret;
@@ -1104,18 +1084,17 @@ static void usb_update_function(BYTE flag, void *para, const char *info) {
 #ifdef AM335X
 	ret = system("cp /media/usb/concentrator-am335x /opt/concentrator/bin/concentrator-am335x.bak");
 #elif defined IMX28
-	ret = system("cp /media/usb/concentrator-imx28 /opt/concentrator/bin/concentrator-am335x");
+	ret = system("cp /media/usb/concentrator-imx28 /opt/concentrator/bin/concentrator-imx28.bak");
 #endif
 
 	sleep(2);
-	restart_terminal_function( false, NULL, NULL); // reboot  //and //  return
+	restart_terminal_function( false, NULL, NULL);
 
 	return;
 
 }
 
 static void usb_update(BYTE flag, void *para, const char *info) {
-	//MENU menu;
 
 	int idx = 0;
 	ITEMS_MENU items_menu;
@@ -1128,7 +1107,7 @@ static void usb_update(BYTE flag, void *para, const char *info) {
 	process_items(&items_menu, info, FALSE);
 }
 
-static void restart_terminal(BYTE flag, void *para, const char *info) /// 重启终端
+static void restart_terminal(BYTE flag, void *para, const char *info)
 {
 	if (verify_password() != 0)
 		return;
@@ -1159,7 +1138,6 @@ static void restart_terminal(BYTE flag, void *para, const char *info) /// 重启
 
 static void terminal_id(BYTE flag, void *para, const char *info) /// show terminal id
 {
-
 	MENU menu;
 	BYTE addr[7];
 	char string[2][MAX_SCREEN_COL + 1];
@@ -1175,22 +1153,6 @@ static void terminal_id(BYTE flag, void *para, const char *info) /// show termin
 	sprintf(string[1], "  %s",
 			hex_to_str(addr_str, sizeof(addr_str), addr, 7, FALSE));
 	process_menu(&menu, info);
-}
-
-bool if_time_str_is_valid(const char *time_str) {
-	char buf[7];
-	unsigned int i = 0;
-
-	memcpy(buf, time_str, 7);
-	i = atoi(buf);
-	if (i / 10000 >= 24 || i / 10000 < 0)
-		return false;
-	if (i % 10000 / 100 >= 60)
-		return false;
-	if (i % 100 >= 60)
-		return false;
-
-	return true;
 }
 
 static void set_terminal_time(BYTE flag, void *para, const char *info) {
@@ -1288,7 +1250,7 @@ static void password_setting(BYTE flag, void *para, const char *info) {
 	param_set.keyboard_type[idx++] = _num_keyboard;
 	process_param_set(&param_set, info);
 
-	strcpy(buf_s, param_set.input[0].str); /// 换input
+	strcpy(buf_s, param_set.input[0].str);
 	if (strlen(buf_s) < 6)
 		return;
 	password_byte[0] = bin_to_bcd(atoi(buf_s) / 10000);
