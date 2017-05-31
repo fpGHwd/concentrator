@@ -65,14 +65,6 @@ static PROTOCOL_T protocol_arr[] = { { e_up_gasmeter, "GAS Meter Up Protocol",
 static E_PROTOCOL_TYPE protocol_type_arr[][MAX_PROTOCOL_CNT] = {
 		{ e_up_gasmeter, }, { e_ptl_unknown, }, };
 
-/*/
- typedef struct {
- UINT8 *head;
- UINT8 *tail; 
- INT32 len; 
- UINT8 *buf; 
- } RECEIVE_BUFFER;
- /*/
 void receive_buffer_init(RECEIVE_BUFFER *receive, INT32 len) {
 	if (NULL == receive)
 		return;

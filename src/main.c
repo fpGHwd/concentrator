@@ -33,13 +33,12 @@ const int g_retry_times = 3;
 const int rf_id = 0;
 
 const struct debug debug_ctrl = {
-		.gasmeter_test = true, /// -> false
-		.watchdog_enable = false, /// -> true
-		.repeater_enable = false, /// -> ture;
-		.sqlite_enable = false, /// -> false
-		.led_enable = true, /// -> false
+		.gasmeter_test = false,
+		.watchdog_enable = true,
+		.repeater_enable = false,
+		.sqlite_enable = false,
+		.led_enable = true,
 		.gpio_enable = true,
-		.gprs_display_back_enable = false,
 		.key_enable = true,
 };
 
@@ -107,7 +106,7 @@ static void power_fail(int sig) {
 		}
 		sync();
 		LOG_PRINTF("power fail\n");
-		sync(); // FILES CHANGE -> DISK
+		sync();
 
 		kill_watchdog();
 		sys_ret = system("/sbin/reboot");

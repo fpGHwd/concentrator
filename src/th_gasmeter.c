@@ -109,7 +109,7 @@ static int gasmeter_read_serial(void *buf, int len, int timeout) {
 
 // TODO:wakeup_circle_value how to use
 // TODO:every thread need a watchdog
-// todo:轮询表地址(zuwang)
+// TODO:轮询表地址(zuwang)
 int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 		BYTE *buf, int max_len) /// read meter
 {
@@ -144,7 +144,7 @@ int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 		return -1;
 	}
 
-	if (!fgasmeter_get_repeater(address, repeater) && debug_ctrl.repeater_enable) {
+	if (!fgasmeter_get_repeater(address, repeater) && debug_ctrl.repeater_enable) { // TODO: enbale repeater in PARAMETER
 		p_repeater = repeater;
 	} else {
 		if(debug_ctrl.repeater_enable)

@@ -27,7 +27,6 @@ struct debug{
 	bool sqlite_enable;
 	bool led_enable;
 	bool gpio_enable;
-	bool gprs_display_back_enable;
 	bool key_enable;
 };
 extern const struct debug debug_ctrl;

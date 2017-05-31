@@ -1396,19 +1396,19 @@ int KeyRead_NONE_BLOCKING(struct key_msg_t *msg){
 
 	if(wait_for_ready(key_fd, 1, 0)>0){
 		ret = read(key_fd, &data, sizeof(data));
-		//printf("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
+		//PRINTF("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
 		if (data.type == EV_KEY)
 		{
 			msg->code = data.code;
 			memset(&data, 0x0, sizeof(data));
 			ret = read(key_fd, &data, sizeof(data));
-			//printf("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
+			//PRINTF("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
 			ret = read(key_fd, &data, sizeof(data));
-			//printf("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
+			//PRINTF("key code: %d,key value: %d, key type:%d \n", data.code, data.value, data.type);
 			if (data.value == 1)
 			{
 				msg->type = (enum key_type_t) data.type;
-				printf("msg code: %d, key msg:%d \n", msg->code, msg->type);
+				PRINTF("msg code: %d, key msg:%d \n", msg->code, msg->type);
 				return 1;
 			}else if(data.value == 0){
 

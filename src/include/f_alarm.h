@@ -16,7 +16,7 @@ typedef enum {
 } ALARM_SPONT_STATUS;
 
 typedef struct {
-	long alarm_tt; /// 持续的时间
+	long alarm_tt;
 	WORD type;
 	ALARM_SPONT_STATUS status[MAX_SPONT_CHANNEL_CNT];
 } ALARM_T;

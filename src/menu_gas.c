@@ -389,6 +389,8 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 			error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
 			return;
 		}
+		// time
+
 		// state
 		lcd_show_string(++current_row, 1, strlen(buff),buff);
 		if(sprintf(buff, "%s%s", c_valve_status_str,(resp_buf[20] & 0x01)?
@@ -412,6 +414,7 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 	BYTE resp_buf[512];
 	char buf[21], meter_address_str[15], collector_str[11], repeater_str[5];
 	long read_tt;
+	int current_row;
 	///unsigned char key;
 	memset(address, 0, sizeof(address));
 	memset(collector, 0, sizeof(collector));
@@ -422,31 +425,29 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 	valid_num = 0;
 	failed_num = 0;
 	for (idx = 0; idx < MAX_GASMETER_NUMBER; idx++) {
+		current_row = 1;
 
 		if (fgasmeter_getgasmeter(idx, address, collector)) {
 
 			snprintf(buf, 21, "%s%d\x2F%d", c_reading_meter_str, idx + 1,
 					meters_amount);
-			lcd_show_string(2, 1, strlen(c_allspace_str), c_allspace_str);
-			lcd_show_string(2, 1, strlen(buf), buf);
+			//lcd_show_string(2, 1, strlen(c_allspace_str), c_allspace_str);
+			lcd_show_string(++current_row, 1, strlen(buf), buf);
 
 			snprintf(buf, 21, "%s%d\x2F%d", c_reading_success_str, valid_num,
 					meters_amount);
-			lcd_show_string(3, 1, strlen(c_allspace_str), c_allspace_str); // 成功数：8/20
-			lcd_show_string(3, 1, strlen(buf), buf);
+			lcd_show_string(++current_row, 1, strlen(buf), buf);
 
 			snprintf(buf, 21, "%s%d\x2F%d", c_reading_failure_str, failed_num,
 					meters_amount);
-			lcd_show_string(4, 1, strlen(c_allspace_str), c_allspace_str); // 失败数：8/20
-			lcd_show_string(4, 1, strlen(buf), buf);
+			lcd_show_string(++current_row, 1, strlen(buf), buf);
 
 			//get the collector index
 			//get the collector address
 			snprintf(buf, 21, "%s%s", c_current_collector_str,
 					hex_to_str(collector_str, sizeof(collector_str), collector,
 							5, FALSE));
-			lcd_show_string(5, 1, strlen(c_allspace_str), c_allspace_str);
-			lcd_show_string(5, 1, strlen(buf), buf); // 采集器
+			lcd_show_string(++current_row, 1, strlen(buf), buf);
 
 			if (fgasmeter_get_repeater(address, repeater)) { // get the repeater address
 				; // get repeater address and continue
@@ -457,14 +458,12 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 			snprintf(buf, 21, "%s%s", c_current_repeater_str,
 					hex_to_str(repeater_str, sizeof(repeater_str), repeater, 2,
 							FALSE));
-			lcd_show_string(6, 1, strlen(c_allspace_str), c_allspace_str);
-			lcd_show_string(6, 1, strlen(buf), buf); // 当前表
+			lcd_show_string(++current_row, 1, strlen(buf), buf);
 
 			snprintf(buf, 21, "%s%s", c_current_reading_meter_str,
 					hex_to_str(meter_address_str, sizeof(meter_address_str),
 							address, 7, FALSE));
-			lcd_show_string(7, 1, strlen(c_allspace_str), c_allspace_str);
-			lcd_show_string(7, 1, strlen(buf), buf); // 当前表
+			lcd_show_string(++current_row, 1, strlen(buf), buf);
 
 			time(&read_tt);
 			resp_len = gasmeter_read_di(address, collector, 0x901F, resp_buf,
@@ -477,19 +476,17 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 			} else {
 				valid_num++;
 				save_data(address, collector, 0x901F, read_tt, resp_buf,
-						resp_len); /// save_data
-				//continue;
-			}				/// save data
+						resp_len);
+			}
 
+			current_row = 2;
 			snprintf(buf, 21, "%s%d/%d", c_reading_success_str, valid_num,
 					meters_amount);
-			lcd_show_string(3, 1, strlen(c_allspace_str), c_allspace_str);// 成功数：8/20
-			lcd_show_string(3, 1, strlen(buf), buf);
+			lcd_show_string(++current_row, 1, strlen(buf), buf);
 
 			snprintf(buf, 21, "%s%d/%d", c_reading_failure_str, failed_num,
 					meters_amount);
-			lcd_show_string(4, 1, strlen(c_allspace_str), c_allspace_str);// 失败数：8/20
-			lcd_show_string(4, 1, strlen(buf), buf);
+			lcd_show_string(++current_row, 1, strlen(buf), buf);
 
 			continue;
 		} else {
@@ -497,9 +494,11 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 		}
 	}
 
+	/*
 	lcd_show_string(2, 1, strlen(c_allspace_str), c_allspace_str);
 	lcd_show_string(2, 1, strlen(c_complete_str), c_complete_str);
-
+	*/
+	error_tip(c_complete_str,NORMAL_TIP_DELAY_TIME_MSECONDS);
 	getch_timeout();
 	return;
 }
@@ -520,6 +519,7 @@ static void read_meter_assembly(BYTE flag, void *para, const char *info) {
 	process_items(&items_menu, info, FALSE);
 
 }
+
 
 static void repeater_involved(BYTE flag, void *para, const char *info)
 {
@@ -575,6 +575,7 @@ static void repeater_involved(BYTE flag, void *para, const char *info)
 	return;
 	*/
 }
+
 
 void import_meters_into_the_fgasmeter_structure(const char *filename) {
 
@@ -866,8 +867,8 @@ static void set_param(BYTE flag, void *para, const char *info)
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
 
-	items_menu.menu.str[idx] = menu_name1_6;
-	items_menu.func[idx++] = repeater_involved; //TODO: repeater function setting
+	//items_menu.menu.str[idx] = menu_name1_6;
+	//items_menu.func[idx++] = repeater_involved; //TODO: repeater function setting
 	items_menu.menu.str[idx] = menu_name2_3;
 	items_menu.func[idx++] = reconstruct_network; // reconstruct
 	items_menu.menu.str[idx] = menu_name2_1_5;
