@@ -56,9 +56,13 @@ static UP_COMM_INTERFACE gprscdma_comm = {
 static BOOL check_gprscdma_online(struct UP_COMM_ST *up)
 {
 	BOOL ret = (up->up_status == e_up_online);
-	if (ret) {
-		lcd_update_info(c_login_ok_str);
+	static BOOL last_change_ret = (e_up_online != e_up_online);
+
+	if (ret && ret != last_change_ret) {
+		lcd_update_info(c_login_ok_str); // login ok
+		last_change_ret = ret;
 	}
+
 	lcd_update_head_info();
 	return ret;
 }
@@ -125,6 +129,8 @@ static INT32 gprscdma_fep_receive(struct UP_COMM_ST *up, int timeout)
 			if (errcode != REMOTE_MODULE_RW_NORMAL) {
 				up->up_status = e_up_offline;
 				up->up_connect_status = e_up_disconnected;
+				close(up->fd);
+				up->fd = -1;
 				PRINTF("GPRS/CDMA OFFLINE for receive ERROR\n");
 			}
 			return -1;
@@ -150,6 +156,7 @@ static BOOL gprscdma_fep_send(struct UP_COMM_ST *up)
 	else {
 		if (errcode != REMOTE_MODULE_RW_NORMAL) {
 			up->up_status = e_up_offline;
+			up->disconnect(up);
 			up->up_connect_status = e_up_disconnected;
 			PRINTF("GPRS/CDMA OFFLINE for send ERROR\n");
 		}

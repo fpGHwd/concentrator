@@ -15,7 +15,7 @@
 #include "protocol_gasup.h"
 #include "spont_alarm.h"
 
-#define CONFIG_ETH_THREAD_SLEEP 5000
+#define CONFIG_ETH_THREAD_SLEEP 200
 
 static UP_COMM_PRIVATE eth_private = {
 	.packetID = 1,
@@ -227,7 +227,7 @@ static BOOL eth_fep_send(struct UP_COMM_ST *up)
 static void eth_disconnect(struct UP_COMM_ST *up)
 {
 	up->up_status = e_up_offline;
-	up->up_connect_status = e_up_disconnected;
+	up->up_connect_status = e_up_disconnected; // subjective disconnect
 	shutdown(up->fd, SHUT_RDWR);
 	close(up->fd);
 	return;
