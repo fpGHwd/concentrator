@@ -256,7 +256,7 @@ int wait_for_ready(int fd, int msec, int flag)
 			if (!flag)
 				ret = select(fd + 1, &fds, NULL, NULL, &tv); /// check read status
 			else
-				ret = select(fd + 1, NULL, &fds, NULL, &tv); /// check write
+				ret = select(fd + 1, NULL, &fds, NULL, &tv); /// check write status
 		}
 		if (ret < 0 && errno == EINTR)
 			continue;
@@ -269,7 +269,7 @@ int safe_read_timeout(int fd, void *buf, int len, int timeout) {
 	int ret;
 	void *ptr = buf;
 
-	while (len > 0 && wait_for_ready(fd, timeout, 0) > 0) {
+	while (len > 0 && wait_for_ready(fd, timeout, 0) > 0) { /// can read
 		notify_watchdog();
 		ret = read(fd, ptr, len);
 		if (ret < 0 && errno == EINTR)
@@ -949,10 +949,8 @@ unsigned int reverse_byte_array2bcd(BYTE *byte, int len)
 	ret = 0;
 	for (i = 0; i < len; i++) {
 		ret_byte = byte2bcd(byte[i]);
-		for (j = 0; j < i; j++) {
+		for (j = 0; j < i; j++)
 			ret_byte = ret_byte * 100;
-			//printf("ret_byte = %d\n",ret_byte);
-		}
 		ret += ret_byte;
 	}
 
@@ -972,66 +970,4 @@ void get_date(char *time_str) {
 	memcpy(time_str, buff, sizeof(buff));
 
 	return;
-}
-
-int a_day_later(const char* data_string) /// void next_day(BYTE * year, BYTE * month, BYTE * day)
-{
-	int i, year, month, day;
-
-	i = atoi(data_string);
-	year = i / 10000;
-	month = i % 10000 / 100;
-	day = i % 100;
-
-	switch (month) {
-	case 1:
-	case 3:
-	case 5:
-	case 7:
-	case 8:
-	case 10:
-		if (day == 31) {
-			month++;
-			day = 1;
-		} else {
-			day++;
-		}
-		break;
-	case 12:
-		if (day == 31) {  /// 20161231
-			year++;
-			month = 1;
-			day = 1;
-		} else {
-			day++;
-		}
-		break;
-	case 2:
-		if ((year % 400 == 0) || ((year % 100 != 0) && (year % 4 == 0))) {
-			if (day == 29) {
-				month++;
-				day = 1;
-			} else if (day == 28) {
-				month++;
-				day = 1;
-			}
-		} else {
-			day++;
-		}
-		break;
-	case 4:
-	case 6:
-	case 9:
-	case 11:
-		if (day == 30) {
-			month++;
-			day = 1;
-		} else {
-			day++;
-		}
-		break;
-	default:
-		return 0; // make sure that input time is no problem
-	}
-	return year * 10000 + month * 100 + day;
 }

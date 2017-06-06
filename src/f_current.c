@@ -146,9 +146,9 @@ BOOL fcurrent_get_data(int mtidx, WORD di, void *di_data) {
 		return FALSE;
 	if (!fgasmeter_getgasmeter(mtidx, address, NULL))
 		return FALSE;
-	sem_wait(&pinfo->sem_db); //// code is a place, is also a resource NEEDING LOCK MECHANISM TO MAKE SURE UNIQUE USING
-	p = &pinfo->data[mtidx]; /// meaningful.....
-	if (p->valid) { /// valid
+	sem_wait(&pinfo->sem_db);
+	p = &pinfo->data[mtidx];
+	if (p->valid) {
 		switch (di) {
 		case 0x901F:
 			if (memcmp(address, p->address, 7) == 0) {

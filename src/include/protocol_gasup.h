@@ -68,7 +68,7 @@ typedef struct {
 	UINT16 datalen; // [HEX]
 	UINT8 *data;  /// data 
 	UINT16 crc16; // [HEX]
-} PTL_GASUP_MSG; /// 上行报文结构
+} PTL_GASUP_MSG;
 
 int plt_gasup_pack_special(UINT16 fn, UINT8 *buf, UINT32 max_len, UINT8 *data,
 		int len, UINT32 packetID);

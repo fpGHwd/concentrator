@@ -570,6 +570,30 @@ UINT32 ptl_gasup_fn_2036(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 	return 1;
 }
 
+void meter_flux_to_mainstation(BYTE *mt_value, BYTE *ms_value, int len){
+	long value = 0;
+	int i, i_p, f_p ;
+	BYTE byte[6];
+
+	value = reverse_byte_array2bcd(mt_value, 5);
+
+	f_p = value % 10;
+	f_p *= 100;
+
+	byte[0] = f_p % 256;
+	byte[1] = f_p / 256;
+
+	i_p = value / 10;
+	for(i = 2; i< 6; i++){
+		byte[i] = (i_p % (1u << 8));
+		i_p /= (1u << 8);
+	}
+	memcpy(ms_value, byte, len);
+	//PRINTB("ms_value", ms_value, len);
+
+	return;
+}
+
 static UINT32 ptl_gasup_pack_meterdata(const PTL_GASUP_MSG *msg, UINT8 *outbuf,
 		INT32 max_outlen, GASMETER_CJT188_901F *pdata)
 {
@@ -594,17 +618,28 @@ static UINT32 ptl_gasup_pack_meterdata(const PTL_GASUP_MSG *msg, UINT8 *outbuf,
 		if (max_outlen < 15)
 			return 0;
 		if (GASMETER_READ_STATUS_NORMAL == pdata->status) {
+			BYTE ms_value[6] = {0};
 			if (msg->fn == PTL_GASUP_FN_GET_DATA) {
-				memcpy(ptr, pdata->di_data.balance_flux, 5);
+				PRINTF("PTL_GASUP_FN_GET_DATA\n");
+				//memcpy(ptr, pdata->di_data.balance_flux, 5);
+				meter_flux_to_mainstation(pdata->di_data.balance_flux,ms_value,6);
+				memcpy(ptr, ms_value, 6);
 			}
 			else {
-				memcpy(ptr, pdata->di_data.flux, 5);
+				PRINTF("PTL_GASUP_FN_GET_ONE_RD_DATA\n");
+				//memcpy(ptr, pdata->di_data.flux, 5)
+				meter_flux_to_mainstation(pdata->di_data.flux, ms_value,6);
+				memcpy(ptr, ms_value, 6);
 			}
-			ptr += 5;
+			//ptr += 5;
+			ptr += 6;
 		}
 		else {
-			memset(ptr, 0, 5);
-			ptr += 5;
+			PRINTF("ELSE\n");
+			//memset(ptr, 0, 5);
+			//ptr += 5;
+			memset(ptr, 0, 6);
+			ptr += 6;
 		}
 		*ptr++ = 0;
 		*ptr++ = pdata->status;
@@ -716,7 +751,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			if (max_outlen < 12)
 				break;
 			for (mtidx = next_mtidx; mtidx < MAX_GASMETER_NUMBER; mtidx++) {
-				if (fcurrent_get_data(mtidx, 0x901F, &di_data) && tt <= di_data.read_tt)
+				if (fcurrent_get_data(mtidx, 0x901F, &di_data) && tt <= di_data.read_tt) /// has assembly-read data
 					break;
 			}
 			if (mtidx >= MAX_GASMETER_NUMBER) {
@@ -763,7 +798,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 		}
 		if (frame_cnt > 0) {
 			for (i = 0; i < frame_cnt; i++) {
-				stoc(pframe_cnt[i], frame_cnt);
+				stoc(pframe_cnt[i], frame_cnt + 1);
 			}
 			if (lastframe_ptr) {
 				*lastframe_ptr = 1;

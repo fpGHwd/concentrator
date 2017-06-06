@@ -1219,8 +1219,6 @@ int lcd_key_in(int flag) {
 #endif
 	}
 
-	//PRINTF("ch = %d\n", ch);
-
 	if (ch) {
 		idle_time = uptime();
 		if (flag)

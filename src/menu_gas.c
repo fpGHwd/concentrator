@@ -392,6 +392,7 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 		}
 		lcd_show_string(++current_row, 1, strlen(buff),buff);
 
+		/*
 		// time
 		//lcd_show_string(++current_row, 1, strlen(time_string),time_string);
 		hex_to_str(time_s, sizeof(time_s) - 1,resp_buf + 24, 7, TRUE);
@@ -400,6 +401,7 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 			return;
 		}
 		lcd_show_string(++current_row, 1, strlen(buff),buff);
+		*/
 		// state
 		if(sprintf(buff, "%s%s", c_valve_status_str,(resp_buf[20] & 0x01)?
 					c_valve_status_closed_str:c_valve_status_open_str) < 0){
@@ -689,8 +691,6 @@ static void import_meters_in_bunch(BYTE flag, void *para, const char *info)
 static void meter_data_reset(BYTE flag, void *para, const char *info);
 static void query_data(BYTE flag, void *para, const char *info)
 {
-	if (verify_password() != 0)
-		return;
 
 	ITEMS_MENU items_menu;
 	int idx = 0;
@@ -1024,6 +1024,9 @@ static void reset_gas_alarm_data(BYTE flag, void *para, const char *info) {
 
 static void meter_data_reset(BYTE flag, void *para, const char *info) {
 
+	if (verify_password() != 0)
+		return;
+
 	ITEMS_MENU items_menu;
 	int idx = 0;
 
@@ -1040,6 +1043,9 @@ static void meter_data_reset(BYTE flag, void *para, const char *info) {
 }
 
 static void reset_param_data(BYTE flag, void *para, const char *info) {
+	if (verify_password() != 0)
+		return;
+
 	lcd_clean_workspace();
 	lcd_show_string(2, 1, strlen(c_resetting_str), c_resetting_str);
 	if (reset_fparam_data() == 0)
@@ -1165,15 +1171,15 @@ static void terminal_id(BYTE flag, void *para, const char *info) /// show termin
 
 static void set_terminal_time(BYTE flag, void *para, const char *info) {
 
+	if (verify_password() != 0)
+		return;
+
 	time_t tt;
 	int current_row = 1;
 	struct tm tm, tm1;
 	char buff[MAX_SCREEN_COL * 2 + 1];
 	char hour[2], min[2], sec[2];
 	struct timeval tv;
-
-	if (verify_password() != 0)
-		return;
 
 	if(!input_calendar(&tm1))
 		return;
@@ -1375,7 +1381,7 @@ int verify_password(void) {
 		lcd_show_string(9, 1, strlen(c_password_setting_str),
 				c_password_setting_str);
 		if (input_string(++current_row, "   ", fmt_num, buf, strlen(buf))) {
-			lcd_show_string(++current_row, 4, strlen(buf), buf); // valid continue the verification
+			lcd_show_string(current_row, 4, strlen(buf), buf); // valid continue the verification
 		} else {
 			return -1; // too long not input
 		}

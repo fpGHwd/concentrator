@@ -8,7 +8,7 @@
 #include "f_param.h"
 #include "common.h"
 
-#define CONCENTRATOR_ADDRESS "\x00\x00\x23\x01\x00\x00\x02"
+#define CONCENTRATOR_ADDRESS "\x00\x00\x23\x01\x00\x00\x01"
 
 static F_PARAM f_param;
 static F_PARAM *p_f_param = &f_param;
