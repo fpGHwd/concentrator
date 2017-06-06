@@ -194,6 +194,7 @@ const char *c_reset_day_data_str = "日数据复位";
 const char *c_reset_month_data_str = "月数据复位";
 const char *c_reset_gas_alarm_data_str = "表告警数据复位";
 const char *c_rthc_tech_str = "瑞泰恒创科技";
+const char *c_cqrl_str = "重庆瑞联";
 const char *c_gasmeter_alarm_str = "表告警事件";
 const char *c_concentrator_alarm_str = "集中器告警事件";
 const char *c_repeater_query_str = "中继查询";

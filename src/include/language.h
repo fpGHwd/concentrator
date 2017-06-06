@@ -170,6 +170,7 @@ extern const char *c_reset_day_data_str;
 extern const char *c_reset_month_data_str;
 extern const char *c_reset_gas_alarm_data_str;
 extern const char *c_rthc_tech_str;
+extern const char *c_cqrl_str;
 extern const char *c_gasmeter_alarm_str;
 extern const char *c_concentrator_alarm_str;
 extern const char *c_repeater_query_str;

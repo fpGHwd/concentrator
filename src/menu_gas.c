@@ -345,6 +345,7 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 	BYTE resp_buf[512];
 	int resp_len;
 	int index_of_meter;
+	char time_s[30] = {0};
 
 	int current_row;
 	unsigned int value;
@@ -389,17 +390,24 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 			error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
 			return;
 		}
-		// time
-
-		// state
 		lcd_show_string(++current_row, 1, strlen(buff),buff);
+
+		// time
+		//lcd_show_string(++current_row, 1, strlen(time_string),time_string);
+		hex_to_str(time_s, sizeof(time_s) - 1,resp_buf + 24, 7, TRUE);
+		if(sprintf(buff, "%s%s", time_string, time_s)){
+			error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
+			return;
+		}
+		lcd_show_string(++current_row, 1, strlen(buff),buff);
+		// state
 		if(sprintf(buff, "%s%s", c_valve_status_str,(resp_buf[20] & 0x01)?
 					c_valve_status_closed_str:c_valve_status_open_str) < 0){
 			error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
 			return;
 		}
 		lcd_show_string(++current_row, 1, strlen(buff),buff); // valve state
-		// read time // meter save time or conentrator time? first meter time.
+
 		key = getch_timeout();
 	}while(key != KEY_NONE && key != KEY_ESC);
 
@@ -633,9 +641,7 @@ static void import_meters_in_bunch_function(BYTE flag, void *para,
 	bool file_exist_flag;
 	struct stat buf;
 
-	///printf("sizeof(suffix) = %d\n",sizeof(suffix));
 	memset(suffix, 0, sizeof(suffix));
-	///printf("successfully init the suffix array\n");
 
 	lcd_clean_workspace();
 
@@ -663,7 +669,8 @@ static void import_meters_in_bunch_function(BYTE flag, void *para,
 	return;
 }
 
-static void import_meters_in_bunch(BYTE flag, void *para, const char *info) {
+static void import_meters_in_bunch(BYTE flag, void *para, const char *info)
+{
 
 	int idx = 0;
 	ITEMS_MENU items_menu;
@@ -682,6 +689,9 @@ static void import_meters_in_bunch(BYTE flag, void *para, const char *info) {
 static void meter_data_reset(BYTE flag, void *para, const char *info);
 static void query_data(BYTE flag, void *para, const char *info)
 {
+	if (verify_password() != 0)
+		return;
+
 	ITEMS_MENU items_menu;
 	int idx = 0;
 
@@ -709,9 +719,7 @@ static void query_data(BYTE flag, void *para, const char *info)
 
 static void set_comm_channel(BYTE flag, void *para, const char *info)
 {
-	// TODO:set the communication channel: rf485, ethernet, gprs/cdma
 	menu_ongoing(flag, para, info);
-
 }
 
 static void set_prior_host_ip_and_port(BYTE flag, void *para, const char *info) {
@@ -899,11 +907,10 @@ static void view_version_addr(BYTE flag, void *para, const char *info) {
 		menu.str[i] = string[i];
 	sprintf(string[0], "%s:%s", c_con_model_str, CONCENTRATOR_MODEL);
 	sprintf(string[1], "%s:%s", c_con_version_str, APP_VERSION);
-	sprintf(string[2], "%s:", c_con_compiletime_str);
-	sprintf(string[3], "%s", g_release_time);
-	sprintf(string[4], "%s:", c_con_address_str);
+	sprintf(string[2], "%s:%s", c_con_compiletime_str,g_release_time);
+	sprintf(string[3], "%s:", c_con_address_str);
 	fparam_get_value(FPARAMID_CON_ADDRESS, addr, sizeof(addr));
-	sprintf(string[5], "  %s",
+	sprintf(string[4], "  %s",
 			hex_to_str(addr_str, sizeof(addr_str), addr, 7, FALSE));
 	process_menu(&menu, info);
 }
@@ -1355,21 +1362,22 @@ int verify_password(void) {
 	BYTE password_byte[3];
 	char buf[7];
 	char buf_save[7];
+	int current_row = 1;
 
 	memcpy(buf, "000000", sizeof(buf));
 	tries_times = 3;
 
 	while (1) {
 		lcd_clean_workspace();
-		lcd_show_string(2, 1, strlen(c_please_input_password_str),
+		lcd_show_string(++current_row, 1, strlen(c_please_input_password_str),
 				c_please_input_password_str);
 		lcd_show_string(9, 1, strlen(c_allspace_str), c_allspace_str);
 		lcd_show_string(9, 1, strlen(c_password_setting_str),
 				c_password_setting_str);
-		if (input_string(3, "   ", fmt_num, buf, strlen(buf))) {
-			lcd_show_string(3, 4, strlen(buf), buf); // valid continue the verification
+		if (input_string(++current_row, "   ", fmt_num, buf, strlen(buf))) {
+			lcd_show_string(++current_row, 4, strlen(buf), buf); // valid continue the verification
 		} else {
-			return -1; // not secure if just break, here should return -1;
+			return -1; // too long not input
 		}
 
 		fparam_get_value(FPARAMID_CON_VERIFY_PASSWD, password_byte,

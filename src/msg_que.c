@@ -45,31 +45,33 @@ static void queue_add(struct queue *queue, struct node *elm) {
 	queue->count++;
 }
 
-static void queue_del(struct queue *queue, struct node **elm, int stamp) /// queue_delete_a_head
+static void queue_del(struct queue *queue, struct node **elm, int stamp) /// stamp
 {
 	struct node *node, *prev;
 
 	*elm = NULL;
 	for (prev = node = queue->head; node != NULL;
-			prev = node, node = node->next) { /// ...
-		if (stamp == 0 || node->stamp == stamp) { // stamp = 0 matches all /// ...
+			prev = node, node = node->next) {
+		if (stamp == 0 || node->stamp == stamp) { // stamp = 0 matches all
 			*elm = node;
 			queue->count--;
-			if (queue->count == 0) /// only one element and deleted
+			/*queue modified*/
+			if (queue->count == 0)
 				queue->head = queue->tail = NULL;
-			else if (node == queue->head) /// delete a head element
+			else if (node == queue->head)
 				queue->head = node->next;
-			else if (node == queue->tail) /// delete a tail element
+			else if (node == queue->tail)
 				queue->tail = prev;
 			else
-				prev->next = node->next; /// delete *elm = node in a queue
+				prev->next = node->next;
 			(*elm)->next = NULL;
+			///element next pointer
 			break;
 		}
 	}
 }
 
-static int queue_is_empty(struct queue *queue, int stamp) ///?
+static int queue_is_empty(struct queue *queue, int stamp)
 {
 	int ret;
 	struct node *node;
@@ -86,13 +88,13 @@ void msg_que_init(void) {
 	int idx;
 
 	for (idx = 0; idx < MSG_QUE_MAX; idx++) {
-		sem_init(&msg_sem[idx], 0, 1); /// this should be init
-		queue_init(&msg_que[idx]); /// 9 queue
+		sem_init(&msg_sem[idx], 0, 1);
+		queue_init(&msg_que[idx]);
 		cur_size[idx] = 0;
 	}
 }
 
-void msg_que_destroy(void) /// destroy all que
+void msg_que_destroy(void)
 {
 	int idx;
 	struct node *elm;
@@ -103,7 +105,7 @@ void msg_que_destroy(void) /// destroy all que
 			queue_del(&msg_que[idx], &elm, 0);
 			if (elm == NULL)
 				break;
-			free(elm); /// elem is freed
+			free(elm);
 		}
 		cur_size[idx] = 0;
 		sem_post(&msg_sem[idx]);
@@ -122,13 +124,6 @@ int msg_que_is_empty(int idx, int stamp) {
 	return ret;
 }
 
-/*
- * idx, queue index,
- * buf, save node
- * max_len, the buf len
- * len,
- * stamp, stamp to get the node(or message)
- */
 int msg_que_get(int idx, void *buf, int max_len, int *len, int stamp) {
 	int ret = -1, size;
 	struct node *elm;
@@ -154,27 +149,21 @@ int msg_que_get(int idx, void *buf, int max_len, int *len, int stamp) {
 	return ret;
 }
 
-/*
- *	idx, index of the queue
- *	buf, the buf save the message
- *	len, lenth
- *   stamp, 
- */
 int msg_que_put(int idx, const void *buf, int len, int stamp) {
 	int ret = 0, size;
 	struct node *elm;
 
 	if (idx >= 0 && idx < MSG_QUE_MAX) {
-		sem_wait(&msg_sem[idx]); /// sem_wait
-		size = len + sizeof(struct node); /// size is sum of node and the buf(occupied space)
+		sem_wait(&msg_sem[idx]);
+		size = len + sizeof(struct node);
 		if (max_size[idx] == 0 || cur_size[idx] + size <= max_size[idx]) {
 			// max_size = 0 means size has no limit
 			if ((elm = malloc(size)) != NULL) {
-				cur_size[idx] += size; /// queue used sized
+				cur_size[idx] += size;
 				elm->stamp = stamp;
 				elm->size = len;
-				elm->data = (char *) (elm + 1); // skip elm struct 
-				memcpy(elm->data, buf, len); /// copy buf data to the node struct 
+				elm->data = (char *) (elm + 1);
+				memcpy(elm->data, buf, len);
 				queue_add(&msg_que[idx], elm);
 				ret = 1;
 			}

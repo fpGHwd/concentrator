@@ -22,7 +22,7 @@
 
 #define MSG_QUE_MAX				9
 
-#define MSG_QUE_NO_STAMP		0 //// number stamp
+#define MSG_QUE_NO_STAMP		0
 
 void msg_que_init(void);
 

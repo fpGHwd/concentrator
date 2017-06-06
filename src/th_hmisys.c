@@ -27,9 +27,9 @@ static void process_scroll_show(void) {
 
 		//key = getch_timeout(1000);
 		if ((key= getch_timeout(1000)) == KEY_ENTER) {
-			return; /// only KEY_ENTER can enter 
+			return;
 		} else {
-			continue; /// KEY_ESC, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT refresh the logo and date
+			continue;
 		}
 
 	}
@@ -47,7 +47,7 @@ void *th_hmisys(void * arg) {
 		if (!lcd_ok) {
 			if (!lcd_is_ok()) {
 				PRINTF("Open lcd fd error\n");
-				wait_delay(4000);
+				wait_delay(1000);
 				continue;
 			}
 			/*
@@ -80,5 +80,6 @@ void show_logo_and_date(void) {
 
 	get_date(buff);
 	lcd_show_string(4, 5, strlen(c_rthc_tech_str), c_rthc_tech_str);
+	//lcd_show_string(4, 7, strlen(c_cqrl_str), c_cqrl_str);
 	lcd_show_string(5, 6, strlen(buff), buff);
 }

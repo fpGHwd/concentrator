@@ -378,7 +378,7 @@ void meter_and_collector_test(void)
 	unsigned char *meter = "23051705000008";
 	char collector[15] = "00000000000013";
 	// update collector
-	//update_collector_for_meter(meter, collector);
+	// update_collector_for_meter(meter, collector);
 
 	/*
 	if(!if_meter_in_meters(meter_id))

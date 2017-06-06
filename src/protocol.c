@@ -256,7 +256,7 @@ static BOOL is_valid_protocol(INT32 idx, E_PROTOCOL_TYPE protocol) /// if regist
 	return FALSE;
 }
 
-#define TO_STR(x) msg_que_idx_to_str(x)  /// ixdex to describe
+#define TO_STR(x) msg_que_idx_to_str(x)
 static INT32 protocol_proc(INT32 in_idx, INT32 out_idx, RECEIVE_BUFFER *receive,
 		UINT8 *req, INT32 max_len, INT32 ptl_group, void *priv) {
 	PROTOCOL_T *protocol_type;
@@ -267,11 +267,11 @@ static INT32 protocol_proc(INT32 in_idx, INT32 out_idx, RECEIVE_BUFFER *receive,
 			|| !is_valid_protocol(ptl_group, protocol_type->type))
 		return 0;
 	PRINTF("The packet is %s from %s(%d)\n", protocol_type->describe,
-			TO_STR(in_idx), in_idx); /// protocol, queue name, queue index(macro)
+			TO_STR(in_idx), in_idx);
 	if (reqlen <= 0) {
 		return 0;
 	}
-	msg_que_put(in_idx, req, reqlen, MSG_QUE_NO_STAMP); /// request queue
+	msg_que_put(in_idx, req, reqlen, MSG_QUE_NO_STAMP);
 	protocol_type->proc(in_idx, out_idx, CONFIG_MAX_APDU_LEN, priv);
 	return 1;
 }

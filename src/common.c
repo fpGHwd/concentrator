@@ -615,13 +615,11 @@ void msleep(int msec) {
 	} while (ret < 0 && errno == EINTR);
 }
 
-// read hardware clock
 void read_rtc(void) {
 	int sys_ret;
 	sys_ret = system("/sbin/hwclock -su");
 }
 
-// set hardware clock
 void set_rtc(void) {
 	int sys_ret;
 	sys_ret = system("/sbin/hwclock -wu");
@@ -660,7 +658,7 @@ void wait_delay(int msec) /// useful function
 	}
 }
 
-void sys_time(struct tm *tm) /// read current time by struct tm
+void sys_time(struct tm *tm)
 {
 	time_t tt;
 

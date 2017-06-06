@@ -56,11 +56,9 @@ static UP_COMM_INTERFACE gprscdma_comm = {
 static BOOL check_gprscdma_online(struct UP_COMM_ST *up)
 {
 	BOOL ret = (up->up_status == e_up_online);
-	static BOOL last_change_ret = (e_up_online != e_up_online);
 
-	if (ret && ret != last_change_ret) {
-		lcd_update_info(c_login_ok_str); // login ok
-		last_change_ret = ret;
+	if (ret) {
+		lcd_update_info(c_login_ok_str);
 	}
 
 	lcd_update_head_info();

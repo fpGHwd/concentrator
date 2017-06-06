@@ -8,6 +8,8 @@
 #include "f_param.h"
 #include "common.h"
 
+#define CONCENTRATOR_ADDRESS "\x00\x00\x23\x01\x00\x00\x02"
+
 static F_PARAM f_param;
 static F_PARAM *p_f_param = &f_param;
 static int fd_f_param;
@@ -86,7 +88,7 @@ static void fparam_default_init(void) {
 
 	//-----------------------------------------------------------------
 	fparam_add(idx++, FPARAMID_CON_ADDRESS, 7, offset,
-			"\x00\x00\x23\x01\x00\x00\x01");
+			CONCENTRATOR_ADDRESS);
 	offset += 7;
 	fparam_add(idx++, FPARAMID_COMM_HOST_IP_PRI, 4, offset, test_ip);
 	offset += 4;

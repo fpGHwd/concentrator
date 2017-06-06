@@ -44,7 +44,7 @@ void init_input_set(INPUT_STRING *input, int row, int col, int len,
 void show_menu(MENU *menu, int align_center, const char *info) {
 	int len, offset = 0, vwidth, row;
 	const char *ptr;
-	char buf[MAX_SCREEN_COL + 1]; /// show buf
+	char buf[MAX_SCREEN_COL + 1];
 	int i, left_spaces = 0;
 
 	/// check argument if is valid, menu for instance
@@ -56,25 +56,24 @@ void show_menu(MENU *menu, int align_center, const char *info) {
 		vwidth = menu->vcol_num; /// 
 		for (i = menu->start_line - 1;
 				i < menu->start_line - 1 + menu->vrow_num; i++) {
-			row = menu->row + i - (menu->start_line - 1); /// 
+			row = menu->row + i - (menu->start_line - 1);
 			memset(buf, ' ', sizeof(buf));
 			ptr = menu->str[i];
-			if (ptr != NULL && i <= menu->line_num - 1) { /// ptr is 
+			if (ptr != NULL && i <= menu->line_num - 1) {
 				len = strlen(ptr);
 				if (len <= vwidth) {
 					if (align_center == 1)
 						left_spaces = (menu->vcol_num - len) / 2;
 					else
-						left_spaces = 0; /// if align mode is center, change the
-					// string(buf) showing localtion
+						left_spaces = 0;
 					memcpy(buf + left_spaces, ptr, len);
 				} else {
 					memcpy(buf, ptr, vwidth);
 				}
 			}
-			lcd_show_string(row + offset, menu->col, vwidth, buf);/// show buff
+			lcd_show_string(row + offset, menu->col, vwidth, buf);
 		}
-		lcd_update_info(info);// show content and update info /// botton tips info	
+		lcd_update_info(info);
 	}
 }
 

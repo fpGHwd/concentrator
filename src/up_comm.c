@@ -126,13 +126,12 @@ void up_comm_spont_alarm(UP_COMM_INTERFACE *up)
 
 void up_comm_proc(UP_COMM_INTERFACE *up)
 {
-	///printf("****************%s,%s,%d\n",__FILE__, __FUNCTION__, __LINE__);
 	if (up->up_connect_status == e_up_disconnected) {
 		if (up->device_init) {
 			if (!up->device_init(up))
 				return;
 		}
-		if (!up->connect || !up->connect(up)) { // if(!(up->connect && up->connect(up)))
+		if (!up->connect || !up->connect(up)) {
 			up->up_connect_status = e_up_disconnected;
 			return;
 		}
@@ -142,7 +141,6 @@ void up_comm_proc(UP_COMM_INTERFACE *up)
 		up->up_status = e_up_online;
 	}
 	else {
-		//printf("****************%s,%s,%d\n",__FILE__, __FUNCTION__, __LINE__);
 		if (up->up_status != e_up_online) {
 			if (!up_comm_login(up))
 				return;
