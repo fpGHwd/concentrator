@@ -798,11 +798,12 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 				max_outlen -= meterdata_len;
 				mt_cnt++;
 
-				if (mt_cnt > MAX_METERDATA_CNT_IN_PACKET){
-					stoc(meter_detail, mt_cnt-1);
+				if (mt_cnt >= MAX_METERDATA_CNT_IN_PACKET){ // mt_cnt > MAX_METERDATA_CNT_IN_PACKET
 					break;
 				}
 			}
+			stoc(meter_detail, (mt_cnt > MAX_METERDATA_CNT_IN_PACKET)?MAX_METERDATA_CNT_IN_PACKET:mt_cnt);
+
 			next_mtidx = (mtidx + 1);
 			frame_cnt++;
 			datalen[i] = ptr - pstart;
