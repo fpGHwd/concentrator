@@ -622,12 +622,13 @@ static UINT32 ptl_gasup_pack_meterdata(const PTL_GASUP_MSG *msg, UINT8 *outbuf,
 			if (msg->fn == PTL_GASUP_FN_GET_DATA) {
 				PRINTF("PTL_GASUP_FN_GET_DATA\n");
 				//memcpy(ptr, pdata->di_data.balance_flux, 5);
-				meter_flux_to_mainstation(pdata->di_data.balance_flux,ms_value,6);
+				//meter_flux_to_mainstation(pdata->di_data.balance_flux,ms_value,6);
+				meter_flux_to_mainstation(pdata->di_data.flux,ms_value,6);
 				memcpy(ptr, ms_value, 6);
 			}
 			else {
 				PRINTF("PTL_GASUP_FN_GET_ONE_RD_DATA\n");
-				//memcpy(ptr, pdata->di_data.flux, 5)
+				//memcpy(ptr, pdata->di_data.flux, 5);
 				meter_flux_to_mainstation(pdata->di_data.flux, ms_value,6);
 				memcpy(ptr, ms_value, 6);
 			}
@@ -723,7 +724,7 @@ static UINT32 ptl_gasup_pack_meterdata_nak(const PTL_GASUP_MSG *msg, INT8 *outbu
 
 UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outlen, INT32 *datalen, INT32 max_datalen)
 {
-	INT8 *ptr = outdata, *lastframe_ptr = NULL, *pstart, *pframe_cnt[PTL_GASUP_MAX_PACK_CNT];
+	INT8 *ptr = outdata, *lastframe_ptr = NULL, *pstart, *pframe_cnt[PTL_GASUP_MAX_PACK_CNT], *meter_detail;
 	int i;
 	UINT16 frame_cnt = 0;
 	int mt_cnt, next_mtidx, mtidx;
@@ -751,13 +752,13 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			if (max_outlen < 12)
 				break;
 			for (mtidx = next_mtidx; mtidx < MAX_GASMETER_NUMBER; mtidx++) {
-				if (fcurrent_get_data(mtidx, 0x901F, &di_data) && tt <= di_data.read_tt) /// has assembly-read data
+				if (fcurrent_get_data(mtidx, 0x901F, &di_data) && tt <= di_data.read_tt) /// from this mtidx on
 					break;
 			}
 			if (mtidx >= MAX_GASMETER_NUMBER) {
 				if (frame_cnt > 0)
 					break;
-				datalen[0] = ptl_gasup_pack_meterdata_nak(msg, ptr, max_outlen);
+				datalen[0] = ptl_gasup_pack_meterdata_nak(msg, ptr, max_outlen); /// no valid data
 				if (datalen[0] > 0)
 					return 1;
 				else
@@ -772,10 +773,17 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			*ptr++ = 0;
 			stoc(ptr, i + 1);
 			ptr += 2;
+
+			/*
 			pframe_cnt[i] = ptr;
 			stoc(ptr, 0);
 			ptr += 2;
+			*/
+
 			mt_cnt = 0;
+			meter_detail = ptr;
+			ptr += 2;
+
 			max_outlen -= 12;
 			for (mtidx = next_mtidx; mtidx < MAX_GASMETER_NUMBER; mtidx++) {
 				if (!fcurrent_get_data(mtidx, 0x901F, &di_data) 
@@ -789,8 +797,11 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 				ptr += meterdata_len;
 				max_outlen -= meterdata_len;
 				mt_cnt++;
-				if (mt_cnt > MAX_METERDATA_CNT_IN_PACKET)
+
+				if (mt_cnt > MAX_METERDATA_CNT_IN_PACKET){
+					stoc(meter_detail, mt_cnt-1);
 					break;
+				}
 			}
 			next_mtidx = (mtidx + 1);
 			frame_cnt++;
@@ -798,7 +809,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 		}
 		if (frame_cnt > 0) {
 			for (i = 0; i < frame_cnt; i++) {
-				stoc(pframe_cnt[i], frame_cnt + 1);
+				//stoc(pframe_cnt[i], frame_cnt); // comment by wd
 			}
 			if (lastframe_ptr) {
 				*lastframe_ptr = 1;

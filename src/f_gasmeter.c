@@ -193,11 +193,11 @@ BOOL fgasmeter_getgasmeter(int index, BYTE *address, BYTE *collector)
 	if (collector) {
 		if (pdb1->collector_idx
 				>= 0&& pdb1->collector_idx < MAX_GASMETER_NUMBER) {
-			pdb2 = &pinfo->db.collector_db[pdb1->collector_idx]; ///
-			if (!pdb2->b_valid) { /// if pdb2->b_valid = false; 
-				memcpy(collector, pdb2->address, 5); /// this is set the gasemter
-			} else { /// if 
-				memset(collector, 0, 5); /// no collector
+			pdb2 = &pinfo->db.collector_db[pdb1->collector_idx];
+			if (!pdb2->b_valid) {
+				memcpy(collector, pdb2->address, 5);
+			} else {
+				memset(collector, 0, 5);
 			}
 		} else {
 			memset(collector, 0, 5); // ?
@@ -207,21 +207,21 @@ BOOL fgasmeter_getgasmeter(int index, BYTE *address, BYTE *collector)
 	return TRUE;
 }
 
-static int fgasmeter_addcollector_sub(const BYTE *address, BOOL lock) /// add sub collector in the planted tree(gasmeter_info or its pointer)
+static int fgasmeter_addcollector_sub(const BYTE *address, BOOL lock)
 {
-	int i, index = -1; /// supporting description
-	GASMETER_INFO *pinfo = &gasmeter_info; ///
-	COLLECTOR_DB *pdb; ///
+	int i, index = -1;
+	GASMETER_INFO *pinfo = &gasmeter_info;
+	COLLECTOR_DB *pdb;
 	BOOL b_add_success = FALSE;
 
-	if (address == NULL) /// check bottom condition
+	if (address == NULL)
 		return -1;
-	if (lock) { /// need lock flag
+	if (lock) {
 		sem_wait(&pinfo->sem_db);
 	}
 	for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 		pdb = &pinfo->db.collector_db[i];
-		if (pdb->b_valid && memcmp(pdb->address, address, 5) == 0) { /// valid and address exists
+		if (pdb->b_valid && memcmp(pdb->address, address, 5) == 0) {
 			b_add_success = TRUE;
 			index = i;
 			break;
@@ -231,10 +231,10 @@ static int fgasmeter_addcollector_sub(const BYTE *address, BOOL lock) /// add su
 		for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 			pdb = &pinfo->db.collector_db[i];
 			if (!pdb->b_valid) {
-				fgasmeter_init_collector(pdb); ///  if not valid, set collector info 0: rewrite it address
+				fgasmeter_init_collector(pdb);
 				memcpy(pdb->address, address, 5);
-				pdb->b_valid = TRUE; /// change valid flag
-				fgasmeter_update_collector(i, TRUE); ///?
+				pdb->b_valid = TRUE;
+				fgasmeter_update_collector(i, TRUE);
 				index = i;
 				b_add_success = TRUE;
 				break;
@@ -242,7 +242,7 @@ static int fgasmeter_addcollector_sub(const BYTE *address, BOOL lock) /// add su
 		}
 	}
 	if (lock) {
-		sem_post(&pinfo->sem_db); /// if lock, then post
+		sem_post(&pinfo->sem_db);
 	}
 	if (b_add_success)
 		return index;
@@ -258,17 +258,16 @@ BOOL fgasmeter_delcollector(const BYTE *address) {
 	int i;
 	GASMETER_INFO *pinfo = &gasmeter_info;
 	COLLECTOR_DB *pdb;
-	BOOL b_del_success = FALSE; /// set flag to indicate
-	/// varieables district, interesting, we just complement the result varieable
+	BOOL b_del_success = FALSE;
 
 	if (address == NULL)
 		return FALSE;
-	sem_wait(&pinfo->sem_db); /// set others waiting in multiple threads
-	for (i = 0; i < MAX_GASMETER_NUMBER; i++) { /// tree-like logic and word-description operation
+	sem_wait(&pinfo->sem_db);
+	for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 		pdb = &pinfo->db.collector_db[i];
 		if (pdb->b_valid && memcmp(pdb->address, address, 5) == 0) {
 			fgasmeter_init_collector(pdb);
-			fgasmeter_update_collector(i, TRUE); /// make it valid and set its address as 0 // we need target, when you get target, then you can complement it
+			fgasmeter_update_collector(i, TRUE);
 			b_del_success = TRUE;
 			break;
 		}
@@ -551,4 +550,20 @@ void test_add_a_meter(void) {
 	}
 
 	return;
+}
+
+int reset_gasmeter_data(void) {
+	GASMETER_INFO *gas_info = &gasmeter_info;
+	int ret;
+
+	sem_wait(&gas_info->sem_db);
+	if (remove(F_GASMETER_NAME) == 0) {
+		ret = 0;
+	} else {
+		ret = -1;
+	}
+	fgasmeter_open();
+	sem_post(&gas_info->sem_db);
+
+	return ret;
 }

@@ -66,7 +66,7 @@ typedef struct {
 	UINT8 address[7]; // Address of concentrator, [BCD]
 	UINT8 packetID[7]; // [BCD]
 	UINT16 datalen; // [HEX]
-	UINT8 *data;  /// data 
+	UINT8 *data;
 	UINT16 crc16; // [HEX]
 } PTL_GASUP_MSG;
 

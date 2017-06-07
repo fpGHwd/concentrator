@@ -150,14 +150,14 @@ int reset_fgasmeteralm_data(void) {
 	FGASMETERALM_INFO *pinfo = &fgasmeteralm_info;
 	int ret;
 
-	sem_wait(&pinfo->sem_db); // 等待资源释放
+	sem_wait(&pinfo->sem_db);
 	if (remove(F_GASMETER_ALARM_NAME) == 0) {
 		ret = 0;
 	} else {
 		ret = -1;
 	}
 	fgasmeteralm_open();
-	sem_post(&pinfo->sem_db); // open file
+	sem_post(&pinfo->sem_db);
 
 	return ret;
 }

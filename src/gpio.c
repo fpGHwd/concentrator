@@ -286,13 +286,15 @@ void modem_gprs_turn_on(void) {
 }
 
 void control_led(enum led_index i, enum led_status s) {
-	char buf[100]; // char buf[50]
+	char buf[100];
 	int ret;
 
+	//echo 1 > /sys/class/am335x_led/LED0/brightness
 	snprintf(buf, 100, "echo %d > /sys/class/am335x_led/LED%d/brightness",
 			s ? 1 : 0, i - 1);
 	ret = system(buf);
 }
+// TODO: make leds for imx28
 
 void led_show(void) {
 	control_led(1, 1);

@@ -166,3 +166,21 @@ BOOL fcurrent_get_data(int mtidx, WORD di, void *di_data) {
 	sem_post(&pinfo->sem_db);
 	return b_success;
 }
+
+
+
+int reset_fcurrent_data(void) {
+	FCURRENT_INFO *pinfo = &fcurrent_info;
+	int ret;
+
+	sem_wait(&pinfo->sem_db);
+	if (remove(F_CURRENT_NAME) == 0) {
+		ret = 0;
+	} else {
+		ret = -1;
+	}
+	fcurrent_open();
+	sem_post(&pinfo->sem_db);
+
+	return ret;
+}

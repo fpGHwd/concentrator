@@ -39,6 +39,8 @@ void threads_create(void)
 #endif
 
 	for (i = 0; i < THREADS_COUNT; i ++) {
+		if(i == 1)
+			continue;
 		pthread_create(&th[i], NULL, func[i], NULL);
 		PRINTF("Create thread %s\n", thread_name[i]);
 	}

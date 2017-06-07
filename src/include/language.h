@@ -166,9 +166,14 @@ extern const char *c_restarting_terminal_str;
 extern const char *c_ensure_str;
 extern const char *c_cancle_str;
 extern const char *c_success_reset_str;
+extern const char *c_reset_data_str;
 extern const char *c_reset_day_data_str;
 extern const char *c_reset_month_data_str;
 extern const char *c_reset_gas_alarm_data_str;
+extern const char *c_reset_data_suc_str;
+extern const char *c_reset_day_data_suc_str;
+extern const char *c_reset_month_data_suc_str;
+extern const char *c_reset_gas_alarm_data_suc_str;
 extern const char *c_rthc_tech_str;
 extern const char *c_cqrl_str;
 extern const char *c_gasmeter_alarm_str;
@@ -213,7 +218,9 @@ extern const char *set_successfully;
 extern const char *set_unsuccessfully;
 extern const char *meter_info;
 
-
-
+extern const char *clearing;
+extern const char *c_reset_meters_str;
+extern const char *clear_successfully;
+extern const char *clear_unsuccessfully;
 
 #endif /* LANGUAGE_H_ */

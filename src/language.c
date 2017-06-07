@@ -169,8 +169,8 @@ const char *c_please_input_password_str = "请输入验证密码:";
 const char *c_password_setting_str = "密码验证";
 const char *c_usb_is_plugged_in_str = "USB已插入";
 const char *c_usb_is_not_plugged_in_str = "USB未插入";
-const char *c_no_update_file_str = "未找到更新文件GASCON";
-const char *c_find_update_file_and_reboot_then_str = "找到更新文件GASCON";
+const char *c_no_update_file_str = "未找到应用文件";
+const char *c_find_update_file_and_reboot_then_str = "找到应用文件";
 const char *c_please_press_enter_and_try_to_update = "请按ENTER键升级";
 const char *c_please_press_esc_to_cancle_update_str = "请按ESC退出升级";
 const char *c_check_update_condition_str = "请检查升级条件";
@@ -190,9 +190,15 @@ const char *c_restarting_terminal_str = "重启中...";
 const char *c_ensure_str = "确认";
 const char *c_cancle_str = "取消";
 const char *c_success_reset_str = "复位成功";
+
+const char *c_reset_data_str = "数据复位";
 const char *c_reset_day_data_str = "日数据复位";
 const char *c_reset_month_data_str = "月数据复位";
 const char *c_reset_gas_alarm_data_str = "表告警数据复位";
+const char *c_reset_data_suc_str = "当前数据已清除";
+const char *c_reset_day_data_suc_str = "日数据已清除";
+const char *c_reset_month_data_suc_str = "月数据已清除";
+const char *c_reset_gas_alarm_data_suc_str = "表告警数据已清除";
 const char *c_rthc_tech_str = "瑞泰恒创科技";
 const char *c_cqrl_str = "重庆瑞联";
 const char *c_gasmeter_alarm_str = "表告警事件";
@@ -236,4 +242,8 @@ const char *c_get_valid_day_block_from_file_str = "文件中的有效天";
 const char *c_write_variable_into_file_str = "把变量写入文件";
 const char *c_update_day_block_from_varieble_into_file_str = "update day_block in file";
 
+const char *clearing = "清除中";
+const char *c_reset_meters_str = "表信息清除";
+const char *clear_successfully = "清除成功";
+const char *clear_unsuccessfully = "清除失败";
 

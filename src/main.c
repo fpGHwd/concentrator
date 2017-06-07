@@ -133,6 +133,7 @@ static void handler_power_fail(void) {
 
 void sqlite_initiate(void);
 static void system_init(void) {
+
 	modem_gprs_turn_on();
 	//if(debug_ctrl.key_enable)
 		key_initiate();
@@ -163,6 +164,9 @@ static void system_init(void) {
 		gpio_open();
 	else
 		PRINTF("WARNNING: gpio is not enable\n");
+
+	if(debug_ctrl.led_enable)
+		control_led(1,1);
 
 }
 

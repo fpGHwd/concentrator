@@ -392,16 +392,15 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 		}
 		lcd_show_string(++current_row, 1, strlen(buff),buff);
 
-		/*
 		// time
-		//lcd_show_string(++current_row, 1, strlen(time_string),time_string);
-		hex_to_str(time_s, sizeof(time_s) - 1,resp_buf + 24, 7, TRUE);
-		if(sprintf(buff, "%s%s", time_string, time_s)){
-			error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
-			return;
-		}
+		buff[0] = 0;
+		strcat(buff,time_string);
+		strcat(buff,hex_to_str(time_s, sizeof(time_s) - 1,resp_buf + 18, 2, FALSE));
+		strcat(buff,hex_to_str(time_s, sizeof(time_s) - 1,resp_buf + 13, 5, TRUE));
+		//PRINTB("resp_buf:", resp_buf, resp_len);
+		//PRINTB("resp_buf:", resp_buf, sizeof(resp_buf));
 		lcd_show_string(++current_row, 1, strlen(buff),buff);
-		*/
+
 		// state
 		if(sprintf(buff, "%s%s", c_valve_status_str,(resp_buf[20] & 0x01)?
 					c_valve_status_closed_str:c_valve_status_open_str) < 0){
@@ -947,13 +946,13 @@ static void query_network_ip(BYTE flag, void *para, const char *info)
 
 void modem_gprs_shutdown(void);
 static void restart_terminal_function(BYTE flag, void *para, const char *info) {
-	int ret;
+	int ret, current_row = 1;
 
 	lcd_clean_workspace();
-	lcd_show_string(2, 1, strlen(c_restarting_terminal_str),
+	lcd_show_string(++current_row, 1, strlen(c_restarting_terminal_str),
 			c_restarting_terminal_str);
 	g_terminated = 1;
-	//led_fade();
+	led_fade();
 	// TODO: rewrite for error // reboot before fsync files
 	modem_gprs_shutdown();
 	sleep(5);
@@ -969,6 +968,8 @@ static void restart_terminal_function(BYTE flag, void *para, const char *info) {
 }
 
 static void restart_terminal_in(BYTE flag, void *para, const char *info) {
+	if (verify_password() != 0)
+		return;
 
 	ITEMS_MENU items_menu;
 	int idx = 0;
@@ -982,43 +983,43 @@ static void restart_terminal_in(BYTE flag, void *para, const char *info) {
 
 }
 
-static void reset_day_data(BYTE flag, void *para, const char *info) {
+static void reset_data(BYTE flag, void *para, const char *info){
+	int current_row = 1;
+
 	lcd_clean_workspace();
-	lcd_show_string(2, 1, strlen(c_resetting_str), c_resetting_str);
-	if (reset_fday_data() == 0) {
-		lcd_clean_workspace();
-		lcd_show_string(2, 1, strlen(c_success_reset_str), c_success_reset_str);
+	if(reset_fcurrent_data() == 0)
+		lcd_show_string(++current_row, 1, strlen(c_reset_data_suc_str), c_reset_data_suc_str);
+	else
+		error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
+	if (reset_fday_data() == 0)
+		lcd_show_string(++current_row, 1, strlen(c_reset_day_data_suc_str), c_reset_day_data_suc_str);
+	else
+		error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
+	if (reset_fmonth_data() == 0)
+		lcd_show_string(++current_row, 1, strlen(c_reset_month_data_suc_str), c_reset_month_data_suc_str);
+	else
+		error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
+	if (reset_fgasmeteralm_data() == 0)
+		lcd_show_string(++current_row, 1, strlen(c_reset_gas_alarm_data_suc_str), c_reset_gas_alarm_data_suc_str);
+	else
+		error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
 
-	} else {
-
-	}
-	sleep(1);
-	return;
+	error_tip(c_success_reset_str,ERROR_DELAY_TIME_MSECONDS);
 }
 
-static void reset_month_data(BYTE flag, void *para, const char *info) {
-	lcd_clean_workspace();
-	lcd_show_string(2, 1, strlen(c_resetting_str), c_resetting_str);
-	if (reset_fmonth_data() == 0) {
-		lcd_clean_workspace();
-		lcd_show_string(2, 1, strlen(c_success_reset_str), c_success_reset_str);
-	} else {
 
-	}
-	sleep(1);
-	return;
-}
+static void reset_meters(BYTE flag, void *para, const char *info){
+	//menu_ongoing(flag, NULL, NULL);
+	int current_row = 1;
 
-static void reset_gas_alarm_data(BYTE flag, void *para, const char *info) {
 	lcd_clean_workspace();
-	lcd_show_string(2, 1, strlen(c_resetting_str), c_resetting_str);
-	if (reset_fgasmeteralm_data() == 0) {
-		lcd_clean_workspace();
-		lcd_show_string(2, 1, strlen(c_success_reset_str), c_success_reset_str);
-	} else {
-		/// if not success, but cannot detect failed flag
+
+	lcd_show_string(++current_row,1,strlen(clearing),clearing);
+	if(reset_gasmeter_data() == 0){
+		error_tip(clear_successfully,ERROR_DELAY_TIME_MSECONDS);
+	}else{
+		error_tip(clear_unsuccessfully,ERROR_DELAY_TIME_MSECONDS);
 	}
-	sleep(1);
 	return;
 }
 
@@ -1032,20 +1033,15 @@ static void meter_data_reset(BYTE flag, void *para, const char *info) {
 
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
-	items_menu.menu.str[idx] = c_reset_day_data_str;
-	items_menu.func[idx++] = reset_day_data;
-	items_menu.menu.str[idx] = c_reset_month_data_str;
-	items_menu.func[idx++] = reset_month_data;
-	items_menu.menu.str[idx] = c_reset_gas_alarm_data_str;
-	items_menu.func[idx++] = reset_gas_alarm_data;
+	items_menu.menu.str[idx] = c_reset_data_str;
+	items_menu.func[idx++] = reset_data;
+	items_menu.menu.str[idx] = c_reset_meters_str;
+	items_menu.func[idx++] = reset_meters;
 	items_menu.menu.line_num = idx;
 	process_items(&items_menu, info, FALSE);
 }
 
 static void reset_param_data(BYTE flag, void *para, const char *info) {
-	if (verify_password() != 0)
-		return;
-
 	lcd_clean_workspace();
 	lcd_show_string(2, 1, strlen(c_resetting_str), c_resetting_str);
 	if (reset_fparam_data() == 0)
@@ -1054,7 +1050,9 @@ static void reset_param_data(BYTE flag, void *para, const char *info) {
 }
 
 static void param_data_reset(BYTE flag, void *para, const char *info) {
-	//MENU menu;
+	if (verify_password() != 0)
+		return;
+
 	int idx = 0;
 	ITEMS_MENU items_menu;
 
@@ -1076,7 +1074,7 @@ static void usb_update_function(BYTE flag, void *para, const char *info) {
 #endif
 	bool file_exist_flag;
 	struct stat buf;
-	int ret;
+	int ret, current_row = 1;
 
 	lcd_clean_workspace();
 
@@ -1088,17 +1086,17 @@ static void usb_update_function(BYTE flag, void *para, const char *info) {
 	}
 
 	if (!file_exist_flag) {
-		lcd_show_string(2, 1, strlen(c_no_update_file_str),
+		lcd_show_string(++current_row, 1, strlen(c_no_update_file_str),
 				c_no_update_file_str);
 		sleep(1);
 		return;
 	}
-	lcd_show_string(2, 1, strlen(c_find_update_file_and_reboot_then_str),
+	lcd_show_string(++current_row, 1, strlen(c_find_update_file_and_reboot_then_str),
 			c_find_update_file_and_reboot_then_str);
 #ifdef AM335X
-	ret = system("cp /media/usb/concentrator-am335x /opt/concentrator/bin/concentrator-am335x.bak");
+	ret = system("cp /media/usb/concentrator-am335x /opt/concentrator/bin/concentrator-am335x");
 #elif defined IMX28
-	ret = system("cp /media/usb/concentrator-imx28 /opt/concentrator/bin/concentrator-imx28.bak");
+	ret = system("cp /media/usb/concentrator-imx28 /opt/concentrator/bin/concentrator-imx28");
 #endif
 
 	sleep(2);
@@ -1109,6 +1107,8 @@ static void usb_update_function(BYTE flag, void *para, const char *info) {
 }
 
 static void usb_update(BYTE flag, void *para, const char *info) {
+	if (verify_password() != 0)
+		return;
 
 	int idx = 0;
 	ITEMS_MENU items_menu;
@@ -1117,28 +1117,6 @@ static void usb_update(BYTE flag, void *para, const char *info) {
 	items_menu.cur_line = 1;
 	items_menu.menu.str[idx] = c_ensure_str;
 	items_menu.func[idx++] = usb_update_function;
-	items_menu.menu.line_num = idx;
-	process_items(&items_menu, info, FALSE);
-}
-
-static void restart_terminal(BYTE flag, void *para, const char *info)
-{
-	if (verify_password() != 0)
-		return;
-
-	ITEMS_MENU items_menu;
-	int idx = 0;
-
-	init_menu(&items_menu.menu);
-	items_menu.cur_line = 1;
-
-	items_menu.menu.str[idx] = menu_name3_1_1;
-	items_menu.func[idx++] = restart_terminal_in;
-	items_menu.menu.str[idx] = menu_name3_1_3;
-	items_menu.func[idx++] = param_data_reset;
-	items_menu.menu.str[idx] = menu_name3_1_4;
-	items_menu.func[idx++] = usb_update;
-
 	items_menu.menu.line_num = idx;
 	process_items(&items_menu, info, FALSE);
 }

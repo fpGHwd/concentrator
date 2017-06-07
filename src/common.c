@@ -8,34 +8,65 @@
 #include "common.h"
 #include "main.h"
 #include "threads.h"
+#include "devices.h"
 
-unsigned char bcd_to_bin(unsigned char val) // bcd to binary // 0x23(bcd) -> 23(binary)
+/**
+ * // 0x25 -> 25
+ * @param val
+ * @return
+ */
+unsigned char bcd_to_bin(unsigned char val)
 {
 	return (val >> 4) * 10 + (val & 0x0f);
 }
 
-unsigned char bin_to_bcd(unsigned char val) /// 23 -> 0x23(35) // binary(23) to bcd (0x23)
+/**
+ * // 25 -> 0x25
+ * @param val
+ * @return
+ */
+unsigned char bin_to_bcd(unsigned char val)
 {
 	return ((val / 10) << 4) + (val % 10);
 }
 
-WORD ctos_be(const BYTE *buf) /// 0x01, 0x00 -> 256 (0~65525), char to string?
+/**
+ * // 0x01 0x00 -> 256
+ * @param buf
+ * @return
+ */
+WORD ctos_be(const BYTE *buf)
 {
-	return buf[1] + (buf[0] << 8); // buf[0] * 256 + buf[1]
+	return buf[1] + (buf[0] << 8);
 }
 
+/**
+ * // 256 -> 0x01 0x00
+ * @param buf
+ * @param val
+ */
 void stoc_be(BYTE *buf, WORD val)
 {
 	buf[1] = val;
 	buf[0] = val >> 8;
 }
 
-DWORD ctol_be(const BYTE *buf) /// byte(4B) -> value
+/**
+ * //0x01 0x00 0x00 0x00 -> 2^24
+ * @param buf
+ * @return
+ */
+DWORD ctol_be(const BYTE *buf)
 {
 	return buf[3] + (buf[2] << 8) + (buf[1] << 16) + (buf[0] << 24);
 }
 
-void ltoc_be(BYTE *buf, DWORD val) /// long(DWORD, 4B) to char*( byte[0], byte[1], byte[2], byte[4]) 
+/**
+ * // 2^24 -> 0x01, 0x00, 0x00, 0x00
+ * @param buf
+ * @param val
+ */
+void ltoc_be(BYTE *buf, DWORD val)
 {
 	buf[3] = val;
 	buf[2] = val >> 8;
@@ -43,23 +74,43 @@ void ltoc_be(BYTE *buf, DWORD val) /// long(DWORD, 4B) to char*( byte[0], byte[1
 	buf[0] = val >> 24;
 }
 
-WORD ctos(const BYTE *buf) /// char to short
+/**
+ * 0x00 0x01 -> 256(short)
+ * @param buf
+ * @return
+ */
+WORD ctos(const BYTE *buf)
 {
 	return buf[0] + (buf[1] << 8);
 }
 
-void stoc(BYTE *buf, WORD val) /// short(WORD, unsigend short, 0~65525) to char
+/**
+ * 259 -> 0x03, 0x01
+ * @param buf
+ * @param val
+ */
+void stoc(BYTE *buf, WORD val)
 {
-	buf[0] = val; ///BYTE val[2] = 0x901F,
+	buf[0] = val;
 	buf[1] = val >> 8;
 }
 
-DWORD ctol(const BYTE *buf) /// char to long(double word)
+/**
+ * 0x00 0x00 0x00 0x01 -> 2^24
+ * @param buf
+ * @return
+ */
+DWORD ctol(const BYTE *buf)
 {
 	return buf[0] + (buf[1] << 8) + (buf[2] << 16) + (buf[3] << 24);
 }
 
-void ltoc(BYTE *buf, DWORD val)  /// long(double word, bin) to char
+/**
+ * 2^24-> 0x00 0x00 0x00 0x01
+ * @param buf
+ * @param val
+ */
+void ltoc(BYTE *buf, DWORD val)
 {
 	buf[0] = val;
 	buf[1] = val >> 8;
@@ -67,36 +118,54 @@ void ltoc(BYTE *buf, DWORD val)  /// long(double word, bin) to char
 	buf[3] = val >> 24;
 }
 
-DWORD bcds_to_bin(const BYTE *buf, int len) /// byte to dword(value) /// triple -> double link
+/**
+ * byte[] 0x23 0x05 -> (unsigned int)2305
+ * @param buf
+ * @param len
+ * @return
+ */
+DWORD bcds_to_bin(const BYTE *buf, int len)
 {
 	DWORD val = 0;
 	int i;
 
-	if (len > 4) // len < 4
+	if (len > 4)
 		return 0;
 	for (i = 0; i < len; i++) {
-		val += bcd_to_bin(buf[i]) * pow(100, i); /// 0x23, 0x05 ... -> 2305(int)
+		val += bcd_to_bin(buf[i]) * pow(100, i);
 	}
-	return val; /// 2305
+	return val;
 }
 
-void bin_to_bcds(BYTE *buf, int len, DWORD val) // bin to bcd
+/**
+ * (unsigned int)2305 -> 0x23, 0x05
+ * @param buf
+ * @param len
+ * @param val
+ */
+void bin_to_bcds(BYTE *buf, int len, DWORD val)
 {
 	int i;
 
-	for (i = 0; i < min(len, sizeof(DWORD)); i++) { // 2305(unsigned short val, 0~65525)
-		buf[i] = bin_to_bcd(val % 100); //  2305 -> 0x23, 0x05
+	for (i = 0; i < min(len, sizeof(DWORD)); i++) {
+		buf[i] = bin_to_bcd(val % 100);
 		val /= 100;
 	}
 }
 
-int bcd_ctos(const BYTE *buf, WORD *val) // buf(array) -> val(int 0~65525)
+/**
+ *
+ * @param buf
+ * @param val
+ * @return
+ */
+int bcd_ctos(const BYTE *buf, WORD *val)
 {
 	const BYTE *ptr = buf;
 	BYTE ch, high, low, str[4];
 	int i;
 
-	*val = 0; /// val = 0
+	*val = 0;
 	for (i = 0; i < 2; i++) {
 		ch = *ptr++;
 		high = (ch >> 4) & 0x0f;
@@ -107,9 +176,9 @@ int bcd_ctos(const BYTE *buf, WORD *val) // buf(array) -> val(int 0~65525)
 	}
 	*val = str[0] + str[1] * 100;
 	return 1;
-} // 0x23 0x05 -> 2505(unsigned short val) // bcd_ctos(bcd char to short)
+}
 
-int bcd_ctol(const BYTE *buf, int *val) // bcd_ctol(bcd char to long, 4B) 4,200,000,000
+int bcd_ctol(const BYTE *buf, int *val)
 {
 	const BYTE *ptr = buf;
 	BYTE ch, high, low, str[4];
@@ -636,8 +705,8 @@ int check_rtc(void) {
 	int fd, ret = 0;
 	struct tm tm;
 
-	if ((fd = open("/dev/rtc0", O_RDONLY)) >= 0) {
-		PRINTF("Open /dev/rtc0 success\n");
+	if ((fd = open(clock_device, O_RDONLY)) >= 0) {
+		PRINTF("Open %s success\n", clock_device);
 		if (ioctl(fd, RTC_RD_TIME, &tm) >= 0)
 			ret = 1;
 		close(fd);
@@ -647,7 +716,7 @@ int check_rtc(void) {
 	return ret;
 }
 
-void wait_delay(int msec) /// useful function
+void wait_delay(int msec)
 {
 	int tmp;
 
@@ -742,9 +811,9 @@ void set_prog_name(const char *name) /// return the canonicalized absolute pathn
 	sys_ptr = realpath(name, prog);
 }
 
-void get_prog_name(char *name, int len) // len stands for the length of name
+void get_prog_name(char *name, int len)
 {
-	strncpy(name, prog, len - 1); //
+	strncpy(name, prog, len - 1);
 }
 
 void hexstr_to_str(void *dst, const void *src, int src_len) /// buff, 23051606000102, 14
@@ -754,8 +823,8 @@ void hexstr_to_str(void *dst, const void *src, int src_len) /// buff, 2305160600
 	BYTE *dst_ptr = dst;
 	const BYTE *src_ptr = src;
 
-	for (i = 0; i < src_len / 2; i++) { //// 23 05 16 06 00 01 02 /// src_len = 7
-		ch = *src_ptr++; /// 
+	for (i = 0; i < src_len / 2; i++) {
+		ch = *src_ptr++;
 		if (ch >= '0' && ch <= '9')
 			high = ch - '0';
 		else if (ch >= 'A' && ch <= 'F')
@@ -773,11 +842,11 @@ void hexstr_to_str(void *dst, const void *src, int src_len) /// buff, 2305160600
 			low = ch - 'a' + 10;
 		else
 			break;
-		*dst_ptr++ = high * 16 + low; //
+		*dst_ptr++ = high * 16 + low;
 	}
 }
 
-void str_to_hexstr(void *dst, const void *src, int src_len) ///
+void str_to_hexstr(void *dst, const void *src, int src_len)
 {
 	int i;
 	BYTE low, high, ch;
@@ -824,23 +893,21 @@ int get_network_addr(const char *interface, char *addr, char *dstaddr)
 	char buf[1024];
 	struct ifconf ifconf;
 	struct ifreq *ifreq;
-	struct sockaddr_in *in_addr; /// <netinet/in.h> 
+	struct sockaddr_in *in_addr;
 
-	fd = socket(AF_INET, SOCK_DGRAM, 0); /// fixed-length, connectionless, unreliable messages
-	ifconf.ifc_buf = buf; /// buffer to ifconfig
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	ifconf.ifc_buf = buf;
 	ifconf.ifc_len = sizeof(buf);
-	if (ioctl(fd, SIOCGIFCONF, &ifconf) == 0) { /// SIOCGIFCONF: get list of all interfaces
-		ifreq = ifconf.ifc_req; /// request
+	if (ioctl(fd, SIOCGIFCONF, &ifconf) == 0) {
+		ifreq = ifconf.ifc_req;
 		for (i = 0; i < ifconf.ifc_len / sizeof(struct ifreq); i++) {
-			if (!strncmp(ifreq->ifr_name, interface, strlen(interface))) { /// if sf
-				if (ioctl(fd, SIOCGIFFLAGS, ifreq) == 0 /// SIOCGIFFLAGS: get interface flags	
+			if (!strncmp(ifreq->ifr_name, interface, strlen(interface))) {
+				if (ioctl(fd, SIOCGIFFLAGS, ifreq) == 0
 				&& (ifreq->ifr_flags & IFF_UP)) {
-					in_addr = (struct sockaddr_in *) &ifreq->ifr_addr; /// ifrequest address
+					in_addr = (struct sockaddr_in *) &ifreq->ifr_addr;
 					if (ioctl(fd, SIOCGIFDSTADDR, ifreq) == 0)
-						///inet_ntop(AF_INET, &in_addr->sin_addr, dstaddr, INET_ADDRSTRLEN); /// INET_ADDRSTRLEN // ipv4
-						inet_ntop(AF_INET, &in_addr->sin_addr, dstaddr, 16); /// The inet_ntop function converts a binary address in network byte order into a text string;
+						inet_ntop(AF_INET, &in_addr->sin_addr, dstaddr, 16);
 					if (ioctl(fd, SIOCGIFADDR, ifreq) == 0) {
-						///inet_ntop(AF_INET, &in_addr->sin_addr, addr, INET_ADDRSTRLEN); /// INET6_ADDRSTRLEN
 						inet_ntop(AF_INET, &in_addr->sin_addr, addr, 16);
 						ret = 1;
 					}
@@ -852,84 +919,6 @@ int get_network_addr(const char *interface, char *addr, char *dstaddr)
 	}
 	close(fd);
 	return ret;
-}
-
-bool if_year_month_str_is_valid(const char *year_month_str) {
-	int i;
-	//time_t tt;
-	//struct tm t_m;
-	//char buff[6 + 1];
-	int month, year;
-
-	i = atoi(year_month_str);
-
-	year = i / 100;
-	month = i % 100;
-
-	if (year <= 1900)
-		return false;
-
-	if (month > 12)
-		return false;
-
-	return true;
-}
-
-bool if_date_str_is_valid(const char *date_string) /// "20161130"
-{
-	int year, month, day, i;
-
-	i = atoi(date_string);
-	year = i / 10000;
-	month = (i % 10000) / 100;
-	day = i % 100;
-
-	if (month == 0 || day == 0)
-		return false;
-
-	if (year >= 1900) {
-		switch (month) {
-		case 1:
-		case 3:
-		case 5:
-		case 7:
-		case 8:
-		case 10:
-		case 12:
-			if (day <= 31) {
-				return true;
-			} else {
-				return false;
-			}
-		case 4:
-		case 6:
-		case 9:
-		case 11:
-			if (day <= 30) {
-				return true;
-			} else {
-				return false;
-			}
-		case 2:
-			if ((year % 400 == 0) || ((year % 100 != 0) && (year % 4 == 0))) {
-				if (day <= 29) {
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				if (day <= 28) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		default:
-			return false;
-		}
-	} else { //本身的时间结构合理性
-		return false;
-	}
 }
 
 unsigned int byte2bcd(BYTE byte) {
@@ -965,7 +954,7 @@ void get_date(char *time_str) {
 	time(&tt);
 	localtime_r(&tt, &tm);
 	snprintf(buff, sizeof(buff), "%04d-%02d-%02d", tm.tm_year + 1900,
-			tm.tm_mon + 1, tm.tm_mday); /// 2016-12-14
+			tm.tm_mon + 1, tm.tm_mday);
 
 	memcpy(time_str, buff, sizeof(buff));
 

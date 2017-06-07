@@ -62,5 +62,6 @@ BOOL fgasmeter_is_empty(void);
 int get_valid_meter_amount_in_database(void);
 void fgasmeter_assembly_reading(void);
 int valid_meter_sum(void);
+int reset_gasmeter_data(void);
 
 #endif /* F_GASMETER_H_ */
