@@ -721,11 +721,11 @@ int remote_module_close(const char *lock_name)
 		return FALSE;
 	if (pcur_module_attr->protocol_stack_type == MODEM_PCL_STACK_IN_MODULE) {
 		fd = pcur_module_attr->remote_fd;
-		if (fd >= 0) {
+		if (fd >= 0) { // shut down fd
 			if (pcur_module_attr->pcl_in_module.shutdown) {
 				pcur_module_attr->pcl_in_module.shutdown(fd);
 			}
-			pcur_module_attr->remote_fd = -1;
+			//pcur_module_attr->remote_fd = -1; // comment by wd for reconnect 20170608
 		}
 		close_modem_device(lock_name);
 		pcur_module_attr = NULL;
