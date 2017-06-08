@@ -61,7 +61,7 @@ static BOOL up_comm_heartbeat_proc(struct UP_COMM_ST *up)
 	int len;
 	BOOL ret;
 
-	if (up->private->hb_status == e_up_wait_response) {
+	if (up->private->hb_status == e_up_wait_response) { // up to threshold no response and disconnect
 		if (uptime() - up->last_heartbeat_request > 3 * 60 * 1000) {
 			up->disconnect(up);
 			up->up_connect_status = e_up_disconnected;
@@ -72,7 +72,7 @@ static BOOL up_comm_heartbeat_proc(struct UP_COMM_ST *up)
 	if (uptime() - up->idle_uptime > up->heartbeat_cycle) {
 		up->private->hb_status = e_up_request;
 	}
-	if (up->private->hb_status == e_up_request) {
+	if (up->private->hb_status == e_up_request) { // request and reconnect
 		if (up->heartbeat_request) {
 			ret = up->heartbeat_request(up);
 			up->idle_uptime = up->last_heartbeat_request = uptime();
@@ -126,7 +126,7 @@ void up_comm_spont_alarm(UP_COMM_INTERFACE *up)
 
 void up_comm_proc(UP_COMM_INTERFACE *up)
 {
-	if (up->up_connect_status == e_up_disconnected) {
+	if (up->up_connect_status == e_up_disconnected) { // connect
 		if (up->device_init) {
 			if (!up->device_init(up))
 				return;
@@ -140,22 +140,22 @@ void up_comm_proc(UP_COMM_INTERFACE *up)
 			return;
 		up->up_status = e_up_online;
 	}
-	else {
+	else { // heart beat // how to form a structure 20170608
 		if (up->up_status != e_up_online) {
 			if (!up_comm_login(up))
 				return;
 			up->up_status = e_up_online;
-		}
+		} // login
 		if (up->comm_receive(up, up->timeout) > 0) {
 			up->idle_uptime = uptime();
-		}
+		} // login receive
 		if (uptime() - up->idle_uptime > 7 * 60){
 			up->need_diag = TRUE;
 			up->idle_uptime = uptime();
-		}
-		up_protocol_proc(up->que_in, up->que_out, up->receive, up->private);
-		up->comm_send(up);
-		up_comm_heartbeat_proc(up);
-		up_comm_spont_alarm(up);
+		} //
+		up_protocol_proc(up->que_in, up->que_out, up->receive, up->private); // proceed message if there are
+		up->comm_send(up); // send message if there are
+		up_comm_heartbeat_proc(up); // heart beat
+		up_comm_spont_alarm(up); // alarm
 	}
 }
