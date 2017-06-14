@@ -63,30 +63,9 @@ static void fparam_default_init(void) {
 	int idx = 0;
 	WORD offset = 0;
 
-	// const char *test_ip = "\xC0\xA8\x84\x01"; /// 192.168.132.1 
-	// 223.74.34.231
-
-	//const char *test_ip = "\xAC\x13\x8B\x52";  //172.19.139.82  xACx4Ax8Bx52
-	//const char *test_ip = "\xAC\x13\xA7\xEE"; /// 172.19.167.238
-	//const char *test_ip = "\xC0\xA8\x00\x79"; /// 192.168.0.121 
-
-	//const char *test_ip = "\xC0\xA8\x00\x79"; /// 192.168.0.121 // public
-	//const char *test_ip = "\xAC\x13\x14\xB6"; ///	172.19.20.182
-	//const char *test_ip = "\xC0\xA8\x00\x8d";
-	//const char *test_ip = "\xC0\xA8\x00\xA6"; /// 192.168.0.166
-	//const char *test_ip = "\xC0\xA8\x00\x84"; /// 192.168.0.132
-	//const char *test_ip = "\x78\x4C\x9B\x4D"; /// 120.76.155.77
-	const char *test_ip = "\x78\x19\x93\xE6"; /// 120.25.147.230  /// 新IP
-	//const char *test_ip =  "\xB7\x0F\x9F\xC8";/// 183.15.159.200
-	//const char *test_ip =  "\xB7\x0F\xA3\xE7";/// 183.15.163.231
-	///const char *test_port = "\x22\xB8"; /// 8888  /// 12345
+	const char *test_ip = "\x78\x19\x93\xE6"; /// 120.25.147.230
 	const char *test_port = "\x30\x39"; /// 12345
-	///const char *test_port = "\x4E\x1E"; /// 19998
-	///const char *test_port = "\x4E\x26"; /// 20006
-	///const char *test_port = "\x30\x39"; /// 12345
-	///const char *test_port = "\x5B\xA0"; /// 23456
 
-	//-----------------------------------------------------------------
 	fparam_add(idx++, FPARAMID_CON_ADDRESS, 7, offset,
 			CONCENTRATOR_ADDRESS);
 	offset += 7;
@@ -208,9 +187,11 @@ int reset_fparam_data(void)
 	int ret;
 	int size = sizeof(F_PARAM);
 	const char *name = F_PARAM_NAME;
+	BYTE concentrator_address[7] = {0};
+
+	fparam_get_value(FPARAMID_CON_ADDRESS, concentrator_address, 7);
 
 	fparam_lock();
-
 	if (remove(F_PARAM_NAME) == 0) {
 		ret = 0;
 	} else {
@@ -229,8 +210,8 @@ int reset_fparam_data(void)
 	if (fd_f_param < 0)
 		ret = -1;
 	safe_read(fd_f_param, p_f_param, size);
-
 	fparam_unlock();
+	fparam_set_value(FPARAMID_CON_ADDRESS, concentrator_address, 7);
 
 	return ret;
 }

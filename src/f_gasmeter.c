@@ -313,8 +313,12 @@ BOOL fgasmeter_addgasmeter(const BYTE *address, const BYTE *collector)
 		}
 	}
 	sem_post(&pinfo->sem_db);
+
+	/** cancel read meter after adding meter */
+	/*
 	if (b_add_success)
 		start_read_gasmeter();
+		*/
 
 	return b_add_success;
 }
