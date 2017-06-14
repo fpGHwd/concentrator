@@ -58,6 +58,8 @@ void threads_join(void) {
 #else
 
 	for (i = 0; i < THREADS_COUNT; i++) {
+		if( i == 1 )
+			continue;
 		pthread_join(th[THREADS_COUNT - 1 - i], NULL);
 		PRINTF("Exiting thread %s\n", thread_name[THREADS_COUNT - 1 - i]);
 	}
