@@ -808,6 +808,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			frame_cnt++;
 			datalen[i] = ptr - pstart;
 		}
+
 		if (frame_cnt > 0) {
 			for (i = 0; i < frame_cnt; i++) {
 				//stoc(pframe_cnt[i], frame_cnt); // comment by wd
@@ -826,6 +827,7 @@ UINT32 ptl_gasup_fn_2041(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 		}
 	}
 	else {
+		PRINTF("WARNNING: message intention and form did not match!\n");
 		datalen[0] = ptl_gasup_pack_meterdata_nak(msg, ptr, max_outlen);
 		if (datalen[0] > 0)
 			return 1;
@@ -855,7 +857,8 @@ UINT32 ptl_gasup_fn_2042(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			tt = time(NULL);
 			if (resp_len > 0)
 				break;
-		} while (retry_cnt++ >= g_retry_times);
+		}while(0);
+		///} while (retry_cnt++ >= g_retry_times); // commented by wd @ 20170613
 		if (resp_len > 0 && ptl_cjt188_data_format(&di_data, di, tt, resp, resp_len)) {
 			bcd_be_stoc(ptr, 0);
 			ptr += 2;
@@ -1112,7 +1115,7 @@ UINT32 ptl_gasup_fn_2053(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 		if (resp_len >= 22) {
 			//PRINTB("resp", resp, sizeof(resp));
 			//PRINTB("resp[21]", &resp[17], 1);
-			//switch ((resp[21] >> 6) & 0x03) { // 17
+			//switch ((resp[21] >> 6) & 0x03){ // 17
 			switch ((resp[20]) & 0x01) {
 			case 0:
 				valve_status = 1;

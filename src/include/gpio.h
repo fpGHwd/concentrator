@@ -36,11 +36,10 @@ void control_led(enum led_index, enum led_status);
 void led_show(void);
 void led_fade(void);
 
-
-enum lora_light{
-	BLUE_RECEIVE, // TODO: BLUE_SEND, GREEN_SEND
-	GREEN_SEND,
+enum lora_leds{
+	LED_LORA_SEND,
+	LED_LORA_RECEIVE
 };
-void lora_lights(enum lora_light idx, int light);
+void lora_led_ctrl(enum lora_leds led, bool light);
 
 #endif /* GPIO_H_ */

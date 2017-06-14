@@ -11,10 +11,10 @@
 #include "typedef.h"
 
 typedef struct {
-	pthread_mutex_t mutex; /// mutex
-	pthread_cond_t cond; /// pthread condition
-	UINT32 event; /// 4bytes event
-} app_event_t; ///
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+	UINT32 event;
+} app_event_t;
 
 void app_event_init(app_event_t *pctrl);
 void app_event_wait(app_event_t *pctrl, INT32 bwait, UINT32 waitmask,

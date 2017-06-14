@@ -611,7 +611,6 @@ static void lcd_refresh_cmd_1(int x, int y, int w, int h)
 
 }
 
-
 int get_screen_fd(void){
 	return LCD_FD;
 }
@@ -1406,7 +1405,7 @@ int KeyRead_NONE_BLOCKING(struct key_msg_t *msg){
 			if (data.value == 1)
 			{
 				msg->type = (enum key_type_t) data.type;
-				PRINTF("msg code: %d, key msg:%d \n", msg->code, msg->type);
+				//PRINTF("msg code: %d, key msg:%d \n", msg->code, msg->type); // commented by wd 20170608
 				return 1;
 			}else if(data.value == 0){
 

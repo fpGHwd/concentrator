@@ -79,7 +79,7 @@ void show_logo_and_date(void) {
 	char buff[11];
 
 	get_date(buff);
-	lcd_show_string(4, 5, strlen(c_rthc_tech_str), c_rthc_tech_str);
-	//lcd_show_string(4, 7, strlen(c_cqrl_str), c_cqrl_str);
+	//lcd_show_string(4, 5, strlen(c_rthc_tech_str), c_rthc_tech_str);
+	lcd_show_string(4, 7, strlen(c_cqrl_str), c_cqrl_str);
 	lcd_show_string(5, 6, strlen(buff), buff);
 }

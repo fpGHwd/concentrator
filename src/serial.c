@@ -34,9 +34,9 @@ int open_serial(const char * serial, int baud, int char_size, int parity) {
 
 void close_serial(int fd) {
 	if (fd >= 0) {
-		/// PRINTF("Close the serial port, whose fd is %d\n", fd);
 		tcflush(fd, TCIOFLUSH);
 		close(fd);
+		//PRINTF("Close fd(%d)\n", fd);
 	} else {
 		PRINTF("Trying to close an INVALID serial port, whose fd is %d\n", fd);
 	}

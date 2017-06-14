@@ -13,6 +13,9 @@
 #include "spont_alarm.h"
 #include "f_param.h"
 
+#define LOGIN_WAITING_RESPONSE_TIME (10u * 1000) // msecs
+#define LOGIN_WAITING_RESPONSE_TIME_ORIGIN (3 * 60 * 1000)
+
 static BOOL up_comm_login(UP_COMM_INTERFACE *up)
 {
 	UINT8 buffer[CONFIG_MAX_APDU_LEN];
@@ -35,7 +38,7 @@ static BOOL up_comm_login(UP_COMM_INTERFACE *up)
 			return FALSE;
 		}
 		up->private->packetID++;
-		if (up->comm_receive(up, 3 * 60 * 1000) > 0) {
+		if (up->comm_receive(up, LOGIN_WAITING_RESPONSE_TIME) > 0) { // modified by wd, origin value:
 			len = get_data_from_receive(up->receive, buffer, sizeof(buffer));
 			if (len < 0)
 				return FALSE;
@@ -105,7 +108,7 @@ void up_comm_spont_alarm(UP_COMM_INTERFACE *up)
 	UINT16 fn;
 
 	if (up->private->spont_status == e_up_wait_response) {
-		if (uptime() - up->private->spont_tt > 3 * 60 * 1000) {
+		if (uptime() - up->private->spont_tt > LOGIN_WAITING_RESPONSE_TIME) { // modified by wd, origin value:3 * 60 * 1000
 			spontalarm_reset_info(up->private->spont_chnidx);
 			up->private->spont_status = e_up_wait_none;
 		}
@@ -152,7 +155,7 @@ void up_comm_proc(UP_COMM_INTERFACE *up)
 		if (uptime() - up->idle_uptime > 7 * 60){
 			up->need_diag = TRUE;
 			up->idle_uptime = uptime();
-		} //
+		}
 		up_protocol_proc(up->que_in, up->que_out, up->receive, up->private); // proceed message if there are
 		up->comm_send(up); // send message if there are
 		up_comm_heartbeat_proc(up); // heart beat

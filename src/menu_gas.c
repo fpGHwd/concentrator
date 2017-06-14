@@ -5,6 +5,9 @@
  *      Author: Nayo Wang
  */
 
+
+//lcd_update_info(c_login_ok_str)
+
 #include "menu_gas.h"
 #include "main.h"
 #include "common.h"
@@ -120,8 +123,10 @@ static void menu_ongoing(BYTE flag, void *para, const char *info) {
 }
 
 static void error_tip(const char *tip_string, int msec){
-	lcd_show_string(MAX_SCREEN_ROW, 1, 20, "                    ");
-	lcd_show_string(MAX_SCREEN_ROW, 1, strlen(tip_string), (const void*)tip_string);
+	//lcd_update_info(c_login_ok_str);
+	lcd_update_info(tip_string);
+	//lcd_show_string(MAX_SCREEN_ROW, 1, 20, "                    ");
+	//lcd_show_string(MAX_SCREEN_ROW, 1, strlen(tip_string), (const void*)tip_string);
 	wait_delay(msec);
 	return;
 }
@@ -1095,8 +1100,10 @@ static void usb_update_function(BYTE flag, void *para, const char *info) {
 			c_find_update_file_and_reboot_then_str);
 #ifdef AM335X
 	ret = system("cp /media/usb/concentrator-am335x /opt/concentrator/bin/concentrator-am335x");
+	ret = system("sync");
 #elif defined IMX28
 	ret = system("cp /media/usb/concentrator-imx28 /opt/concentrator/bin/concentrator-imx28");
+	ret = system("sync");
 #endif
 
 	sleep(2);
@@ -1161,6 +1168,8 @@ static void set_terminal_time(BYTE flag, void *para, const char *info) {
 
 	if(!input_calendar(&tm1))
 		return;
+
+	lcd_update_info(menu_name3_5);
 
 	sprintf(buff, "%s%04d-%02d-%02d",
 				date_string,tm1.tm_year+1900, tm1.tm_mon+1, tm1.tm_mday);
@@ -1352,12 +1361,16 @@ int verify_password(void) {
 	tries_times = 3;
 
 	while (1) {
+		current_row = 1;
 		lcd_clean_workspace();
 		lcd_show_string(++current_row, 1, strlen(c_please_input_password_str),
 				c_please_input_password_str);
+		lcd_update_info(c_password_setting_str);
+		/*
 		lcd_show_string(9, 1, strlen(c_allspace_str), c_allspace_str);
 		lcd_show_string(9, 1, strlen(c_password_setting_str),
 				c_password_setting_str);
+		*/
 		if (input_string(++current_row, "   ", fmt_num, buf, strlen(buf))) {
 			lcd_show_string(current_row, 4, strlen(buf), buf); // valid continue the verification
 		} else {

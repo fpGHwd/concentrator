@@ -16,7 +16,7 @@
 #include "f_current.h"
 #include "lcd.h"
 
-static void conalm_check_battery_bad(void) /// battery bak
+static void conalm_check_battery_bad(void)
 {
 	CON_ALARM_T alarm;
 	BYTE address[7];
@@ -31,7 +31,7 @@ static void conalm_check_battery_bad(void) /// battery bak
 		for (i = 0; i < MAX_SPONT_CHANNEL_CNT; i++) {
 			alarm.data.status[i] = ALARM_SPONT_STATUS_UNSEND;
 		}
-		fconalm_add(&alarm); /// add to fconalm(file), move the alarm to the file
+		fconalm_add(&alarm); /// TODO: add to fconalm(file), move the alarm to the file
 	}
 }
 
