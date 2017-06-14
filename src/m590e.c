@@ -20,6 +20,7 @@ void *g_m590e_resource = NULL;
 #define M590E_READ_TIMEOUT 		(2 * 1000u)
 #define AT_FUN_TIMEOUT 			(2000u)
 #define M590E_CONNECT_TIMEOUT 	(10 * 1000u)
+#define M590E_CONNECT_TIMEOUT_SHORT 	(2 * 1000u)
 
 #define M590E_SOCKET_ID 0
 static char m590e_ip_str[64] = {0};
@@ -78,6 +79,7 @@ e_remote_module_status m590e_init(int fd)
 	return e_modem_st_normal;
 }
 
+void close_serial(int fd);
 int m590e_ppp_connect(const char *device_name, const char *lock_name, const char *baudstr)
 {
 	int fd;
@@ -104,15 +106,21 @@ int m590e_ppp_connect(const char *device_name, const char *lock_name, const char
 		if (wait_cnt < 0)
 			break;
 		wait_cnt--;
-		msleep(1000);
+		msleep(500);
 	}
+
+	// fail and close // add by nayowang @20170613 // close in device_initiate.
+	close_serial(fd);
+	if(lock_name)
+		remove(lock_name);
 	return -1;
+
 }
 
 static int m590e_tcpudp_connect(const char *connect_str, int fd,
 		const char *addr, int port, int timeout)
 {
-	char resp[1024] = { 0 }, *resp_ptr = resp;
+	char resp[1024] = { 0 };
 	char send[1024] = { 0 };
 	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
 
@@ -127,7 +135,7 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 				return -1;
 			}
 			snprintf(send, sizeof(send), "AT$MYNETOPEN=%d\r", M590E_SOCKET_ID);
-			if((at_cmd(fd, send, resp, sizeof(resp), t1, M590E_CONNECT_TIMEOUT))> 0){
+			if((at_cmd(fd, send, resp, sizeof(resp), t1, M590E_CONNECT_TIMEOUT_SHORT))> 0){
 				if(strstr(resp, "OK") != NULL)
 					return fd;
 				else{
@@ -144,7 +152,7 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 		PRINTF("choose udp connect and NO UDP implementation!\n");
 		return -1;
 	}
-	PRINTF("%s: unknown addressed/illustrated reason for failure to connect\n", __FUNCTION__);
+	PRINTF("%s: Unknown addressed/illustrated reason for failure to connect\n", __FUNCTION__);
 	return -1;
 }
 
@@ -242,11 +250,19 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 	if(fd<0)
 		return FALSE;
 
-	if((ret = at_cmd_receive(fd, resp, sizeof(resp), t1, t2)) > 0)
+	if((ret = at_cmd_receive(fd, resp, sizeof(resp), t1, t2)) > 0){
 		if(strstr(resp, "$MYURCREAD: 0") == NULL){
 			PRINTF("%s Not found '$MYURCREAD'\n", __FUNCTION__);
+			PRINTB("Invalid data:", resp, ret);
+			if(strstr(resp, "$MYURCCLOSE: 0") != NULL){
+				*errcode = REMOTE_MODULE_RW_ISP_CLOSE_CONNECT;
+			}else{
+				PRINTF("WARNNING: undefined and no implementation\n");
+				*errcode = REMOTE_MODULE_RW_ABORT;
+			}
 			return 0;
 		}
+	}
 
 	snprintf(send,sizeof(send),"AT$MYNETREAD=%d,2048\r",M590E_SOCKET_ID);
 	ret = at_cmd_sub(fd, send, resp, sizeof(resp), t1, t2, TRUE);

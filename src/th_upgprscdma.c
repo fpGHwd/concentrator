@@ -129,11 +129,13 @@ static INT32 gprscdma_fep_receive(struct UP_COMM_ST *up, int timeout)
 			return len;
 		}
 		else if(len <= 0){
-			if (errcode != REMOTE_MODULE_RW_NORMAL) {
+			if (errcode == REMOTE_MODULE_RW_ISP_CLOSE_CONNECT) {
 				up->up_status = e_up_offline;
 				up->up_connect_status = e_up_disconnected;
-				close(up->fd); // TODO: problem
+				shutdown(up->fd, SHUT_RDWR);
+				close(up->fd);
 				up->fd = -1;
+			}else{
 				PRINTF("GPRS/CDMA OFFLINE for receive ERROR\n");
 			}
 			return -1;
