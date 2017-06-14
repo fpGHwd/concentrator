@@ -417,7 +417,7 @@ static int do_modem_check(const char *device_name, const char *lock_name,
 	
 	//at_cmd(fd, "AT+ATI\r", resp, sizeof(resp), 1000, 500);
 	//at_cmd(fd, "AT$MYGMR\r", resp, sizeof(resp), 1000, 500);
-	//sleep(1);
+
 	if (!at_cmd(fd, "AT$MYGMR\r", resp, sizeof(resp), 1000, 500)) {
 		close_modem_device(lock_name);
 		close_serial(fd);
@@ -450,6 +450,7 @@ static int do_modem_check(const char *device_name, const char *lock_name,
 		}
 	}
 	close_modem_device(lock_name);
+	close_serial(fd);
 	//lcd_update_head_enable(1);
 	PRINTF("Check modem %s(ret: %d)\n", ret > 1 ? "ok" : "fail", ret);
 	return ret;
@@ -509,15 +510,20 @@ int modem_check(const char *device_name, const char *lock_name, int baudrate)
 {
 	static unsigned int interval, last_result;
 	static long test_uptime;
-	const int max_interval = 15; // 15 seconds
-	const int min_interval = 5; // 5 seconds
+	const int max_interval = 15;
+	const int min_interval = 5;
 	int ret, wait_soft_reset_time = 5;
 	static int modem_poweron_ok;
+
+	// TODO: close gprs cdma and do some operations, add by wd@20170613
+	// when remote TCP/UDP connect failed and not shutdown current module and fd
+	close_modem_device(lock_name);
 
 	if (!modem_poweron_ok) {
 		wait_delay(wait_soft_reset_time * 1000);
 		if (!test_modem_cmd(device_name, lock_name)) {
-			modem_soft_reset();
+			PRINTF("WARNNING: no GPRS-modem soft-reset implementation!\n");
+			//modem_soft_reset();
 		}
 		modem_poweron_ok = 1;
 	}
@@ -534,10 +540,12 @@ int modem_check(const char *device_name, const char *lock_name, int baudrate)
 	else { // need to test modem again
 		ret = do_modem_check(device_name, lock_name, baudrate);
 		if (ret == 0 && last_result == 0) {
-			modem_soft_reset();
+			PRINTF("WARNNING: no GPRS-modem soft-reset implementation!\n");
+			//modem_soft_reset();
 			ret = do_modem_check_baud(device_name, lock_name);
 			if (ret == 0) {
-				modem_hard_reset();
+				PRINTF("WARNNING: no GPRS-modem hard-reset implementation!\n");
+				//modem_hard_reset();
 				ret = do_modem_check_baud(device_name, lock_name);
 			}
 		}
@@ -626,6 +634,7 @@ int remote_tcpudp_connect(BYTE type, const char *addr, int port, int timeout)
 		else {
 			PRINTF("%s UDP connect FAIL, addr: %s, port: %d\n",
 					pcur_module_attr->describe, addr, port);
+
 			return -1;
 		}
 	}
@@ -640,7 +649,7 @@ int remote_tcpudp_connect(BYTE type, const char *addr, int port, int timeout)
 		}
 		else {
 			PRINTF("%s TCP connect FAIL, addr: %s, port: %d\n",
-					pcur_module_attr->describe, addr, port);
+					pcur_module_attr->describe, addr, port);// FAIL //
 			return -1;
 		}
 	}
