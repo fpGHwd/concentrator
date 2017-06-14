@@ -108,40 +108,6 @@ void device_lcd_light(int on)
 }
 
 
-static int lora_light_fd[2] = {0};
-
-void lora_lights(enum lora_light idx, int light)
-{
-	int fd;
-	int buf[2] = {0};
-
-	if(idx == BLUE_RECEIVE){
-		if(lora_light_fd[0] <= 0){
-			lora_light_fd[0] = open(lora_led_rx, O_WRONLY);
-			if(lora_light_fd[0] <= 0)
-				return;
-		}
-		fd = lora_light_fd[0];
-	}else if(idx == GREEN_SEND){
-		if(lora_light_fd[1] <= 0){
-			lora_light_fd[1] = open(lora_led_tx, O_WRONLY);
-			if(lora_light_fd[1] <= 0)
-				return;
-		}
-		fd = lora_light_fd[0];
-	}
-
-	if(light == 1){
-		buf[0] = '1';
-		write(fd, buf, 2);
-	}else if(light == 0){
-		buf[1] = '0';
-		write(fd, buf, 2);
-	}else{
-		return;
-	}
-	//close(fd);
-}
 
 #define OFF   0x30 // 0x30 '0'
 #define ON  0X31 // 0X31 '1'
@@ -243,24 +209,21 @@ void modem_soft_reset(void) { // TODO:power reset
 #endif
 }
 
-void modem_gprs_shutdown(void) // power reset
+void modem_gprs_shutdown(void)
 {
 
 	int fd;
 	char buf[2];
 	int ret;
 
-	if ((fd = open(modem_reset_device_path, O_WRONLY)) < 0) { /// if(fd = open(modem_reset_device_path, O_WRONLY) < 0){
+	if ((fd = open(modem_reset_device_path, O_WRONLY)) < 0) {
 		PRINTF("Open %s failed\n", modem_reset_device_path);
 		return;
 	}
-	///PRINTF("%s: 15 seconds for shutdown modem power and re-enpower\n", __FUNCTION__);
-	///printf("power delay for 10 seconds\n");
 	buf[0] = OFF;
 	ret = write(fd, buf, 2);
 	wait_delay(2000);
 	close(fd);
-
 }
 
 void modem_gprs_turn_on(void) {
@@ -308,4 +271,13 @@ void led_fade(void) {
 	control_led(2, 0);
 	control_led(3, 0);
 	control_led(4, 0);
+}
+
+void lora_led_ctrl(enum lora_leds led, bool light){
+	char buff[100];
+
+	sprintf(buff, "echo %d > /sys/class/am335x_led/LED_LORA_%s/brightness", light?1:0, (led == LED_LORA_SEND)?"SEND":"RECEIVE");
+	system(buff);
+
+	return;
 }

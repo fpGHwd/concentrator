@@ -52,14 +52,14 @@ void *th_gasmeter_event(void *arg) {
 	sys_time(&cur_tm);
 	last_read_tm = cur_tm;
 	while (!g_terminated) {
-		sleep(100); /// add by nayowang
+		sleep(100);
 		notify_watchdog();
 		if (fgasmeter_is_empty()){
 			msleep(10);
 			continue;
 		}
 		if (is_first) {
-			app_event_send(&event_rdmeter, EVENT_RDMETER);
+			///app_event_send(&event_rdmeter, EVENT_RDMETER); // comment by wd
 			sys_time(&last_read_tm);
 			is_first = FALSE;
 		} else {
@@ -67,7 +67,7 @@ void *th_gasmeter_event(void *arg) {
 			fparam_get_value(FPARAMID_READMETER_FREQ, read_freq,
 					sizeof(read_freq));
 			switch (read_freq[1]) {
-			case 0x11: /// every hour
+			case 0x11: //every hour
 				if ((cur_tm.tm_year != last_read_tm.tm_year
 						|| cur_tm.tm_mon != last_read_tm.tm_mon
 						|| cur_tm.tm_mday != last_read_tm.tm_mday
@@ -77,7 +77,7 @@ void *th_gasmeter_event(void *arg) {
 					last_read_tm = cur_tm;
 				}
 				break;
-			case 0x21: /// every day
+			case 0x21: //day
 				if ((cur_tm.tm_year != last_read_tm.tm_year
 						|| cur_tm.tm_mon != last_read_tm.tm_mon
 						|| cur_tm.tm_mday != last_read_tm.tm_mday)
@@ -86,7 +86,7 @@ void *th_gasmeter_event(void *arg) {
 					last_read_tm = cur_tm;
 				}
 				break;
-			case 0x31: /// every month
+			case 0x31: //every month
 				if ((cur_tm.tm_year != last_read_tm.tm_year
 						|| cur_tm.tm_mon != last_read_tm.tm_mon)
 						&& (cur_tm.tm_min >= 5 && cur_tm.tm_min < 55)) {
@@ -99,7 +99,7 @@ void *th_gasmeter_event(void *arg) {
 			}
 		}
 	}
-	app_event_send(&event_rdmeter, EVENT_RDMETER);
+	///app_event_send(&event_rdmeter, EVENT_RDMETER); // why last time read
 	return NULL;
 }
 
@@ -107,11 +107,8 @@ static int gasmeter_read_serial(void *buf, int len, int timeout) {
 	return read_serial(gasmeter_fd, buf, len, timeout);
 }
 
-// TODO:wakeup_circle_value how to use
-// TODO:every thread need a watchdog
-// TODO:轮询表地址(zuwang)
 int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
-		BYTE *buf, int max_len) /// read meter
+		BYTE *buf, int max_len)
 {
 
 	BYTE cjt188_reqbuf[512];
@@ -168,9 +165,14 @@ int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 
 	sem_wait(&sem_serial);
 	while (read_serial(fd, yl800_respbuf, sizeof(yl800_respbuf), 100) > 0)
-		; /// read when NOTHING in buff
+		;
+
 	tmplen = write_serial(fd, yl800_reqbuf, yl800_len, 500);
 	PRINTB("To GAS METER: ", yl800_reqbuf, yl800_len);
+	lora_led_ctrl(LED_LORA_SEND,TRUE);
+	msleep(250);
+	lora_led_ctrl(LED_LORA_SEND, FALSE);
+	msleep(500);
 
 	SER = plt_cjt188_get_ser();
 	plt_cjt188_inc_ser();
@@ -192,6 +194,10 @@ int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 	}
 
 	PRINTB("From GAS METER: ", yl800_respbuf, yl800_len);
+	lora_led_ctrl(LED_LORA_RECEIVE, TRUE);
+	msleep(250);
+	lora_led_ctrl(LED_LORA_RECEIVE, FALSE);
+	msleep(500);
 
 	if (!yl800_unpack(yl800_respbuf, yl800_len, NULL, yl800_address,
 			&cjt188_data, &cjt188_len)) {
@@ -208,11 +214,6 @@ int gasmeter_read_di(const BYTE *address, const BYTE *collector, WORD di,
 		PRINTF("%s: CHECH PACKET LENGTH FAILED\n", __FUNCTION__);
 		return -1;
 	}
-
-	// TODO: receive led tips
-	lora_lights(BLUE_RECEIVE, 1);
-	msleep(500);
-	lora_lights(BLUE_RECEIVE, 0);
 
 	memcpy(buf, cjt188_msg.data, cjt188_msg.datalen);
 	return (cjt188_msg.datalen);
@@ -269,13 +270,14 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 	while (read_serial(fd, yl800_respbuf, sizeof(yl800_respbuf), 100) > 0) // READ TO CLEAR BUFF
 		;
 
-	// TODO: send led tips
-	lora_lights(GREEN_SEND, 1);
-	msleep(500);
-	lora_lights(GREEN_SEND, 0);
+
 
 	tmplen = write_serial(fd, yl800_reqbuf, yl800_len, 500);
 	PRINTB("To GAS METER: ", yl800_reqbuf, yl800_len);
+	lora_led_ctrl(LED_LORA_SEND,TRUE);
+	msleep(250);
+	lora_led_ctrl(LED_LORA_SEND, FALSE);
+	msleep(500);
 	SER = plt_cjt188_get_ser();
 	plt_cjt188_inc_ser();
 
@@ -295,6 +297,10 @@ BOOL gasmeter_write_di(const BYTE *address, const BYTE *collector, WORD di,
 	}
 
 	PRINTB("From GAS METER: ", yl800_respbuf, yl800_len);
+	lora_led_ctrl(LED_LORA_RECEIVE, TRUE);
+	msleep(250);
+	lora_led_ctrl(LED_LORA_RECEIVE, FALSE);
+	msleep(500);
 
 	if (!yl800_unpack(yl800_respbuf, yl800_len, NULL, yl800_address,
 			&cjt188_data, &cjt188_len)) {
@@ -386,6 +392,10 @@ BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 	tmplen = write_serial(fd, yl800_reqbuf, yl800_len, 500);
 
 	PRINTB("To GAS METER: ", yl800_reqbuf, yl800_len);
+	lora_led_ctrl(LED_LORA_SEND,TRUE);
+	msleep(250);
+	lora_led_ctrl(LED_LORA_SEND, FALSE);
+	msleep(500);
 
 	SER = plt_cjt188_get_ser();
 
@@ -407,6 +417,10 @@ BOOL gasmeter_set_valve(const BYTE *address, const BYTE *collector, BOOL on) {
 		return FALSE;
 
 	PRINTB("From GAS METER: ", yl800_respbuf, yl800_len);
+	lora_led_ctrl(LED_LORA_RECEIVE, TRUE);
+	msleep(250);
+	lora_led_ctrl(LED_LORA_RECEIVE, FALSE);
+	msleep(500);
 
 	if (!yl800_unpack(yl800_respbuf, yl800_len, NULL, yl800_address,
 			&cjt188_data, &cjt188_len))
