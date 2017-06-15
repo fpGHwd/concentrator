@@ -16,7 +16,8 @@ void *g_m590e_resource = NULL;
 /// origin default value
 //#define M590E_WRITE_TIMEOUT (2 * 1000u)
 //#define M590E_READ_TIMEOUT (10 * 1000u)
-#define M590E_WRITE_TIMEOUT 	(500u)
+#define M590E_WRITE_TIMEOUT 	(1000u)
+//#define M590E_WRITEDATA_TIMEOUT (1000u)
 #define M590E_READ_TIMEOUT 		(2 * 1000u)
 #define AT_FUN_TIMEOUT 			(2000u)
 #define M590E_CONNECT_TIMEOUT 	(10 * 1000u)
@@ -135,7 +136,7 @@ static int m590e_tcpudp_connect(const char *connect_str, int fd,
 				return -1;
 			}
 			snprintf(send, sizeof(send), "AT$MYNETOPEN=%d\r", M590E_SOCKET_ID);
-			if((at_cmd(fd, send, resp, sizeof(resp), t1, M590E_CONNECT_TIMEOUT_SHORT))> 0){
+			if((at_cmd(fd, send, resp, sizeof(resp), t1, M590E_CONNECT_TIMEOUT))> 0){
 				if(strstr(resp, "OK") != NULL)
 					return fd;
 				else{
@@ -167,47 +168,56 @@ int m590e_udp_connect(int fd, const char *addr, int port)
 	return m590e_tcpudp_connect("UDP", fd, addr, port, M590E_READ_TIMEOUT);
 }
 
+
+// meter send length = 1000  * 14, how to send
 int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 {
 	int ret = 0;
 	char resp[1024],*resp_ptr = resp;
 	char send[2048];
 	BYTE *buf_ptr = (BYTE *)buf;
-	int t1 = M590E_READ_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
+	int t1 = M590E_WRITE_TIMEOUT, t2 = M590E_WRITE_TIMEOUT;
 	int data_len = 0, send_len = 0;
 
 #define MAX_DEFAULT_SEND_LEN 1024
+#define MODULE_SEND_LENGH 2000
 
 	if (fd < 0)
 		return 0;
 
-	while (len > 0) {
-		memset(send,0x0,sizeof(send));
-		if (len > MAX_DEFAULT_SEND_LEN) { /// to send len > MAX len limited
-			snprintf(send, sizeof(send), "AT$MYNETOPEN=%d\r", M590E_SOCKET_ID);
-			if (at_cmd(fd, send, resp, sizeof(resp), t1, t2) > 0) { // query the socket size of m590e
-				if ((resp_ptr = strstr(resp, "$MYNETOPEN:")) != NULL) {// if CIPSEND: IN
+	// send len buff
+	while (len > 0) { // remaining length
+		memset(send,0x0,sizeof(send)); // send buff
+		if (len > MAX_DEFAULT_SEND_LEN) { // length > 1024, 6319 bytes
+			snprintf(send, sizeof(send), "AT$MYNETACK=%d\r", M590E_SOCKET_ID); // TODO: correct
+			if (at_cmd(fd, send, resp, sizeof(resp), t1, t2) > 0) {
+				if ((resp_ptr = strstr(resp, "$MYNETACK:")) != NULL) {// if CIPSEND: IN
 					resp_ptr = strstr(resp_ptr, ":");
-					data_len = atoi(resp_ptr + 4); // get max data length send //$MYNETOPEN: 0,2000
+					data_len = atoi(resp_ptr + 6); // get length can send
 					PRINTF("MAX send length is %d bytes in module\n", data_len);
 				}
 			}
 			if (data_len == 0) {
 				data_len = MAX_DEFAULT_SEND_LEN;
 			}
-		}
-		else {
+		} else {
 			data_len = len;
 		}
-		data_len = min(data_len, sizeof(send) - 1);
+		data_len = min(data_len, sizeof(send) - 1); // data_len = min(data_len, sizeof(send)-1);
 		data_len = min(data_len, len);
+		data_len = min(data_len, MODULE_SEND_LENGH - 1);
+		assert(data_len > 0);
+		/*
 		if (data_len <= 0) {
 			PRINTF("%s FAIL (NO DATA)\n", __FUNCTION__);
 			return 0;
-		}
-		snprintf(send,sizeof(send),"%s=%d,%d\r","AT$MYNETWRITE",M590E_SOCKET_ID,data_len);
+		} // data_len
+		*/
+		snprintf(send,sizeof(send),"%s=%d,%d\r","AT$MYNETWRITE",M590E_SOCKET_ID,data_len); // tend to send data_len
 		PRINTF("%s To modem AT$MYNETWRITE=%d,%d\n", __FUNCTION__,M590E_SOCKET_ID,data_len);
 		ret = at_cmd_sub(fd, send, resp, sizeof(resp), t1, t2, TRUE);
+
+		assert(ret > 0);
 		if (ret <= 0) {
 			*errcode = REMOTE_MODULE_RW_ABORT;
 			return 0;
@@ -219,25 +229,28 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 		memcpy(send,buf_ptr,data_len);
 		send[data_len] = 0x0d; // enter as ending-character // send[data_len] =0x1A; // 0x1A = CTRL + Z
 		ret = at_cmd_send(fd, send, data_len + 1, t1, t2) - 1;
+		PRINTF("ret = %d, data_len + 1 = %d\n", ret, data_len + 1);
+
+		assert(ret == data_len);
+
 		if (at_cmd_receive(fd, resp, min(sizeof(resp), 6), t1, t2) == 6
 				&& (resp_ptr = strstr(resp, "OK")) != NULL) {
 			*errcode = REMOTE_MODULE_RW_NORMAL;
-			send_len += ret;
-			len -= ret;
-			buf_ptr += ret;
-			PRINTF("%s Send %d HEX bytes OK\n", __FUNCTION__, ret);
+			send_len += data_len; //ret-> data_len
+			len -= data_len;
+			buf_ptr += data_len;
+			PRINTF("%s Send %d HEX bytes OK\n", __FUNCTION__, data_len);
 			if (len <= 0)
-				return send_len;
+				return send_len; // success
 			else
-				continue;
-		}
-		else {
+				continue; // continue to send remaining length
+		} else {
 			*errcode = REMOTE_MODULE_RW_ABORT;
-			PRINTF("%s FAIL\n", __FUNCTION__);
-			return 0;
+			PRINTF("%s failed\n", __FUNCTION__);
+			return 0; // failed
 		}
 	}
-	return 0;
+	return 0; // failed
 }
 
 int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
