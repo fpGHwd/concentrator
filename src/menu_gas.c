@@ -420,8 +420,7 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 	return;
 }
 
-static void read_meter_assembly_function(BYTE flag, void *para,
-		const char *info) {
+void *assembly_read_meter(void *argu){
 	int meters_amount, valid_num, failed_num, idx;
 	int resp_len; /// merely is a space
 	BYTE address[7], collector[5], repeater[2];
@@ -429,7 +428,8 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 	char buf[21], meter_address_str[15], collector_str[11], repeater_str[5];
 	long read_tt;
 	int current_row;
-	///unsigned char key;
+	BYTE key_value = KEY_ENTER;
+
 	memset(address, 0, sizeof(address));
 	memset(collector, 0, sizeof(collector));
 	memset(repeater, 0, sizeof(repeater));
@@ -438,7 +438,7 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 	meters_amount = get_valid_meter_amount_in_database();
 	valid_num = 0;
 	failed_num = 0;
-	for (idx = 0; idx < MAX_GASMETER_NUMBER; idx++) {
+	for (idx = 0; (idx < MAX_GASMETER_NUMBER) && (key_value != KEY_ESC) &&(!g_terminated); idx++) {
 		current_row = 1;
 
 		if (fgasmeter_getgasmeter(idx, address, collector)) {
@@ -501,20 +501,49 @@ static void read_meter_assembly_function(BYTE flag, void *para,
 			snprintf(buf, 21, "%s%d/%d", c_reading_failure_str, failed_num,
 					meters_amount);
 			lcd_show_string(++current_row, 1, strlen(buf), buf);
+			//continue;
+		} /*else {
+			continue;
+		}*/
+		key_value = getch_wait_ms(100);
+	}
 
-			continue;
-		} else {
-			continue;
-		}
+	if( idx == MAX_GASMETER_NUMBER -1)
+		error_tip(c_complete_str,ERROR_DELAY_TIME_MSECONDS);
+	else
+		error_tip(c_abort_str,ERROR_DELAY_TIME_MSECONDS);
+
+	return NULL;
+}
+
+static void read_meter_assembly_function(BYTE flag, void *para,
+		const char *info) {
+
+	pthread_t pid[2];
+	pid[0] = pthread_self();
+	//BYTE key_value = KEY_ENTER;
+
+	if(pthread_create(&pid[1], NULL, assembly_read_meter, NULL/*&key_value*/) == 0){
+		error_tip("Reading...",NORMAL_TIP_DELAY_TIME_MSECONDS);
+	}else{
+		if(errno == EAGAIN)
+			error_tip("pthread:EAGAIN",ERROR_DELAY_TIME_MSECONDS);
+		else if(errno == EINVAL)
+			error_tip("pthread:EINVAL",ERROR_DELAY_TIME_MSECONDS);
+		else if(errno == EPERM)
+			error_tip("pthread:EPERM",ERROR_DELAY_TIME_MSECONDS);
+		else
+			error_tip("pthread:UNKNOWN",ERROR_DELAY_TIME_MSECONDS);
+		return;
 	}
 
 	/*
-	lcd_show_string(2, 1, strlen(c_allspace_str), c_allspace_str);
-	lcd_show_string(2, 1, strlen(c_complete_str), c_complete_str);
-	*/
-	error_tip(c_complete_str,NORMAL_TIP_DELAY_TIME_MSECONDS);
-	getch_timeout();
-	return;
+	while((key_value != KEY_ESC) && !g_terminated){
+		key_value = getch_wait_ms(100);
+	}*/
+
+	pthread_join(pid[1], NULL);
+	// pthread_cancel(pid[1]);
 }
 
 static void read_meter_assembly(BYTE flag, void *para, const char *info) {
@@ -1070,13 +1099,14 @@ static void param_data_reset(BYTE flag, void *para, const char *info) {
 
 }
 
-static void usb_update_function(BYTE flag, void *para, const char *info) {
-
 #ifdef AM335X
-	const char *filename = "/media/usb/concentrator-am335x";
-#else if defined(IMX28)
-	const char *filename = "/media/usb/concentrator-imx28";
+#define BINARY_NAME "/media/usb/concentrator-am335x"
+#else defined(IMX28)
+#define BINARY_NAME "/media/usb/concentrator-imx28"
 #endif
+
+static void usb_update_function(BYTE flag, void *para, const char *info) {
+	const char *filename = BINARY_NAME;
 	bool file_exist_flag;
 	struct stat buf;
 	int ret, current_row = 1;
