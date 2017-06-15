@@ -359,7 +359,7 @@ int safe_write_timeout(int fd, const void *buf, int len, int timeout) {
 
 	while (len > 0 && wait_for_ready(fd, timeout, 1) > 0) {
 		notify_watchdog();
-		ret = write(fd, ptr, len); /// ptr
+		ret = write(fd, ptr, len);
 		if (ret < 0 && errno == EINTR)
 			continue;
 		if (ret < 0)
@@ -442,7 +442,7 @@ static void print_head(FILE *fp) {
 
 	gettimeofday(&tv, NULL);
 	localtime_r(&tv.tv_sec, &tm);
-	thread_name = get_thread_name(); /// how can you comment this sentence
+	thread_name = get_thread_name();
 	len = snprintf(buf, sizeof(buf),
 			"[%04d-%02d-%02d %02d:%02d:%02d.%03ld] %s\t", tm.tm_year + 1900,
 			tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec,

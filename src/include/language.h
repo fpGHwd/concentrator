@@ -223,4 +223,6 @@ extern const char *c_reset_meters_str;
 extern const char *clear_successfully;
 extern const char *clear_unsuccessfully;
 
+extern const char *c_abort_str;
+
 #endif /* LANGUAGE_H_ */

@@ -43,7 +43,7 @@ int at_cmd(int fd, const char *send, char *recv, int max_len, int timeout1,
 	return at_cmd_sub(fd, send, recv, max_len, timeout1, timeout2, FALSE);
 }
 
-int at_cmd_send(int fd, const char *send, BYTE len, int timeout1, int timeout2) {
+int at_cmd_send(int fd, const char *send, /*BYTE*/ int len, int timeout1, int timeout2) {
 
 	if (len > 0) {
 		PRINTF("%s %d bytes\n", __FUNCTION__, len);

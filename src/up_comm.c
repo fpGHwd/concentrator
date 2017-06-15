@@ -13,7 +13,7 @@
 #include "spont_alarm.h"
 #include "f_param.h"
 
-#define LOGIN_WAITING_RESPONSE_TIME (10u * 1000) // msecs
+#define LOGIN_WAITING_RESPONSE_TIME (20u * 1000)
 #define LOGIN_WAITING_RESPONSE_TIME_ORIGIN (3 * 60 * 1000)
 
 static BOOL up_comm_login(UP_COMM_INTERFACE *up)

@@ -35,7 +35,6 @@ void app_event_wait(app_event_t *pctrl, INT32 bwait, UINT32 waitmask,
 				pctrl->event &= ~waitmask;
 				break;
 			}
-
 			pthread_cond_wait(&pctrl->cond, &pctrl->mutex);
 			ul = pctrl->event;
 		}

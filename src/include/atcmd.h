@@ -14,7 +14,7 @@ int at_cmd(int fd, const char *send, char *recv, int max_len, int timeout1,
 		int timeout2);
 int at_cmd_sub(int fd, const char *send, char *recv, int max_len, int timeout1,
 		int timeout2, BOOL silent);
-int at_cmd_send(int fd, const char *send, BYTE len, int timeout1, int timeout2);
+int at_cmd_send(int fd, const char *send, /*BYTE*/ int len, int timeout1, int timeout2);
 int at_cmd_receive(int fd, char *recv, int max_len, int timeout1, int timeout2);
 
 /// s = command form, m = read time out, n = write timeout, e = enum status, r = result string;

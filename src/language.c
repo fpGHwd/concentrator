@@ -247,3 +247,5 @@ const char *c_reset_meters_str = "表信息清除";
 const char *clear_successfully = "清除成功";
 const char *clear_unsuccessfully = "清除失败";
 
+const char *c_abort_str = "中止";
+

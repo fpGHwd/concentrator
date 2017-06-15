@@ -27,3 +27,5 @@ concentrator
 .settings/
 concentrator-cross-gcc/
 .autotools
+
+Release/

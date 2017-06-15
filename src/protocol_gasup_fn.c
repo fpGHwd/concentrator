@@ -524,7 +524,7 @@ UINT32 ptl_gasup_fn_2036(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			|| max_outlen < 9 || max_datalen < 1)
 		return 0;
 	memset(zerobuf, 0, sizeof(zerobuf));
-	if (memcmp(&msg->address[2], msg->data, 5) == 0) {
+	if (memcmp(&msg->address[2], msg->data, 5) == 0) { // centrator
 		bcd_stoc(ptr, 0);
 		ptr += 2;
 		memcpy(ptr, msg->data, 10);
