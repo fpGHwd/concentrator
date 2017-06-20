@@ -642,9 +642,9 @@ static UINT32 ptl_gasup_pack_meterdata(const PTL_GASUP_MSG *msg, UINT8 *outbuf,
 			memset(ptr, 0, 6);
 			ptr += 6;
 		}
-		*ptr++ = 0;
+		//*ptr++ = 0; // fixme: @20170617
 		*ptr++ = pdata->status;
-		switch ((pdata->di_data.st[0] >> 6) & 0x03) {
+		switch (pdata->di_data.st[0] & (3 < 6)) {
 		case 0:
 			valve_status = VALVE_STATUS_ON;
 			break;

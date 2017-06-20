@@ -261,6 +261,86 @@ float get_month_flux(WORD year, BYTE month, BYTE *meter_id) {
 	return end_flux - start_flux;
 }
 
+
+static void add_a_meter_implementation(BYTE flag, void *para, const char *info)
+{
+	int current_row, index_of_meter = 0;
+	BYTE meter_id_byte[7];
+	char meter_id[14] = {'2','3','0','5','1','7','0','6','0','0','0','0','0','0'};
+	BYTE collector_byte[7];
+	char collector[14] = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
+
+	memset(collector_byte, 0, sizeof(collector_byte));
+	unsigned char key = KEY_NONE;
+
+	do{
+		current_row = 1;
+		lcd_clean_workspace();
+		if(input_string(++current_row,c_current_reading_meter_str,
+				fmt_num,meter_id, sizeof(meter_id)) <= 0){
+				//error_tip(invalid_meter, ERROR_DELAY_TIME_MSECONDS);
+				break;
+		}
+		/*// collector
+		if(input_string(++current_row,c_current_collector_str, fmt_num,collector,sizeof(collector)) <= 0){
+			break;
+		}*/
+
+		hexstr_to_str(meter_id_byte, meter_id, 14);
+		index_of_meter = fgasmeter_getidx_by_gasmeter(meter_id_byte);
+		//hexstr_to_str(collector_byte, collector, 10);
+		if(index_of_meter >= 0 && index_of_meter < MAX_GASMETER_NUMBER){
+			error_tip(meter_has_existed, ERROR_DELAY_TIME_MSECONDS);
+			error_tip(ensure_to_delete_meter,NORMAL_TIP_DELAY_TIME_MSECONDS);
+			key = getch_timeout();
+			if(key == KEY_ENTER){
+				//fgasmeter_getgasmeter(index_of_meter, meter_id_byte, collector);
+				if(fgasmeter_delgasmeter(meter_id_byte, collector_byte)){
+					error_tip(delete_success,ERROR_DELAY_TIME_MSECONDS);
+				}else{
+					error_tip("failed to delete",ERROR_DELAY_TIME_MSECONDS);
+				}
+			}
+			error_tip(add_a_meter,NORMAL_TIP_DELAY_TIME_MSECONDS);
+			continue;
+		}else{// not exist and add // fixme: added and exited try to delete
+			// not exist and add
+		}
+
+		if(fgasmeter_addgasmeter(meter_id_byte, collector_byte)){
+			error_tip(add_meter_success, ERROR_DELAY_TIME_MSECONDS);
+			error_tip(add_a_meter,NORMAL_TIP_DELAY_TIME_MSECONDS);
+			continue;
+		}else{
+			error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
+			return;
+		}
+	}while(1);
+
+	return;
+
+
+	/*
+	index = -1;
+	index = fgasmeter_getidx_by_gasmeter(meter_address);
+	if (index >= 0 && index < MAX_GASMETER_NUMBER)
+		meter_in_the_database_flag = true;
+	else
+		meter_in_the_database_flag = false;
+	if (meter_in_the_database_flag) {
+		printf("meters already in the gasmeter database, and continue;\n");
+		continue;
+	} else {
+		if (fgasmeter_addgasmeter(meter_address, collector))
+			printf("success adding a gasmeter: %s\n", a_meter_id);
+		else
+			printf(
+					"fail adding a gasmeter: %s, which is already in the meters database\n",
+					a_meter_id);
+	}
+	*/
+}
+
 static void history_data_query(BYTE flag, void *para, const char *info) {
 
 	struct tm tm;
@@ -407,8 +487,8 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 		lcd_show_string(++current_row, 1, strlen(buff),buff);
 
 		// state
-		if(sprintf(buff, "%s%s", c_valve_status_str,(resp_buf[20] & 0x01)?
-					c_valve_status_closed_str:c_valve_status_open_str) < 0){
+		if(sprintf(buff, "%s%s", c_valve_status_str,(resp_buf[20] & (3u << 6))?
+					c_valve_status_closed_str:c_valve_status_open_str) < 0){ // 00:closed, 01:open
 			error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
 			return;
 		}
@@ -643,8 +723,7 @@ void import_meters_into_the_fgasmeter_structure(const char *filename) {
 		memcpy(a_meter_id, buff, 15);
 		for (i = 0; i < 7; i++)
 			meter_address[i] = bin_to_bcd(
-					(a_meter_id[2 * i] - '0') * 10 + a_meter_id[2 * i + 1]
-							- '0');
+					(a_meter_id[2 * i] - '0') * 10 + a_meter_id[2 * i + 1] - '0');
 		PRINTB("meter_address: ", meter_address, sizeof(meter_address));
 
 		index = -1;
@@ -675,31 +754,33 @@ static void import_meters_in_bunch_function(BYTE flag, void *para,
 	const char suffix[5][5];
 	bool file_exist_flag;
 	struct stat buf;
+	int current_row = 1;
 
 	memset(suffix, 0, sizeof(suffix));
 
 	lcd_clean_workspace();
 
 	file_exist_flag = false;
-	if (stat(filename, &buf) == 0) {
+	if (stat(filename, &buf) == 0)
 		file_exist_flag = true;
-	} else {
+	else
 		file_exist_flag = false;
-	} // get file exist flag
 
 	if (!file_exist_flag) {
-		lcd_show_string(2, 1, strlen(c_meters_file_not_exist_str),
-				c_meters_file_not_exist_str);
-		sleep(1);
+		error_tip(c_meters_file_not_exist_str,ERROR_DELAY_TIME_MSECONDS);
 		return;
 	}
 
-	lcd_show_string(2, 1, strlen(c_meters_file_importing_str),
-			c_meters_file_importing_str);
+	error_tip(c_meters_file_importing_str,NORMAL_TIP_DELAY_TIME_MSECONDS);
+	/*lcd_show_string(2, 1, strlen(c_meters_file_importing_str),
+			c_meters_file_importing_str);*/
 	import_meters_into_the_fgasmeter_structure(filename);
+	error_tip(c_meters_import_success_str,ERROR_DELAY_TIME_MSECONDS);
+	/*
 	lcd_show_string(3, 1, strlen(c_meters_import_success_str),
 			c_meters_import_success_str);
 	sleep(1);
+	*/
 
 	return;
 }
@@ -731,6 +812,10 @@ static void query_data(BYTE flag, void *para, const char *info)
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
 
+	//items_menu.menu.str[idx] = single_meter; // todo: add string
+	//items_menu.func[idx++] = single_meter_operation; // fixme: add
+	items_menu.menu.str[idx] = add_a_meter; // fixme: implement the string
+	items_menu.func[idx++] = add_a_meter_implementation; // fixme: implementation
 	items_menu.menu.str[idx] = menu_name1_3;
 	items_menu.func[idx++] = history_data_query;
 	items_menu.menu.str[idx] = menu_name1_1;
