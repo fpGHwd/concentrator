@@ -12,8 +12,8 @@
 #include "protocol_gasup.h"
 
 typedef enum {
-	VALVE_STATUS_ON = 0,
-	VALVE_STATUS_OFF = 1,
+	VALVE_STATUS_OFF = 0,
+	VALVE_STATUS_ON = 1,
 	VALVE_STATUS_ABORT = 2,
 	VALVE_STATUS_NONE = 3,
 } VALVE_STATUS; /// valve status

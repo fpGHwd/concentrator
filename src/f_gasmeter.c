@@ -67,10 +67,12 @@ void fgasmeter_open(void)
 		return;
 	safe_read(pinfo->fd, &pinfo->db, size);
 
+	/*
 	if(debug_ctrl.gasmeter_test){
 		PRINTF("test meter: add a meter first, which is already in the meter database\n");
 		test_add_a_meter();
 	}
+	*/
 }
 
 static void fgasmeter_flush(void) {
@@ -200,7 +202,7 @@ BOOL fgasmeter_getgasmeter(int index, BYTE *address, BYTE *collector)
 				memset(collector, 0, 5);
 			}
 		} else {
-			memset(collector, 0, 5); // ?
+			memset(collector, 0, 5);
 		}
 	}
 	sem_post(&pinfo->sem_db);
@@ -221,7 +223,7 @@ static int fgasmeter_addcollector_sub(const BYTE *address, BOOL lock)
 	}
 	for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 		pdb = &pinfo->db.collector_db[i];
-		if (pdb->b_valid && memcmp(pdb->address, address, 5) == 0) {
+		if (pdb->b_valid && memcmp(pdb->address, address, 5) == 0) { // fixme: maybe 7
 			b_add_success = TRUE;
 			index = i;
 			break;
@@ -284,9 +286,9 @@ BOOL fgasmeter_addgasmeter(const BYTE *address, const BYTE *collector)
 	GASMETER_DB *pdb;
 	BOOL b_add_success = FALSE;
 
-	if (address == NULL || collector == NULL) /// bottom check
+	if (address == NULL || collector == NULL)
 		return FALSE;
-	sem_wait(&pinfo->sem_db); /// this set, why need , more  logic(because one gasmeter_info) instinct
+	sem_wait(&pinfo->sem_db);
 	for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 		pdb = &pinfo->db.gasmeter_db[i];
 		if (pdb->b_valid && memcmp(pdb->address, address, 7) == 0) {
@@ -299,7 +301,7 @@ BOOL fgasmeter_addgasmeter(const BYTE *address, const BYTE *collector)
 	if (!b_add_success) { // if not found
 		for (i = 0; i < MAX_GASMETER_NUMBER; i++) {
 			pdb = &pinfo->db.gasmeter_db[i];
-			if (!pdb->b_valid) { /// find a least number of invalid gasmeter and replace it with new gasmeter adress
+			if (!pdb->b_valid) { // find a least number of invalid gasmeter and replace it with new gasmeter adress
 				fgasmeter_init_gasmeter(pdb);
 				memcpy(pdb->address, address, 7);
 				pdb->collector_idx = fgasmeter_addcollector_sub(collector,
@@ -323,7 +325,7 @@ BOOL fgasmeter_addgasmeter(const BYTE *address, const BYTE *collector)
 	return b_add_success;
 }
 
-BOOL fgasmeter_delgasmeter(const BYTE *address, const BYTE *collector) /// delete gas meter, why collector?
+BOOL fgasmeter_delgasmeter(const BYTE *address, const BYTE *collector)
 {
 	int i;
 	GASMETER_INFO *pinfo = &gasmeter_info;
@@ -369,7 +371,7 @@ BOOL fgasmeter_setgasmeter_clock(int index, long tt)
 	sem_wait(&pinfo->sem_db);
 	pdb = &pinfo->db.gasmeter_db[index];
 	pdb->u.private.gasmeter_tt = tt;
-	fgasmeter_update_gasmeter(index, TRUE); /// update index
+	fgasmeter_update_gasmeter(index, TRUE);
 	sem_post(&pinfo->sem_db);
 	return TRUE;
 }
@@ -489,16 +491,13 @@ BOOL fgasmeter_is_empty(void) {
 int get_valid_meter_amount_in_database(void) /// added by wd
 {
 	int idx, ret;
-	//GASMETER_DB *pdb;
-	//GASMETER_INFO *pinfo = &gasmeter_info;
+
 	BYTE address[7], collector[5];
 
 	ret = 0;
 	for (idx = 0; idx < MAX_GASMETER_NUMBER; idx++) {
 		if (fgasmeter_getgasmeter(idx, address, collector)) {
 			ret++;
-			///printf("%d meter: ", ret); /// printf("%d meter: ") ,,, 0 meter
-			///PRINTB("which address is ", address, sizeof(address));///
 		} else {
 			continue;
 		}
@@ -546,8 +545,8 @@ int valid_meter_sum(void) {
 }
 
 void test_add_a_meter(void) {
-	BYTE address[7] = { 0x23, 0x05, 0x16, 0x06, 0x00, 0x00, 0x02 }; /// 23051606000002
-	BYTE collector[7] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55 }; /// 00000000000055
+	BYTE address[7] = { 0x23, 0x05, 0x16, 0x06, 0x00, 0x00, 0x02 };
+	BYTE collector[7] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55 };
 
 	if(fgasmeter_addgasmeter(address, collector)){
 		printf("add a meter for test successfully\n");

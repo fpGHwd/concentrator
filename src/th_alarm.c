@@ -35,6 +35,10 @@ static void conalm_check_battery_bad(void)
 	}
 }
 
+// fixme:
+// xxx:
+// todo:
+
 static void gasmeteralm_check_gas_leak(int mtidx) /// leak
 {
 	GASMETER_ALARM_T alarm;

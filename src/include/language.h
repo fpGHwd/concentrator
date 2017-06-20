@@ -224,5 +224,10 @@ extern const char *clear_successfully;
 extern const char *clear_unsuccessfully;
 
 extern const char *c_abort_str;
+extern const char *add_a_meter;
+extern const char *meter_has_existed;
+extern const char *add_meter_success;
+extern const char *ensure_to_delete_meter;
+extern const char *delete_success;
 
 #endif /* LANGUAGE_H_ */

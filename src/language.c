@@ -248,4 +248,9 @@ const char *clear_successfully = "清除成功";
 const char *clear_unsuccessfully = "清除失败";
 
 const char *c_abort_str = "中止";
+const char *add_a_meter = "单表添加";
+const char *meter_has_existed = "表已存在";
+const char *add_meter_success = "添加成功";
+const char *ensure_to_delete_meter = "删除按确认";
+const char *delete_success = "删除成功";
 

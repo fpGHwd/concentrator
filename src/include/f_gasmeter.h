@@ -21,7 +21,7 @@ typedef struct {
 	union {
 		BYTE unused[64];
 		struct {
-		} private; ///
+		} private;
 	} u;
 } COLLECTOR_DB;
 
