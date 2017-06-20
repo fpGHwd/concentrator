@@ -19,9 +19,9 @@ typedef struct {
 	SPONT_INFO spont_info;
 } SPONT_CHANNEL_INFO;
 
-static SPONT_CHANNEL_INFO spont_channel_info[MAX_SPONT_CHANNEL_CNT]; /// 自动报警注册
+static SPONT_CHANNEL_INFO spont_channel_info[MAX_SPONT_CHANNEL_CNT];
 
-int spontalarm_register_channel(const char *name) /// 自动报警注册
+int spontalarm_register_channel(const char *name)
 {
 	int i, size;
 	SPONT_CHANNEL_INFO *pinfo;

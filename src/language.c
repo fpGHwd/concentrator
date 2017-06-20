@@ -254,3 +254,4 @@ const char *add_meter_success = "添加成功";
 const char *ensure_to_delete_meter = "删除按确认";
 const char *delete_success = "删除成功";
 
+const char *valve_abnormal = "异常";

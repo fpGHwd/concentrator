@@ -56,7 +56,7 @@ static UP_COMM_INTERFACE gprscdma_comm = {
 static BOOL check_gprscdma_online(struct UP_COMM_ST *up) /// change by wd 20170608
 {
 	BOOL ret = (up->up_status == e_up_online);
-	static bool prev_state = false; // define and initialize prev_state, not assign value to prev_state false every time
+	static bool prev_state = false;
 
 	if (ret && prev_state == false) {
 		lcd_update_info(c_login_ok_str);

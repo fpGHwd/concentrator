@@ -71,7 +71,7 @@ static void fparam_default_init(void) {
 	offset += 7;
 	fparam_add(idx++, FPARAMID_COMM_HOST_IP_PRI, 4, offset, test_ip);
 	offset += 4;
-	fparam_add(idx++, FPARAMID_COMM_HOST_PORT_PRI, 2, offset, test_port); /// one bye one arguemnt to target
+	fparam_add(idx++, FPARAMID_COMM_HOST_PORT_PRI, 2, offset, test_port);
 	offset += 2;
 	fparam_add(idx++, FPARAMID_COMM_HOST_IP_MINOR, 4, offset,
 			"\x2D\x4E\x2A\xBD");
@@ -80,9 +80,9 @@ static void fparam_default_init(void) {
 	offset += 2;
 	fparam_add(idx++, FPARAMID_HEARTBEAT_CYCLE, 2, offset, "\x78\x00");
 	offset += 2;
-	fparam_add(idx++, FPARAMID_READMETER_FREQ, 2, offset, "\x00\x21"); //fparam_add(idx++, FPARAMID_READMETER_FREQ, 2, offset, "\x00\x21"); /// 21-每天抄表 
+	fparam_add(idx++, FPARAMID_READMETER_FREQ, 2, offset, "\x00\x21");
 	offset += 2;
-	fparam_add(idx++, FPARAMID_APN_ID, APN_LENGTH, offset, "UNINET"); /// NOPE
+	fparam_add(idx++, FPARAMID_APN_ID, APN_LENGTH, offset, "UNINET");
 	offset += APN_LENGTH;
 	fparam_add(idx++, FPARAMID_APN_USER_ID, APN_LENGTH, offset, "CMNET");
 	offset += APN_LENGTH;
@@ -90,7 +90,7 @@ static void fparam_default_init(void) {
 	offset += APN_LENGTH;
 	fparam_add(idx++, FPARAMID_CON_VERIFY_PASSWD, 3, offset, "\x00\x00\x00");
 	offset += 3;
-	// todo: add if repeater enable function
+	// TODO: repeater function
 }
 
 void fparam_init(void) {
@@ -99,17 +99,17 @@ void fparam_init(void) {
 
 	sem_init(&sem_f_param, 0, 1);
 	if (!check_file(name, size)) {
-		PRINTF("File %s is created, size:%d\n", name, size); /// create f_param.dat file
+		PRINTF("File %s is created, size:%d\n", name, size);
 		fd_f_param = open(name, O_CREAT | O_RDWR | O_TRUNC, 0600);
 		fparam_default_init();
-		safe_write(fd_f_param, p_f_param, size); /// write p_f_param into fd_f_param descriptor target file(f_param.dat)
+		safe_write(fd_f_param, p_f_param, size);
 		fdatasync(fd_f_param);
-		close(fd_f_param); /// system call
+		close(fd_f_param);
 	}
 	fd_f_param = open(name, O_RDWR);
 	if (fd_f_param < 0)
 		return;
-	safe_read(fd_f_param, p_f_param, size);  /// make sure file can be safe read
+	safe_read(fd_f_param, p_f_param, size);
 }
 
 void fparam_flush(void) {

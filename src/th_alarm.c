@@ -16,6 +16,8 @@
 #include "f_current.h"
 #include "lcd.h"
 
+#define INTERVAL_TIME_MS (100u)
+
 static void conalm_check_battery_bad(void)
 {
 	CON_ALARM_T alarm;
@@ -31,15 +33,11 @@ static void conalm_check_battery_bad(void)
 		for (i = 0; i < MAX_SPONT_CHANNEL_CNT; i++) {
 			alarm.data.status[i] = ALARM_SPONT_STATUS_UNSEND;
 		}
-		fconalm_add(&alarm); /// TODO: add to fconalm(file), move the alarm to the file
+		fconalm_add(&alarm);
 	}
 }
 
-// fixme:
-// xxx:
-// todo:
-
-static void gasmeteralm_check_gas_leak(int mtidx) /// leak
+static void gasmeteralm_check_gas_leak(int mtidx)
 {
 	GASMETER_ALARM_T alarm;
 	GASMETER_CJT188_901F di_data;
@@ -61,7 +59,7 @@ static void gasmeteralm_check_gas_leak(int mtidx) /// leak
 		for (i = 0; i < MAX_SPONT_CHANNEL_CNT; i++) {
 			alarm.data.status[i] = ALARM_SPONT_STATUS_UNSEND;
 		} /// get the alarm
-		fgasmeteralm_add(&alarm); /// move the alarm to the file
+		fgasmeteralm_add(&alarm);
 	}
 }
 
@@ -90,7 +88,7 @@ static void gasmeteralm_check_reed_bad(int mtidx) {
 	}
 }
 
-static void gasmeteralm_check_magnetic_disturb(int mtidx)  /// magnetic disturb
+static void gasmeteralm_check_magnetic_disturb(int mtidx)
 {
 	GASMETER_ALARM_T alarm;
 	GASMETER_CJT188_901F di_data;
@@ -116,7 +114,7 @@ static void gasmeteralm_check_magnetic_disturb(int mtidx)  /// magnetic disturb
 	}
 }
 
-static void gasmeteralm_check_valva_bad(int mtidx) ///value bad
+static void gasmeteralm_check_valve_bad(int mtidx)
 {
 	GASMETER_ALARM_T alarm;
 	GASMETER_CJT188_901F di_data;
@@ -127,14 +125,14 @@ static void gasmeteralm_check_valva_bad(int mtidx) ///value bad
 	if (!fcurrent_get_data(mtidx, 0x901F, &di_data))
 		return;
 	memcpy(st, di_data.di_data.st, 2);
-	if ((st[0] & 0x03) == 0x03) {
+	if (((st[0] >> 6) & 0x03) == 0x03) { // fixme: (st[0] > 6) & 0x03 == 0x03 informal value status
 		fparam_get_value(FPARAMID_CON_ADDRESS, con_addr, sizeof(con_addr));
 		memcpy(alarm.address, &con_addr[3], 5);
 		fgasmeter_getgasmeter(mtidx, meterid, collector);
 		memcpy(alarm.collector, collector, 5);
 		memcpy(alarm.meterid, meterid, 7);
 		time(&alarm.data.alarm_tt);
-		alarm.data.type = GASMETER_ALARM_TYPE_VALVA_BAD;
+		alarm.data.type = GASMETER_ALARM_TYPE_VALVE_BAD;
 		for (i = 0; i < MAX_SPONT_CHANNEL_CNT; i++) {
 			alarm.data.status[i] = ALARM_SPONT_STATUS_UNSEND;
 		}
@@ -142,7 +140,7 @@ static void gasmeteralm_check_valva_bad(int mtidx) ///value bad
 	}
 }
 
-static void gasmeteralm_check_battery_bad(int mtidx) /// gasmeter battery bad
+static void gasmeteralm_check_battery_bad(int mtidx)
 {
 	GASMETER_ALARM_T alarm;
 	GASMETER_CJT188_901F di_data;
@@ -164,63 +162,62 @@ static void gasmeteralm_check_battery_bad(int mtidx) /// gasmeter battery bad
 		for (i = 0; i < MAX_SPONT_CHANNEL_CNT; i++) {
 			alarm.data.status[i] = ALARM_SPONT_STATUS_UNSEND;
 		}
-		fgasmeteralm_add(&alarm); /// save alarm
+		fgasmeteralm_add(&alarm);
 	}
 }
 
 typedef struct {
-	long last_tt; /// 持续时间
-	long interval_tt; /// 间隔
-	void (*check_fn)(void); /// 检查函数
-	CON_ALARM_TYPE type; /// 警告类型
-} CON_ALARM_CONFIG; /// 集中器告警配置
+	long last_tt;
+	long interval_tt;
+	void (*check_fn)(void);
+	CON_ALARM_TYPE type;
+} CON_ALARM_CONFIG;
 
 typedef struct {
-	long last_tt[MAX_GASMETER_ALARM_CNT]; /// 5000 告警
+	long last_tt[MAX_GASMETER_ALARM_CNT];
 	long interval_tt;
 	void (*check_fn)(int);
 	GASMETER_ALARM_TYPE type;
-} GASMETER_ALARM_CONFIG; /// 表告警配置
+} GASMETER_ALARM_CONFIG;
 
-static CON_ALARM_CONFIG con_alm_config[] = { /// 9个集中器告警类型
-		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_FORCE_VALVAOFF }, { 0, 24 * 3600,
-				NULL, CON_ALARM_TYPE_GAS_LEAK }, { 0, 24 * 3600, NULL,
-				CON_ALARM_TYPE_REED_BAD }, { 0, 24 * 3600, NULL,
-				CON_ALARM_TYPE_STORAGE_BAD }, { 0, 24 * 3600, NULL,
-				CON_ALARM_TYPE_MAGNETIC_DISTURB }, { 0, 24 * 3600, NULL,
-				CON_ALARM_TYPE_DIE_METER }, { 0, 24 * 3600, NULL,
-				CON_ALARM_TYPE_VALVA_BAD }, { 0, 24 * 3600, NULL,
-				CON_ALARM_TYPE_CANCEL_FORCEOFF }, { 0, 24 * 3600,
-				conalm_check_battery_bad, CON_ALARM_TYPE_BATTERY_BAD }, };
+static CON_ALARM_CONFIG con_alm_config[] = {
+		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_FORCE_VALVAOFF },
+		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_GAS_LEAK },
+		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_REED_BAD },
+		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_STORAGE_BAD },
+		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_MAGNETIC_DISTURB },
+		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_DIE_METER },
+		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_VALVA_BAD },
+		{ 0, 24 * 3600, NULL, CON_ALARM_TYPE_CANCEL_FORCEOFF },
+		{ 0, 24 * 3600, conalm_check_battery_bad, CON_ALARM_TYPE_BATTERY_BAD },
+};
 
-static GASMETER_ALARM_CONFIG gasmeter_alm_config[] = { /// 9个表告警类型
-		{ { 0 }, 24 * 3600, NULL, GASMETER_ALARM_TYPE_FORCE_VALVAOFF }, { { 0 },
-				24 * 3600, gasmeteralm_check_gas_leak,
-				GASMETER_ALARM_TYPE_GAS_LEAK }, { { 0 }, 24 * 3600,
-				gasmeteralm_check_reed_bad, GASMETER_ALARM_TYPE_REED_BAD }, { {
-				0 }, 24 * 3600, NULL, GASMETER_ALARM_TYPE_STORAGE_BAD }, {
-				{ 0 }, 24 * 3600, gasmeteralm_check_magnetic_disturb,
-				GASMETER_ALARM_TYPE_MAGNETIC_DISTURB }, { { 0 }, 24 * 3600,
-				NULL, GASMETER_ALARM_TYPE_DIE_METER }, { { 0 }, 24 * 3600,
-				gasmeteralm_check_valva_bad, GASMETER_ALARM_TYPE_VALVA_BAD }, {
-				{ 0 }, 24 * 3600, NULL, GASMETER_ALARM_TYPE_CANCEL_FORCEOFF }, {
-				{ 0 }, 24 * 3600, gasmeteralm_check_battery_bad,
-				GASMETER_ALARM_TYPE_BATTERY_BAD }, };
+static GASMETER_ALARM_CONFIG gasmeter_alm_config[] = {
+		{ { 0 }, 24 * 3600, NULL, GASMETER_ALARM_TYPE_FORCE_VALVAOFF },
+		{ { 0 }, 24 * 3600, gasmeteralm_check_gas_leak,GASMETER_ALARM_TYPE_GAS_LEAK },
+		{ { 0 }, 24 * 3600, gasmeteralm_check_reed_bad, GASMETER_ALARM_TYPE_REED_BAD },
+		{ { 0 }, 24 * 3600, NULL, GASMETER_ALARM_TYPE_STORAGE_BAD },
+		{ { 0 }, 24 * 3600, gasmeteralm_check_magnetic_disturb, GASMETER_ALARM_TYPE_MAGNETIC_DISTURB },
+		{ { 0 }, 24 * 3600, NULL, GASMETER_ALARM_TYPE_DIE_METER },
+		{ { 0 }, 24 * 3600, gasmeteralm_check_valve_bad, GASMETER_ALARM_TYPE_VALVE_BAD },
+		{ { 0 }, 24 * 3600, NULL, GASMETER_ALARM_TYPE_CANCEL_FORCEOFF },
+		{ { 0 }, 24 * 3600, gasmeteralm_check_battery_bad, GASMETER_ALARM_TYPE_BATTERY_BAD }
+};
 
-static void conalm_init(void) /// concentrator alarm initiate
+static void conalm_init(void)
 {
 	CON_ALARM_T alarm;
 	int i, j;
-	CON_ALARM_CONFIG *pcfg; /// nothing
+	CON_ALARM_CONFIG *pcfg;
 
-	for (i = 0; i < MAX_CON_ALARM_CNT; i++) { /// 1000
-		if (!fconalm_get_data(i, &alarm, -1)) /// fine concentrator alarm with valid record
+	for (i = 0; i < MAX_CON_ALARM_CNT; i++) {
+		if (!fconalm_get_data(i, &alarm, -1))
 			continue;
-		for (j = 0; j < ARRAY_SIZE(con_alm_config); j++) { ///
-			pcfg = &con_alm_config[j]; /// pointer to configuration
-			if (!pcfg->check_fn && alarm.valid && alarm.data.type == pcfg->type /// check function exist; alarm valid, 
-			&& alarm.data.alarm_tt > pcfg->last_tt) { /// last time
-				pcfg->last_tt = alarm.data.alarm_tt; /// 持续时间
+		for (j = 0; j < ARRAY_SIZE(con_alm_config); j++) {
+			pcfg = &con_alm_config[j];
+			if (!pcfg->check_fn && alarm.valid && alarm.data.type == pcfg->type
+			&& alarm.data.alarm_tt > pcfg->last_tt) {
+				pcfg->last_tt = alarm.data.alarm_tt;
 			}
 		}
 	}
@@ -232,11 +229,11 @@ static void conalm_check(void) {
 	CON_ALARM_CONFIG *pcfg;
 
 	time(&tt);
-	for (i = 0; i < ARRAY_SIZE(con_alm_config); i++) { /// 9种告警
+	for (i = 0; i < ARRAY_SIZE(con_alm_config); i++) {
 		pcfg = &con_alm_config[i];
-		if (tt > pcfg->last_tt && tt - pcfg->last_tt > pcfg->interval_tt /// 现在的时间 - 最后一次时间 > 间隔时间（一天）
+		if (tt > pcfg->last_tt && tt - pcfg->last_tt > pcfg->interval_tt
 		&& pcfg->check_fn) {
-			pcfg->check_fn(); /// check
+			pcfg->check_fn();
 			pcfg->last_tt = time(NULL);
 		}
 	}
@@ -249,9 +246,9 @@ static void gasmeteralm_init(void) {
 	int mtidx;
 
 	for (i = 0; i < MAX_CON_ALARM_CNT; i++) {
-		if (!fgasmeteralm_get_data(i, &alarm, -1)) /// if alarm is existing
+		if (!fgasmeteralm_get_data(i, &alarm, -1))
 			continue;
-		for (j = 0; j < ARRAY_SIZE(con_alm_config); j++) { /// ARRAY_SIZE /// 9种告警
+		for (j = 0; j < ARRAY_SIZE(con_alm_config); j++) {
 			pcfg = &gasmeter_alm_config[j];
 			if (!alarm.valid)
 				continue;
@@ -287,7 +284,7 @@ static void gasmeteralm_check(void) {
 	}
 }
 
-void *th_alarm(void * arg) /// this is the core
+void *th_alarm(void * arg)
 {
 	print_thread_info();
 	conalm_init();
@@ -298,7 +295,7 @@ void *th_alarm(void * arg) /// this is the core
 		gasmeteralm_check();
 		lcd_update_head_info();
 
-		msleep(100); /// change time
+		msleep(INTERVAL_TIME_MS);
 	}
 	return NULL;
 }

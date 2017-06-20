@@ -10,7 +10,7 @@
 #include "spont_alarm.h"
 
 typedef struct {
-	BYTE alarm_head[(MAX_CON_ALARM_CNT + 7) / 8];
+	BYTE alarm_head[(MAX_CON_ALARM_CNT + 7) / 8]; // 1001 -> 126
 	CON_ALARM_T alarm[MAX_CON_ALARM_CNT];
 	sem_t sem_db;
 	sem_t sem_f_alarm;
@@ -40,7 +40,7 @@ void fconalm_open(void) {
 	size = sizeof(pinfo->alarm_head) + sizeof(pinfo->alarm);
 	sem_init(&pinfo->sem_db, 0, 1);
 	sem_init(&pinfo->sem_f_alarm, 0, 1);
-	if (!check_file(name, size)) {
+	if (!check_file(name, size)) { // if there is no this file, create this file
 		PRINTF("File %s is created, size:%d\n", name, size);
 		pinfo->fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0600);
 		fconalm_head_init(pinfo->alarm_head);
@@ -52,10 +52,10 @@ void fconalm_open(void) {
 		fdatasync(pinfo->fd);
 		close(pinfo->fd);
 	}
-	pinfo->fd = open(name, O_RDWR);
+	pinfo->fd = open(name, O_RDWR); // open this file and get its file descriptor
 	if (pinfo->fd < 0)
 		return;
-	safe_read(pinfo->fd, pinfo->alarm_head, sizeof(pinfo->alarm_head));
+	safe_read(pinfo->fd, pinfo->alarm_head, sizeof(pinfo->alarm_head)); // read file to memory
 	safe_read(pinfo->fd, pinfo->alarm, sizeof(pinfo->alarm));
 }
 
@@ -120,7 +120,7 @@ int fconalm_add(const CON_ALARM_T *palarm) {
 	FCONALM_INFO *pinfo = &fconalm_info;
 
 	if (palarm == NULL) {
-		PRINTF("%s invalid ALARM\n", __FUNCTION__);
+		PRINTF("%s invalid ALARM\n", __func__);
 		return -1;
 	}
 	for (i = 0; i < MAX_CON_ALARM_CNT; i++) {

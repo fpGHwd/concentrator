@@ -230,4 +230,6 @@ extern const char *add_meter_success;
 extern const char *ensure_to_delete_meter;
 extern const char *delete_success;
 
+extern const char *valve_abnormal;
+
 #endif /* LANGUAGE_H_ */

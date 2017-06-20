@@ -1106,22 +1106,22 @@ void lcd_update_head_info(void) {
 
 	y = row_to_y(1);
 	if (remote_module_get_netinfo(&type, &value, &level)) {
-		lcd_show_icon(1, 1, level - 1);
+		lcd_show_icon(1, 1, level - 1); // signal
 		lcd_show_icon(1, 3, (type == 0) ? 4 : 5);
 	} else {
 		lcd_hide_icon(1, 1, 4);
-		lcd_hide_icon(1, 3, 4);
+		lcd_hide_icon(1, 3, 4); // G or C
 		lcd_hide_icon(1, 3, 5);
 	}
-	if (fep_is_connect())
+	if (fep_is_connect()) // connect
 		lcd_show_icon(1, 5, 6);
 	else
 		lcd_hide_icon(1, 5, 6);
-	if (fconalm_changed())
+	if (fconalm_changed()) // 7 ->
 		lcd_show_icon(1, 7, 7);
 	else
 		lcd_hide_icon(1, 7, 7);
-	if (fparam_get_program_status())
+	if (fparam_get_program_status()) // 11 -> E
 		lcd_show_icon(1, 7, 11);
 	else
 		lcd_hide_icon(1, 7, 11);
