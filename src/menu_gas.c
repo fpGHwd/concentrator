@@ -486,9 +486,10 @@ static void realtime_read_meter(BYTE flag, void *para, const char *info)
 		//PRINTB("resp_buf:", resp_buf, sizeof(resp_buf));
 		lcd_show_string(++current_row, 1, strlen(buff),buff);
 
-		// state
-		if(sprintf(buff, "%s%s", c_valve_status_str,(resp_buf[20] & (3u << 6))?
-					c_valve_status_closed_str:c_valve_status_open_str) < 0){ // 00:closed, 01:open
+		// value state
+		if(sprintf(buff, "%s%s", c_valve_status_str,
+				((resp_buf[20] >> 6) & 0x03)? ((((resp_buf[20] >> 6) & 0x03) == 0x01)?
+				c_valve_status_closed_str: valve_abnormal):c_valve_status_open_str) < 0){
 			error_tip(inner_error, ERROR_DELAY_TIME_MSECONDS);
 			return;
 		}
@@ -812,8 +813,6 @@ static void query_data(BYTE flag, void *para, const char *info)
 	init_menu(&items_menu.menu);
 	items_menu.cur_line = 1;
 
-	//items_menu.menu.str[idx] = single_meter; // todo: add string
-	//items_menu.func[idx++] = single_meter_operation; // fixme: add
 	items_menu.menu.str[idx] = add_a_meter; // fixme: implement the string
 	items_menu.func[idx++] = add_a_meter_implementation; // fixme: implementation
 	items_menu.menu.str[idx] = menu_name1_3;
@@ -1250,7 +1249,7 @@ static void usb_update(BYTE flag, void *para, const char *info) {
  }
  */
 
-static void terminal_id(BYTE flag, void *para, const char *info) /// show terminal id
+static void terminal_id(BYTE flag, void *para, const char *info)
 {
 	MENU menu;
 	BYTE addr[7];
