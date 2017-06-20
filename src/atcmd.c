@@ -11,6 +11,17 @@
 #include "serial.h"
 #include "threads.h"
 
+/**
+ *
+ * @param fd
+ * @param send
+ * @param recv
+ * @param max_len
+ * @param timeout1
+ * @param timeout2
+ * @param silent
+ * @return
+ */
 int at_cmd_sub(int fd, const char *send, char *recv, int max_len, int timeout1,
 		int timeout2, BOOL silent) {
 	char temp[1024];

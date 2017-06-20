@@ -38,7 +38,7 @@ void led_fade(void);
 
 enum lora_leds{
 	LED_LORA_SEND,
-	LED_LORA_RECEIVE
+	LED_LORA_RECEIVE,
 };
 void lora_led_ctrl(enum lora_leds led, bool light);
 

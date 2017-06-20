@@ -189,7 +189,7 @@ int m590e_send(int fd, const BYTE *buf, int len, int *errcode)
 	while (len > 0) { // remaining length
 		memset(send,0x0,sizeof(send)); // send buff
 		if (len > MAX_DEFAULT_SEND_LEN) { // length > 1024, 6319 bytes
-			snprintf(send, sizeof(send), "AT$MYNETACK=%d\r", M590E_SOCKET_ID); // TODO: correct
+			snprintf(send, sizeof(send), "AT$MYNETACK=%d\r", M590E_SOCKET_ID);
 			if (at_cmd(fd, send, resp, sizeof(resp), t1, t2) > 0) {
 				if ((resp_ptr = strstr(resp, "$MYNETACK:")) != NULL) {// if CIPSEND: IN
 					resp_ptr = strstr(resp_ptr, ":");

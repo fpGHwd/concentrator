@@ -1008,7 +1008,7 @@ UINT32 ptl_gasup_fn_2044(const PTL_GASUP_MSG *msg, INT8 *outdata, INT32 max_outl
 			if (blockidx >= MAX_GASMETER_DAY_CNT)
 				break;
 			pstart = ptr;
-			bcd_be_stoc(ptr, 0); // xiang ying ma
+			bcd_be_stoc(ptr, 0); // response code
 			ptr += 2;
 			memcpy(ptr, msg->data, 17); //  5 + 5 + 7
 			ptr += 17;

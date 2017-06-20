@@ -127,13 +127,13 @@ BOOL fgasmeteralm_get_data(int alarmidx, GASMETER_ALARM_T *palarm, int chnidx) {
 	FGASMETERALM_INFO *pinfo = &fgasmeteralm_info;
 	BOOL b_success = FALSE;
 
-	if (alarmidx < 0 || alarmidx >= MAX_GASMETER_ALARM_CNT) /// alarmidx error
+	if (alarmidx < 0 || alarmidx >= MAX_GASMETER_ALARM_CNT)
 		return FALSE;
 	sem_wait(&pinfo->sem_db);
 	p = &pinfo->alarm[alarmidx]; /// alarm
 	if (p->valid) {
 		if (palarm) {
-			*palarm = *p; /// memcpy(palarm, p, sizeof(GASMETER_ALARM_T));
+			*palarm = *p;
 		}
 		b_success = TRUE;
 		if (chnidx >= 0 && chnidx < g_spont_cnt) {
@@ -161,3 +161,5 @@ int reset_fgasmeteralm_data(void) {
 
 	return ret;
 }
+
+
