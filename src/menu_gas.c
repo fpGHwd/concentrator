@@ -25,6 +25,8 @@
 #include "f_gasmeter_alarm.h"
 #include "th_gasmeter.h"
 
+#include <unistd.h>
+
 static const char *fmt_num = "0123456789";
 
 #define METER_ID_LENGTH 14
@@ -1071,15 +1073,15 @@ static void restart_terminal_function(BYTE flag, void *para, const char *info) {
 			c_restarting_terminal_str);
 	g_terminated = 1;
 	led_fade();
-	// TODO: rewrite for error // reboot before fsync files
-	modem_gprs_shutdown();
+	///modem_gprs_shutdown();
 	sleep(5);
 	lcd_clean_workspace();
-
 	printf("reboot\n");
 	LOG_PRINTF_ALLOCATE(
 			"Reboot in file:%s, in func: %s, line: %d, allocation size: %d\n",
 			__FILE__, __func__, __LINE__);
+	//fflush(stdout); // FIXME: when get SIGTERM should fflush and fsync files
+	//fsync();
 	ret = system("/sbin/reboot");
 
 	return;
@@ -1334,6 +1336,8 @@ static void set_terminal_time(BYTE flag, void *para, const char *info) {
 	}
 	return;
 }
+
+// fixme: concentrator03 seems not readmeter
 
 static void password_setting(BYTE flag, void *para, const char *info) {
 

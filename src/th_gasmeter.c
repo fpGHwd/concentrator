@@ -53,6 +53,7 @@ void *th_gasmeter_event(void *arg) {
 	last_read_tm = cur_tm;
 	while (!g_terminated) {
 		msleep(100);
+		sleep(5);
 		notify_watchdog();
 
 		if (is_first) {
@@ -76,6 +77,25 @@ void *th_gasmeter_event(void *arg) {
 				}
 				break;
 			case 0x21:
+				/*
+				if(cur_tm.tm_year != last_read_tm.tm_year){
+					if(cur_tm.tm_min >= 5 && cur_tm.tm_min < 55){
+						app_event_send(&event_rdmeter, EVENT_RDMETER);
+						last_read_tm = cur_tm;
+					}
+
+				}else if(cur_tm.tm_mon != last_read_tm.tm_mon){
+					if(cur_tm.tm_min >= 5 && cur_tm.tm_min < 55){
+						app_event_send(&event_rdmeter, EVENT_RDMETER);
+						last_read_tm = cur_tm;
+					}
+				}else if(cur_tm.tm_mday != last_read_tm.tm_mday){
+					if(cur_tm.tm_min >= 5 && cur_tm.tm_min < 55){
+						app_event_send(&event_rdmeter, EVENT_RDMETER);
+						last_read_tm = cur_tm;
+					}
+				}*/
+
 				if ((cur_tm.tm_year != last_read_tm.tm_year
 						|| cur_tm.tm_mon != last_read_tm.tm_mon
 						|| cur_tm.tm_mday != last_read_tm.tm_mday)
@@ -570,7 +590,7 @@ void *th_gasmeter(void *arg) {
 							PRINTF("%s: Receive no data till timeout\n", __FUNCTION__);
 							fcurrent_set_status(
 									fgasmeter_getidx_by_gasmeter(address),
-									read_dis[j], GASMETER_READ_STATUS_ABORT);
+									read_dis[j], GASMETER_READ_STATUS_ABORT); /// set read meter status abort
 							continue;
 						}else{
 							gasmeter_save_data(address, collector, read_dis[j],

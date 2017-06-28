@@ -33,18 +33,20 @@ void threads_create(void)
 {
 	int i;
 
-	/*
-#if 0 // for test the gprscdma thread
+#ifdef TEST_GPRSCDMA_THREAD
 	pthread_create(&th[0], NULL, func[0], NULL);
 	return;
-#endif*/
+#else
 
-	for (i = 0; i < THREADS_COUNT; i ++) {
+	for (i = 0; i < THREADS_COUNT; i++) {
+#ifdef REGARDLESS_OF_ETHERNET_THREAD
 		if(i == 1)
 			continue;
+#endif // regardless of ethernet thread
 		pthread_create(&th[i], NULL, func[i], NULL);
 		PRINTF("Create thread %s\n", thread_name[i]);
 	}
+#endif // test_gprscdma thread
 
 }
 
@@ -52,20 +54,21 @@ void threads_join(void) {
 	int i;
 
 
-#if 0 // for test the gprscdma thread
+#ifdef TEST_GPRSCDMA_THREAD // only start gprscdma thread
 	pthread_join(th[0], NULL);
 	PRINTF("Exiting thread %s\n", thread_name[0]);
 	return;
 #else
 
 	for (i = 0; i < THREADS_COUNT; i++) {
+#ifdef REGARDLESS_OF_ETHERNET_THREAD
 		if( i == 1 )
 			continue;
+#endif // regardless of ethernet thread
 		pthread_join(th[THREADS_COUNT - 1 - i], NULL);
 		PRINTF("Exiting thread %s\n", thread_name[THREADS_COUNT - 1 - i]);
 	}
-
-#endif
+#endif // only start gprscdma thread
 }
 
 int which_thread(void) {
@@ -100,13 +103,13 @@ void init_watchdog(void) {
 	// get watch dog seconds
 	ioctl(watchdog_fd, WDIOC_GETTIMEOUT, &timeout);
 	if(timeout < 60)
-		PRINTF("the timeout of wactchdog is less than 60 seconds, set it 60 senconds\n");
+		PRINTF("the timeout of watchdog is less than 60 seconds, set it 60 senconds\n");
 		if(ioctl(watchdog_fd, WDIOC_SETTIMEOUT, &interval) != 0){
 			fprintf(stderr, "Error: Set watchdog interval failed\n");
 			//exit(EXIT_FAILURE);
 		}
 	else{
-		PRINTF("the timeout of wactchdog is not less than 60 seconds\n");
+		PRINTF("the timeout of watchdog is not less than 60 seconds\n");
 	}
 
 	if (ioctl(watchdog_fd, WDIOC_GETTIMEOUT, &interval) == 0) {
