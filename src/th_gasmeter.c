@@ -52,22 +52,20 @@ void *th_gasmeter_event(void *arg) {
 	sys_time(&cur_tm);
 	last_read_tm = cur_tm;
 	while (!g_terminated) {
-		sleep(100);
+		msleep(100);
 		notify_watchdog();
-		if (fgasmeter_is_empty()){
-			msleep(10);
-			continue;
-		}
+
 		if (is_first) {
-			///app_event_send(&event_rdmeter, EVENT_RDMETER); // comment by wd
-			sys_time(&last_read_tm);
+			//app_event_send(&event_rdmeter, EVENT_RDMETER);
+			//sys_time(&last_read_tm);
 			is_first = FALSE;
 		} else {
 			sys_time(&cur_tm);
 			fparam_get_value(FPARAMID_READMETER_FREQ, read_freq,
 					sizeof(read_freq));
+			///PRINTB("read_freq[2]", read_freq, 2);
 			switch (read_freq[1]) {
-			case 0x11: //every hour
+			case 0x11: // every hour
 				if ((cur_tm.tm_year != last_read_tm.tm_year
 						|| cur_tm.tm_mon != last_read_tm.tm_mon
 						|| cur_tm.tm_mday != last_read_tm.tm_mday
@@ -77,7 +75,7 @@ void *th_gasmeter_event(void *arg) {
 					last_read_tm = cur_tm;
 				}
 				break;
-			case 0x21: //day
+			case 0x21:
 				if ((cur_tm.tm_year != last_read_tm.tm_year
 						|| cur_tm.tm_mon != last_read_tm.tm_mon
 						|| cur_tm.tm_mday != last_read_tm.tm_mday)
@@ -86,7 +84,7 @@ void *th_gasmeter_event(void *arg) {
 					last_read_tm = cur_tm;
 				}
 				break;
-			case 0x31: //every month
+			case 0x31:
 				if ((cur_tm.tm_year != last_read_tm.tm_year
 						|| cur_tm.tm_mon != last_read_tm.tm_mon)
 						&& (cur_tm.tm_min >= 5 && cur_tm.tm_min < 55)) {

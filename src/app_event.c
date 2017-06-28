@@ -15,7 +15,7 @@ void app_event_init(app_event_t *pctrl) {
 }
 
 void app_event_wait(app_event_t *pctrl, INT32 bwait, UINT32 waitmask,
-		UINT32 *pevent) {
+		UINT32 *pevent) { // wait mask for other use
 	UINT32 ul;
 
 	pthread_mutex_lock(&pctrl->mutex);

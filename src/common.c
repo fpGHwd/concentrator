@@ -323,15 +323,15 @@ int wait_for_ready(int fd, int msec, int flag)
 			FD_ZERO(&fds);
 			FD_SET(fd, &fds);
 			if (!flag)
-				ret = select(fd + 1, &fds, NULL, NULL, &tv); /// check read status
+				ret = select(fd + 1, &fds, NULL, NULL, &tv); /// check read status // man select
 			else
-				ret = select(fd + 1, NULL, &fds, NULL, &tv); /// check write status
+				ret = select(fd + 1, NULL, &fds, NULL, &tv); /// check write status // man select
 		}
-		if (ret < 0 && errno == EINTR)
+		if (ret < 0 && errno == EINTR) // interrupted system call
 			continue;
-		return ret;
+		return ret; // the only return location
 	}
-	return 0;
+	return 0; // time is out
 }
 
 int safe_read_timeout(int fd, void *buf, int len, int timeout) {

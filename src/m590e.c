@@ -110,7 +110,7 @@ int m590e_ppp_connect(const char *device_name, const char *lock_name, const char
 		msleep(500);
 	}
 
-	// fail and close // add by nayowang @20170613 // close in device_initiate.
+	// fail and close // add by nayowang @20170613 // close in device_initiate. // fixme: maybe need fix
 	close_serial(fd);
 	if(lock_name)
 		remove(lock_name);

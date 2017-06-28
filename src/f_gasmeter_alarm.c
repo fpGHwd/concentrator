@@ -145,7 +145,6 @@ BOOL fgasmeteralm_get_data(int alarmidx, GASMETER_ALARM_T *palarm, int chnidx) {
 	return b_success;
 }
 
-// add by wd 
 int reset_fgasmeteralm_data(void) {
 	FGASMETERALM_INFO *pinfo = &fgasmeteralm_info;
 	int ret;

@@ -33,10 +33,11 @@ void threads_create(void)
 {
 	int i;
 
+	/*
 #if 0 // for test the gprscdma thread
 	pthread_create(&th[0], NULL, func[0], NULL);
 	return;
-#endif
+#endif*/
 
 	for (i = 0; i < THREADS_COUNT; i ++) {
 		if(i == 1)

@@ -7,11 +7,6 @@
 
 #include "protocol_cjt188_data.h"
 
-/**
- *
- * @param di
- * @param p
- */
 void ptl_cjt188_data_print(WORD di, void *p) {
 #define PRINT_HEX(x, a, b) hex_to_str(x, sizeof(x), a, b, TRUE)
 	GASMETER_CJT188_901F *data_901f;
@@ -51,15 +46,6 @@ void ptl_cjt188_data_init(WORD di, void *p)
 	}
 }
 
-/**
- *
- * @param p
- * @param di
- * @param tt
- * @param buf
- * @param buflen
- * @return
- */
 BOOL ptl_cjt188_data_format(void *p, WORD di, long tt, const BYTE *buf,
 		int buflen)
 {
