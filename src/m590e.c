@@ -266,11 +266,12 @@ int m590e_receive(int fd, BYTE *buf, int maxlen, int timeout, int *errcode)
 	if((ret = at_cmd_receive(fd, resp, sizeof(resp), t1, t2)) > 0){
 		if(strstr(resp, "$MYURCREAD: 0") == NULL){
 			PRINTF("%s Not found '$MYURCREAD'\n", __FUNCTION__);
-			PRINTB("Invalid data:", resp, ret);
 			if(strstr(resp, "$MYURCCLOSE: 0") != NULL){
+				PRINTF("Get '$MYURCCLOSE: 0' from GPRS module and close connection");
 				*errcode = REMOTE_MODULE_RW_ISP_CLOSE_CONNECT;
 			}else{
-				PRINTF("WARNNING: undefined and no implementation\n");
+				PRINTF("WARNNING: implementation undefined here!\n");
+				PRINTB("Invalid data:", resp, ret);
 				*errcode = REMOTE_MODULE_RW_ABORT;
 			}
 			return 0;
