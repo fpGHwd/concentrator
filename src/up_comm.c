@@ -64,18 +64,19 @@ static BOOL up_comm_heartbeat_proc(struct UP_COMM_ST *up)
 	int len;
 	BOOL ret;
 
-	if (up->private->hb_status == e_up_wait_response) { // up to threshold no response and disconnect
+	if (up->private->hb_status == e_up_wait_response) { // if wait response
 		if (uptime() - up->last_heartbeat_request > 3 * 60 * 1000) {
 			up->disconnect(up);
 			up->up_connect_status = e_up_disconnected;
+			up->private->hb_status = e_up_request; // modify a error @ 20170703(maybe a time not get response message and not reset this flag)
 		}
 		return FALSE;
 	}
 
-	if (uptime() - up->idle_uptime > up->heartbeat_cycle) {
+	if (uptime() - up->idle_uptime > up->heartbeat_cycle) { // if timeout to request
 		up->private->hb_status = e_up_request;
 	}
-	if (up->private->hb_status == e_up_request) { // request and reconnect
+	if (up->private->hb_status == e_up_request) { // if status request
 		if (up->heartbeat_request) {
 			ret = up->heartbeat_request(up);
 			up->idle_uptime = up->last_heartbeat_request = uptime();
@@ -153,12 +154,12 @@ void up_comm_proc(UP_COMM_INTERFACE *up)
 			up->idle_uptime = uptime();
 		} // login receive
 		if (uptime() - up->idle_uptime > 7 * 60){
-			up->need_diag = TRUE;
+			up->need_diag = TRUE; // for what
 			up->idle_uptime = uptime();
 		}
 		up_protocol_proc(up->que_in, up->que_out, up->receive, up->private); // proceed message if there are
 		up->comm_send(up); // send message if there are
-		up_comm_heartbeat_proc(up); // heart beat
+		up_comm_heartbeat_proc(up);
 		up_comm_spont_alarm(up); // alarm
 	}
 }
