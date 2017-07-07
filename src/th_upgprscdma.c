@@ -129,15 +129,17 @@ static INT32 gprscdma_fep_receive(struct UP_COMM_ST *up, int timeout)
 			return len;
 		}
 		else if(len <= 0){
-			if (errcode == REMOTE_MODULE_RW_ISP_CLOSE_CONNECT) {
+			if (errcode == REMOTE_MODULE_RW_ISP_CLOSE_CONNECT) { /// when receive the closed stirng from module
 				up->up_status = e_up_offline;
 				up->up_connect_status = e_up_disconnected;
-				shutdown(up->fd, SHUT_RDWR);
-				close(up->fd);
-				up->fd = -1;
-			}else{
-				PRINTF("GPRS/CDMA OFFLINE for receive ERROR\n");
+				LOG_PRINTF("Module GPRS disconnect in function: %s, Cause: may receive close info from the module\n", __func__);
+			}else{ // other situations: like when remove SIM card // other errcode, all len = 0
+				up->up_status = e_up_offline;
+				up->up_connect_status = e_up_disconnected;
+				LOG_PRINTF("Module GPRS disconnect in function: %s, Cause: SIM card removed maybe\n", __func__);
 			}
+			PRINTF("GPRS/CDMA receive ERROR, may the SIM card was removed, "
+					"nonetheless TRY to disconnect and reconnect to the main-station\n");
 			return -1;
 		}
 	}
